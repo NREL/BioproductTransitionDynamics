@@ -22,6 +22,10 @@ Make your commit messages brief but explanatory. Add comments to your commits if
 
 Vensim will frequently save new versions of a model when the model has only been opened and closed without any edits. Do not commit these changes; instead use the command `git checkout -- BTD.mdl` (changing the file name as needed) to reset the model to its previous versions.
 
+## Branching
+
+Create a new branch when making significant changes to `BTD.mdl` that will break the model for several commits - for instance, when integrating a submodel into the BTD or when resolving a complex issue. Give the branch an explanatory name. Once BTD.mdl is running in the branch and related development is complete, create a pull request and assign at least one reviewer.
+
 ## Repo contents
 
 Only the model itself, models under development, key results files, and any files necessary for running sensitivity and other analyses may be stored in this repo. All other files should be stored elsewhere.
