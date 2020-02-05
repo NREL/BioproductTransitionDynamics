@@ -1,0 +1,415 @@
+{UTF-8}
+overcoming inertia  = A FUNCTION OF( bioproduct market share,consumer inertia,NonAdopters\
+		)
+	~	
+	~		|
+
+bioproduct market share=
+	Adopters / (Potential Adopters + NonAdopters + Adopters + 0.001)
+	~	Dmnl [0,1]
+	~	adding the 0.001 on the bottom prevents ever dividing by zero
+	|
+
+abandoning bioproducts  = A FUNCTION OF( Adopters,-bioproduct offtake agreement duration\
+		,-bioproduct offtake agreement magnitude,consumer inertia,fossil product is favorable\
+		) ~~|
+abandoning bioproducts=
+	1 + 0*(Adopters - bioproduct offtake agreement magnitude * bioproduct offtake agreement duration\
+		)*consumer inertia
+	~	ton/Month/Month [0,?]
+	~	going to be dependent on the quantity (Adopters - bioproduct offtake \
+		agreement magnitude * bioproduct offtake agreement duration), which is the \
+		amount of Adopters available for abandoning - consumers under the \
+		agreement won't abandon
+	|
+
+Adopters= INTEG (
+	bioproduct offtake agreement magnitude * bioproduct offtake agreement duration +
+	deciding to adopt+new adopters-abandoning bioproducts,
+		0)
+	~	ton/Month
+	~		|
+
+Potential Adopters= INTEG (
+	overcoming inertia-deciding to adopt,
+		0)
+	~	ton/Month [0,?]
+	~	these are consumers/production capacities who are **still purchasing \
+		fossil products** but have overcome the inertia that prevents them from \
+		being sensitive to bioproduct price advantages
+	|
+
+bioproduct is favorable=
+	IF THEN ELSE(fossil product perceived cost > bioproduct perceived cost, 1, 0)
+	~	Dmnl [0,1]
+	~		|
+
+new adopters=
+	bioproduct is favorable * market expanding
+	~	tons/Month/Month [0,?]
+	~		|
+
+bioproduct offtake agreement magnitude=
+	1000
+	~	tons/Month [0,?]
+	~	arbitrary number
+	|
+
+new nonadopters=
+	market expanding * fossil product is favorable
+	~	tons/Month/Month [0,?]
+	~		|
+
+NonAdopters= INTEG (
+	abandoning bioproducts+new nonadopters-overcoming inertia,
+		initial market size)
+	~	tons/Month [0,?]
+	~	these are consumers/production capacities who are subject to inertia in \
+		other words they are not sensitive to bioproduct price advantages - other \
+		factors keep them purchasing fossil products
+	|
+
+market expanding=
+	100
+	~	tons/Month/Month [0,?]
+	~	arbitrary number
+	|
+
+deciding to adopt= DELAY FIXED (
+	 bioproduct is favorable * Potential Adopters , retrofit delay , 0)
+	~	tons/Month/Month [0,?]
+	~	the retrofit delay can be set to zero to represent a direct replacement
+	|
+
+New Market Participants= INTEG (
+	market expanding-new adopters-new nonadopters,
+		0)
+	~	tons/Month [0,?]
+	~		|
+
+fossil product is favorable=
+	IF THEN ELSE(fossil product perceived cost <= bioproduct perceived cost, 1, 0)
+	~	Dmnl [0,1]
+	~	to be updated if necessary with inertia stuff
+	|
+
+retrofit delay=
+	12
+	~	Month [0,?]
+	~	**For direct replacements, this parameter should be set to 0 representing \
+		no retrofit delay
+	|
+
+bioproduct effectiveness=
+	1
+	~	Dmnl [0,?]
+	~	For performance-advantaged bioproducts, this number is likely to be greater than 1 \
+		indicating that the product is more efficient/effective/less is needed \
+		relative to the incumbent product
+		** For direct replacement bioproducts this parameter must be set equal to \
+		1, by definition
+	|
+
+bioproduct perceived cost=
+	bioproduct actual cost *
+	( 1 / bioproduct effectiveness ) *
+	( 1 + quality disruption perceived cost * (1 - bioproduct quality reliability)
+	  + supply disruption perceived cost * (1 - bioproduct supply reliability) )
+	~	USD/ton
+	~	effectiveness greater than 100% (relative to incumbent product) lowers cost while \
+		effectiveness less than 100% (ditto) increases the cost
+		NOTE: direct replacement products will always have bioproduct \
+		effectiveness = 1, thus it has no effect on the perceived cost
+	|
+
+marginal supply reliability gain=
+	1
+	~	
+	~		|
+
+cumulative production impact on bioproduct quality reliability=
+	1
+	~	
+	~		|
+
+bioproduct supply reliability= WITH LOOKUP (
+	marginal supply reliability gain * Cumulative Production / one ton,
+		([(0,0)-(200,100)],(0,0.6),(100,0.99),(200,0.99) ))
+	~	Dmnl
+	~	(1 - supply reliability) is a percent (fraction) that multiplies the cost \
+		of supply disruption - such that if reliability is 100% then there is no \
+		cost of disruption, and if reliability is less than 100% disruption cost \
+		increases as reliability decreases
+	|
+
+Cumulative Production= WITH LOOKUP (
+	Time,
+		([(0,0)-(100,3e+06)],(0,0),(36,97000),(48,267089),(60,437168),(72,607247),(84,1.33773e+06\
+		),(96,2.06821e+06),(100,2.3117e+06) ))
+	~	tons [0,?]
+	~	this is a fake stock emulating the actual Cumulative Production stock from \
+		the full btd. Demo production is assumed to be included here. Demoing \
+		takes 3 years to complete and the plant continues operation during 3 more \
+		years while the commercial plant is constructed, and then the commercial \
+		plant immediately comes online at full capacity.
+	|
+
+bioproduct quality reliability= WITH LOOKUP (
+	cumulative production impact on bioproduct quality reliability * Cumulative Production\
+		 / one ton,
+		([(0,0)-(200,10)],(0,0.8),(30,0.99),(100,0.99),(200,0.99) ))
+	~	Dmnl
+	~	(1 - quality reliability) multiplies the cost of quality disruption, such \
+		that 100% reliability means the disruption cost incurred is zero and \
+		decreasing reliability increases the disruption cost incurred
+	|
+
+consumer aversion to disruption=
+	0.25
+	~	Dmnl [-5,5,0.1]
+	~		|
+
+consumer inertia=
+	1
+	~	Dmnl
+	~	replace with a function reflecting one of the chosen inertia behavior \
+		patterns
+	|
+
+bioproduct actual cost=
+	10
+	~	USD/ton
+	~		|
+
+fossil product actual cost=
+	10
+	~	USD/ton [0,?]
+	~		|
+
+fossil product perceived cost=
+	fossil product actual cost *
+	(
+	1 + quality disruption perceived cost * (1 - fossil product quality reliability)
+	  + supply disruption perceived cost * (1 - fossil product supply reliability)
+	)
+	~	USD/ton [0,?]
+	~		|
+
+fossil product quality reliability=
+	0.99
+	~	Dmnl [0,1]
+	~		|
+
+fossil product supply reliability=
+	0.99
+	~	Dmnl [0,1]
+	~		|
+
+bioproduct offtake agreement duration=
+	PULSE( 5 , 120 )
+	~	Dmnl [0,?]
+	~	time units are in Months so this is a 10-year offtake agreement that \
+		starts 5 months into the model
+	|
+
+initial market size=
+	100000
+	~	tons [0,?]
+	~	arbitrary number
+	|
+
+one ton=
+	1
+	~	tons [1,1]
+	~		|
+
+quality disruption actual cost=
+	0.5
+	~	Dmnl [0,5,0.1]
+	~	interpret as a percentage of the actual product (fossil or d.r.) cost
+	|
+
+quality disruption perceived cost=
+	quality disruption actual cost + 0.1 * consumer aversion to disruption
+	~	Dmnl [0,?]
+	~	this is a percent of the actual product cost but can be greater than 100%
+	|
+
+supply disruption actual cost=
+	0.5
+	~	Dmnl [0,5,0.1]
+	~	interpret as percentage of the actual product (fossil or d.r. cost)
+	|
+
+supply disruption perceived cost=
+	supply disruption actual cost + 0.15 * consumer aversion to disruption
+	~	Dmnl [0,?]
+	~	this is a percent of the actual cost but can be greater than 100%
+	|
+
+********************************************************
+	.Control
+********************************************************~
+		Simulation Control Parameters
+	|
+
+FINAL TIME  = 100
+	~	Month
+	~	The final time for the simulation.
+	|
+
+INITIAL TIME  = 0
+	~	Month
+	~	The initial time for the simulation.
+	|
+
+SAVEPER  = 
+        TIME STEP
+	~	Month [0,?]
+	~	The frequency with which output is stored.
+	|
+
+TIME STEP  = 1
+	~	Month [0,?]
+	~	The time step for the simulation.
+	|
+
+\\\---/// Sketch information - do not modify anything except names
+V300  Do not put anything below this section - it will be ignored
+*View 1
+$192-192-192,0,Times New Roman|12||0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|96,96,75,0
+10,1,fossil product actual cost,1457,268,43,19,8,3,0,0,0,0,0,0
+10,2,bioproduct actual cost,1510,538,56,19,8,3,0,0,0,0,0,0
+10,3,fossil product is favorable,241,628,50,19,8,3,0,0,0,0,0,0
+10,4,consumer inertia,395,308,53,16,8,131,0,0,0,0,0,0
+10,5,consumer aversion to disruption,1330,443,59,19,8,3,0,0,0,0,0,0
+10,6,bioproduct supply reliability,1270,628,58,19,8,3,0,0,0,0,0,0
+10,7,bioproduct quality reliability,1446,627,58,19,8,3,0,0,0,0,0,0
+10,8,fossil product supply reliability,1330,259,51,19,8,3,0,0,0,0,0,0
+10,9,fossil product quality reliability,1223,238,51,19,8,3,0,0,0,0,0,0
+10,10,bioproduct market share,457,468,59,19,8,3,0,0,0,0,0,0
+10,11,fossil product perceived cost,1320,363,47,19,8,3,0,0,0,0,0,0
+10,12,bioproduct perceived cost,1335,519,47,19,8,3,0,0,0,0,0,0
+1,13,2,12,1,0,43,0,2,128,0,-1--1--1,|12||0-0-0,1|(1437,516)|
+1,14,1,11,1,0,43,0,2,128,0,-1--1--1,|12||0-0-0,1|(1420,318)|
+10,15,supply disruption perceived cost,1525,436,54,19,8,3,0,0,0,0,0,0
+10,16,quality disruption perceived cost,1165,439,54,19,8,3,0,0,0,0,0,0
+1,17,6,12,1,0,45,0,2,128,0,-1--1--1,|12||0-0-0,1|(1287,575)|
+1,18,8,11,1,0,45,0,2,128,0,-1--1--1,|12||0-0-0,1|(1317,309)|
+1,19,15,11,1,0,43,0,2,128,0,-1--1--1,|12||0-0-0,1|(1422,378)|
+1,20,16,11,1,0,43,0,2,128,0,-1--1--1,|12||0-0-0,1|(1222,380)|
+1,21,15,12,1,0,43,0,2,128,0,-1--1--1,|12||0-0-0,1|(1446,466)|
+1,22,16,12,0,0,43,0,2,128,0,-1--1--1,|12||0-0-0,1|(1243,476)|
+10,23,fossil product perceived cost,391,720,52,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,24,bioproduct perceived cost,650,722,52,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,25,23,3,0,0,0,0,0,128,0,-1--1--1,,1|(322,677)|
+1,26,24,3,0,0,0,0,0,128,0,-1--1--1,,1|(451,676)|
+1,27,7,12,1,0,45,0,2,128,0,-1--1--1,|12||0-0-0,1|(1408,570)|
+1,28,9,11,1,0,45,0,2,128,0,-1--1--1,|12||0-0-0,1|(1241,305)|
+1,29,5,16,1,0,45,0,2,128,0,-1--1--1,|12||0-0-0,1|(1253,422)|
+1,30,5,15,1,0,45,0,2,128,0,-1--1--1,|12||0-0-0,1|(1398,415)|
+10,31,bioproduct is favorable,738,634,42,19,8,3,0,0,0,0,0,0
+1,32,23,31,0,0,0,0,0,128,0,-1--1--1,,1|(562,677)|
+1,33,24,31,0,0,0,0,0,128,0,-1--1--1,,1|(689,682)|
+10,34,supply disruption actual cost,1661,392,54,19,8,3,0,0,0,0,0,0
+10,35,quality disruption actual cost,1038,398,54,19,8,3,0,0,0,0,0,0
+1,36,35,16,1,0,43,0,2,128,0,-1--1--1,|12||0-0-0,1|(1076,438)|
+1,37,34,15,1,0,43,0,2,128,0,-1--1--1,|12||0-0-0,1|(1635,431)|
+10,38,TIME STEP,444,387,50,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,39,TIME STEP,610,390,50,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,40,one ton,1363,681,25,11,8,3,0,0,0,0,0,0
+1,41,40,6,0,0,0,0,0,128,0,-1--1--1,,1|(1329,661)|
+1,42,40,7,0,0,0,0,0,128,0,-1--1--1,,1|(1391,661)|
+10,43,bioproduct offtake agreement duration,845,272,58,26,8,131,0,0,0,0,0,0
+10,44,initial market size,73,309,53,11,8,3,0,0,0,0,0,0
+10,45,one ton,523,369,34,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+12,46,0,1023,783,145,38,8,135,0,2,-1,0,0,0,-1--1--1,0-0-0,|12||255-0-0
+add memory: experience, reliability, keep track of failures/shutdowns/decreases in production - maybe going back to demo plant as measure of initial success
+12,47,0,1338,165,94,28,8,7,0,2,-1,0,0,0,-1--1--1,0-0-0,|12||255-0-0
+have these dependent on time - random walks w tunable parameters
+10,48,Cumulative Production,1341,825,47,27,3,131,0,0,0,0,0,0
+10,49,Time,1498,853,26,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,50,49,48,1,0,0,0,0,64,0,-1--1--1,,1|(1430,851)|
+1,51,48,6,1,0,0,0,0,128,0,-1--1--1,,1|(1278,731)|
+1,52,48,7,1,0,0,0,0,128,0,-1--1--1,,1|(1419,734)|
+10,53,marginal supply reliability gain,1091,720,49,19,8,3,0,0,0,0,0,0
+10,54,cumulative production impact on bioproduct quality reliability,1630,727,93,28,8,3,0,0,0,0,0,0
+1,55,53,6,1,0,0,0,0,128,0,-1--1--1,,1|(1175,660)|
+1,56,54,7,1,0,0,0,0,128,0,-1--1--1,,1|(1544,659)|
+10,57,NonAdopters,234,379,64,33,3,131,0,0,0,0,0,0
+10,58,Potential Adopters,477,377,62,30,3,131,0,0,0,0,0,0
+10,59,Adopters,709,375,63,28,3,131,0,0,0,0,0,0
+10,60,New Market Participants,482,528,50,31,3,131,0,0,0,0,0,0
+1,61,63,57,4,0,0,22,0,0,0,-1--1--1,,1|(234,466)|
+1,62,63,60,100,0,0,22,0,0,0,-1--1--1,,1|(336,528)|
+11,63,540,234,528,6,8,34,3,0,0,1,0,0,0
+10,64,new nonadopters,234,547,54,11,40,3,0,0,-1,0,0,0
+1,65,67,59,4,0,0,22,0,0,0,-1--1--1,,1|(709,461)|
+1,66,67,60,100,0,0,22,0,0,0,-1--1--1,,1|(617,528)|
+11,67,476,709,528,6,8,34,3,0,0,1,0,0,0
+10,68,new adopters,709,547,43,11,40,3,0,0,-1,0,0,0
+12,69,48,485,658,10,8,0,3,0,0,-1,0,0,0
+1,70,72,60,4,0,0,22,0,0,0,-1--1--1,,1|(482,579)|
+1,71,72,69,100,0,0,22,0,0,0,-1--1--1,,1|(482,630)|
+11,72,48,482,605,8,6,33,3,0,0,4,0,0,0
+10,73,market expanding,546,605,56,11,40,3,0,0,-1,0,0,0
+1,74,76,59,4,0,0,22,0,0,0,-1--1--1,,1|(622,375)|
+1,75,76,58,100,0,0,22,0,0,0,-1--1--1,,1|(562,375)|
+11,76,444,592,375,6,8,34,3,0,0,1,0,0,0
+10,77,deciding to adopt,592,394,55,11,40,3,0,0,-1,0,0,0
+1,78,80,58,4,0,0,22,0,0,0,-1--1--1,,1|(388,377)|
+1,79,80,57,100,0,0,22,0,0,0,-1--1--1,,1|(324,377)|
+11,80,316,356,377,6,8,34,3,0,0,1,0,0,0
+10,81,overcoming inertia,356,396,57,11,40,3,0,0,-1,0,0,0
+1,82,84,57,4,0,0,22,0,0,0,-1--1--1,,1|(234,266)|
+1,83,84,59,100,0,0,22,0,0,0,-1--1--1,,1|(709,266)|
+11,84,140,484,266,6,8,34,3,0,0,3,0,0,0
+10,85,abandoning bioproducts,484,239,39,19,40,3,0,0,-1,0,0,0
+10,86,bioproduct effectiveness,1147,543,41,19,8,3,0,2,0,0,0,0,-1--1--1,0-0-0,|12||0-0-255
+1,87,86,12,1,0,45,0,2,128,0,-1--1--1,|12||0-0-0,1|(1224,518)|
+1,88,72,64,1,0,0,0,0,128,0,-1--1--1,,1|(300,578)|
+1,89,73,68,1,0,0,0,0,128,0,-1--1--1,,1|(643,594)|
+1,90,43,59,1,0,0,0,0,128,0,-1--1--1,,1|(819,343)|
+1,91,43,85,1,0,0,0,0,128,0,-1--1--1,,1|(562,203)|
+1,92,44,57,1,0,0,0,0,128,1,-1--1--1,,1|(113,375)|
+1,93,58,76,1,0,0,0,0,128,0,-1--1--1,,1|(564,347)|
+1,94,57,80,1,0,0,0,0,128,0,-1--1--1,,1|(319,347)|
+1,95,4,80,1,0,0,0,0,128,0,-1--1--1,,1|(369,336)|
+1,96,4,84,1,0,0,0,0,128,0,-1--1--1,,1|(464,301)|
+1,97,59,85,1,0,0,0,0,128,0,-1--1--1,,1|(638,249)|
+10,98,bioproduct offtake agreement magnitude,910,218,67,19,8,3,0,0,0,0,0,0
+1,99,98,59,1,0,0,0,0,128,0,-1--1--1,,1|(885,340)|
+1,100,98,85,1,0,0,0,0,128,0,-1--1--1,,1|(712,141)|
+1,101,3,64,1,0,0,0,0,128,0,-1--1--1,,1|(195,587)|
+1,102,31,68,1,0,0,0,0,128,0,-1--1--1,,1|(759,592)|
+10,103,fossil product is favorable,366,183,55,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,104,bioproduct is favorable,550,310,47,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,105,104,77,1,0,0,0,0,128,0,-1--1--1,,1|(587,337)|
+10,106,retrofit delay,644,316,40,11,8,3,0,2,0,0,0,0,-1--1--1,0-0-0,|12||0-0-255
+1,107,106,77,1,0,0,0,0,128,0,-1--1--1,,1|(622,351)|
+1,108,103,85,1,0,0,0,0,128,0,-1--1--1,,1|(454,191)|
+1,109,57,10,1,0,45,0,2,128,0,-1--1--1,|12||0-0-0,1|(325,454)|
+1,110,58,10,1,0,45,0,2,128,0,-1--1--1,|12||0-0-0,1|(535,427)|
+1,111,59,10,1,0,43,0,2,128,0,-1--1--1,|12||0-0-0,1|(581,467)|
+1,112,10,81,1,0,43,0,2,128,0,-1--1--1,|12||0-0-0,1|(378,429)|
+///---\\\
+:L<%^E!@
+1:biop-types-1.vdf
+9:biop-types-1
+15:0,0,0,0,0,0
+19:75,0
+27:0,
+34:0,
+4:Time
+5:deciding to adopt
+35:Date
+36:YYYY-MM-DD
+37:2000
+38:1
+39:1
+40:2
+41:0
+42:1
+24:0
+25:100
+26:100

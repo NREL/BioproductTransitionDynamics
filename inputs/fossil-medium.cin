@@ -1,0 +1,41 @@
+select commodity sugar feedstock = 0
+select corn feedstock = 0
+select corn stover feedstock = 0
+select maleic anhydride feedstock = 1
+select perennial feedstock = 0
+select soybean feedstock = 0
+
+design plant capacity = 41500
+
+design capital cost = 92840000
+capital cost scaling factor = 0.6
+
+design fixed operating cost = 8565600
+fixed operating cost scaling factor = 0.8
+
+design variable operating cost = 29.2
+variable operating cost scaling factor = 1
+
+design process yield = 1.179245283
+
+
+"Use target pilot capacity?" = 0
+target pilot capacity = 900
+
+pilot scaling factor = 0.1
+pilot capital cost scaling factor = 0.3
+pilot fixed operating cost scaling factor = 1
+pilot variable operating cost scaling factor = 1
+
+pilot construction time = 1.5
+
+
+"Use target demo capacity?" = 0
+target demo capacity = 438288
+
+demo scaling factor = 0.6
+demo capital cost scaling factor = 0.5
+demo fixed operating cost scaling factor = 0.55
+demo variable operating cost scaling factor = 1
+
+demo construction time = 2
