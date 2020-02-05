@@ -6546,9 +6546,8 @@ Flow Dampers
 :VAR idealized demo completion time
 :VAR idealized commercial construction time
 :L<%^E!@
-1:basic-2.vdf
-1:basic.vdf
-9:basic-2
+1:commit-6e339fe.vdf
+9:commit-6e339fe
 22:$,Dollar,Dollars,$s
 22:Hour,Hours
 22:Month,Months
@@ -6563,7 +6562,7 @@ Flow Dampers
 27:0,
 34:0,
 4:Time
-5:TIME STEP
+5:Current Perennial Price
 35:Date
 36:YYYY-MM-DD
 37:2000
