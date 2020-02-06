@@ -9,11 +9,28 @@ abandoning bioproducts=
 		agreement won't abandon
 	|
 
+fossil product long term cost trend=
+	0.01
+	~	USD/ton/year [-10,10,0.1]
+	~		|
+
+bioproduct marketing=
+	0.0011
+	~	Dmnl [0,5]
+	~		|
+
+fossil product actual cost=
+	MAX(2.5, 10 + fossil product long term cost trend * Time)
+	~	USD/ton [0,?]
+	~	The MAX structure is to prevent the actual cost from going below the \
+		reasonable minimum of 2.50
+	|
+
 overcoming inertia=
 	NonAdopters * bioproduct marketing / consumer inertia +
 	Adopters * effective contact rate * NonAdopters / (consumer inertia * (NonAdopters +\
 		 Potential Adopters + Adopters))
-	~	
+	~	 [0,?]
 	~	NonAdopters * bioproduct marketing / consumer inertia = captures effectiveness of \
 		advertisements and similar information, mitigated by the level of inertia \
 		potential consumers have (consumer inertia > 1 = less likely to adopt)
@@ -23,14 +40,9 @@ overcoming inertia=
 		consumer inertia
 	|
 
-bioproduct marketing=
-	0.0011
-	~	Dmnl [0,5]
-	~		|
-
 effective contact rate=
-	25
-	~	Dmnl [0,200,1]
+	2
+	~	Dmnl [0,200]
 	~		|
 
 bioproduct market share=
@@ -186,7 +198,7 @@ consumer aversion to disruption=
 	~		|
 
 consumer inertia=
-	1
+	1.5
 	~	Dmnl
 	~	replace with a function reflecting one of the chosen inertia behavior \
 		patterns
@@ -195,11 +207,6 @@ consumer inertia=
 bioproduct actual cost=
 	10
 	~	USD/ton
-	~		|
-
-fossil product actual cost=
-	10
-	~	USD/ton [0,?]
 	~		|
 
 fossil product perceived cost=
@@ -339,9 +346,9 @@ $192-192-192,0,Times New Roman|12||0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|96,96,9
 10,43,bioproduct offtake agreement duration,862,202,58,26,8,131,0,0,0,0,0,0
 10,44,initial market size,90,239,53,11,8,3,0,0,0,0,0,0
 10,45,one ton,540,299,34,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-12,46,0,1040,713,145,38,8,135,0,2,-1,0,0,0,-1--1--1,0-0-0,|12||255-0-0
+12,46,0,1063,764,145,38,8,135,0,2,-1,0,0,0,-1--1--1,0-0-0,|12||255-0-0
 add memory: experience, reliability, keep track of failures/shutdowns/decreases in production - maybe going back to demo plant as measure of initial success
-12,47,0,1355,95,94,28,8,7,0,2,-1,0,0,0,-1--1--1,0-0-0,|12||255-0-0
+12,47,0,1098,67,94,28,8,7,0,2,-1,0,0,0,-1--1--1,0-0-0,|12||255-0-0
 have these dependent on time - random walks w tunable parameters
 10,48,Cumulative Production,1358,755,47,27,3,131,0,0,0,0,0,0
 10,49,Time,1515,783,26,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
@@ -413,16 +420,21 @@ have these dependent on time - random walks w tunable parameters
 1,117,116,81,0,0,43,0,2,64,0,-1--1--1,|0||-1--1--1,1|(350,379)|
 1,118,58,81,0,0,0,0,0,64,0,-1--1--1,,1|(438,314)|
 1,119,106,85,0,0,0,0,0,64,0,-1--1--1,,1|(595,214)|
+10,120,Time,1351,94,26,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|0||128-128-128
+10,121,fossil product long term cost trend,1583,125,58,19,8,3,0,0,0,0,0,0
+1,122,121,1,1,0,0,0,0,128,0,-1--1--1,,1|(1537,186)|
+1,123,120,1,1,0,0,0,0,128,0,-1--1--1,,1|(1465,136)|
 ///---\\\
 :L<%^E!@
+1:biop-types-2-local.vdf
 1:biop-types-1-local.vdf
-9:biop-types-1-local
+9:biop-types-2-local
 15:0,0,0,0,0,0
 19:95,0
 27:0,
 34:0,
 4:Time
-5:effective contact rate
+5:bioproduct supply reliability
 35:Date
 36:YYYY-MM-DD
 37:2000
