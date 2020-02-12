@@ -13,6 +13,15 @@ HoursDamper = IF THEN ELSE(Stock >= stock drain rate * TIME STEP,stock drain rat
 	~		|
 
 :END OF MACRO:
+stagegate length=
+	1.5
+	~	year [0.0833,5]
+	~	How often a corporating funding an internal project evaluates progress and \
+		decides whether or not to continue the project. Max frequency (minimum \
+		stagegate length) is 1 month, minimum frequency (maximum stagegate length) \
+		is 5 years
+	|
+
 ********************************************************
 	.indicators
 ********************************************************~
@@ -4347,7 +4356,7 @@ Private Investor Decisions
 1,66,3,63,0,0,0,0,0,128,0,-1--1--1,,1|(834,197)|
 1,67,4,64,0,0,0,0,0,128,0,-1--1--1,,1|(841,414)|
 1,68,61,64,0,0,0,0,0,128,0,-1--1--1,,1|(753,448)|
-12,69,0,204,115,78,24,8,7,0,24,-1,0,0,0,-1--1--1,0-0-0,|16|BU|0-0-0
+12,69,0,253,108,127,17,8,135,0,24,-1,0,0,0,-1--1--1,0-0-0,|16|BU|0-0-0
 Internal Investor Decisions
 10,70,required internal return,146,196,52,19,8,3,0,0,0,0,0,0
 10,71,idealized internal NPV,380,347,57,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
@@ -4357,7 +4366,8 @@ Internal Investor Decisions
 1,75,74,72,0,0,0,0,0,64,0,-1--1--1,,1|(238,346)|
 10,76,smoothed internal NPV deviation,102,344,61,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
 1,77,76,72,0,0,0,0,0,64,0,-1--1--1,,1|(153,316)|
-10,78,strategic internal value,129,506,52,19,8,3,0,0,0,0,0,0
+10,78,strategic internal value,470,280,52,19,8,3,0,0,0,0,0,0
+10,79,stagegate length,325,193,50,11,8,3,0,0,0,0,0,0
 \\\---/// Sketch information - do not modify anything except names
 V300  Do not put anything below this section - it will be ignored
 *Investor Computations
@@ -5357,7 +5367,7 @@ $192-192-192,0,Times New Roman|12||0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|96,96,1
 1,17,12,16,1,0,0,0,0,64,0,-1--1--1,,1|(307,369)|
 10,18,commercial construction time,251,554,59,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
 1,19,18,16,0,0,0,0,0,64,0,-1--1--1,,1|(263,520)|
-12,20,2624948,789,285,300,274,3,188,0,0,1,0,0,0
+12,20,1707068,789,285,300,274,3,188,0,0,1,0,0,0
 Timeline
 12,21,0,194,9,40,13,8,135,0,24,-1,0,0,0,-1--1--1,0-0-0,|16|BU|0-0-0
 Timeline
@@ -6705,7 +6715,7 @@ Flow Dampers
 27:0,
 34:0,
 4:Time
-5:smoothed internal NPV deviation
+5:required payback period trend
 35:Date
 36:YYYY-MM-DD
 37:2000
