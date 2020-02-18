@@ -1,0 +1,148 @@
+{UTF-8}
+"Stages to Go!"= INTEG (
+	-Internal ask Rate,
+		(Last pulse time + Repeat Interval)/Repeat Interval)
+	~	stages
+	~		|
+
+Current Stage=
+	1 + Stages Completed
+	~	stages
+	~		|
+
+Current Technology Readiness Level= WITH LOOKUP (
+	Current Stage,
+		([(0,0)-(11,100)],(1,0),(2,10),(3,20),(4,30),(5,40),(6,50),(7,60),(8,70),(9,80),(10\
+		,90),(11,100) ))
+	~	
+	~		|
+
+Duration=
+	1
+	~	Month
+	~		|
+
+Expected Technology Readiness Level= WITH LOOKUP (
+	Current Stage,
+		([(0,0)-(11,50)],(1,0),(2,5),(3,10),(4,15),(5,20),(6,25),(7,30),(8,35),(9,40),(10,45\
+		),(11,50) ))
+	~	
+	~		|
+
+First pulse time=
+	0
+	~	Month
+	~		|
+
+Internal ask Rate=
+	PULSE TRAIN(First pulse time, Duration , Repeat Interval , Last pulse time )*"Project \"On Time\" Binary"
+	~	stages/Month
+	~		|
+
+Last pulse time=
+	54
+	~	Month
+	~		|
+
+"Project \"On Time\" Binary"=
+	IF THEN ELSE(Current Technology Readiness Level >= Expected Technology Readiness Level\
+		, 1 , 0 )
+	~	
+	~		|
+
+Repeat Interval=
+	6
+	~	Month
+	~		|
+
+Stages Completed= INTEG (
+	Internal ask Rate,
+		0)
+	~	stages
+	~		|
+
+********************************************************
+	.Control
+********************************************************~
+		Simulation Control Parameters
+	|
+
+FINAL TIME  = 100
+	~	Month
+	~	The final time for the simulation.
+	|
+
+INITIAL TIME  = 0
+	~	Month
+	~	The initial time for the simulation.
+	|
+
+SAVEPER  = 
+        TIME STEP 
+	~	Month [0,?]
+	~	The frequency with which output is stored.
+	|
+
+TIME STEP  = 1
+	~	Month [0,?]
+	~	The time step for the simulation.
+	|
+
+\\\---/// Sketch information - do not modify anything except names
+V300  Do not put anything below this section - it will be ignored
+*View 1
+$192-192-192,0,Times New Roman|12||0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|96,96,100,0
+10,1,Stages Completed,912,334,40,20,3,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,2,4,1,4,0,0,22,0,0,0,-1--1--1,,1|(786,342)|
+1,3,4,10,100,0,0,22,0,0,0,-1--1--1,,1|(631,342)|
+11,4,222,694,342,6,8,34,3,0,0,1,0,0,0,0,0,0,0,0,0
+10,5,Internal ask Rate,694,361,53,11,40,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,6,Duration,788,517,36,11,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+10,7,Repeat Interval,620,451,53,11,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,8,7,5,1,0,0,0,0,128,0,-1--1--1,,1|(676,429)|
+1,9,6,5,1,0,0,0,0,128,0,-1--1--1,,1|(783,414)|
+10,10,"Stages to Go!",535,338,40,20,3,3,0,0,0,0,0,0,0,0,0,0,0,0
+10,11,First pulse time,558,260,53,11,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+10,12,Last pulse time,637,221,47,11,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,13,11,5,0,0,0,0,0,128,0,-1--1--1,,1|(619,306)|
+1,14,12,5,0,0,0,0,0,128,0,-1--1--1,,1|(662,284)|
+12,17,0,422,126,98,30,8,7,0,24,-1,0,0,0,-1--1--1,0-0-0,|20|B|0-0-0,0,0,0,0,0,0
+Modeling Stages of a Project
+10,18,Current Technology Readiness Level,1181,264,67,19,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+10,19,Expected Technology Readiness Level,1379,245,82,19,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+10,20,Current Stage,1033,182,46,11,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,21,1,20,1,0,0,0,0,128,0,-1--1--1,,1|(906,221)|
+1,22,20,18,1,0,0,0,0,128,0,-1--1--1,,1|(1136,200)|
+1,23,20,19,1,0,0,0,0,128,0,-1--1--1,,1|(1251,102)|
+10,24,"Project \"On Time\" Binary",1108,397,61,19,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,25,18,24,1,0,0,0,0,128,0,-1--1--1,,1|(1186,344)|
+1,26,19,24,1,0,0,0,0,128,0,-1--1--1,,1|(1338,391)|
+1,27,24,5,1,0,0,0,0,128,0,-1--1--1,,1|(959,437)|
+1,28,12,10,1,0,0,0,0,128,0,-1--1--1,,1|(474,245)|
+1,29,7,10,1,0,0,0,0,128,0,-1--1--1,,1|(507,422)|
+///---\\\
+:L<%^E!@
+1:C:\Users\lsittler\Documents\Bioproduct Transition System Dynamics\Current.vdfx
+1:C:\Users\lsittler\Documents\Bioproduct Transition System Dynamics\Current.vdfx
+9:Current
+15:0,0,0,0,0,0
+19:100,0
+27:0,
+34:0,
+4:Time
+5:Stages Completed
+35:Date
+36:YYYY-MM-DD
+37:2000
+38:1
+39:1
+40:2
+41:0
+42:1
+72:0
+73:0
+24:0
+25:100
+26:100
+75:
+43:
