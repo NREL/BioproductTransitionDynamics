@@ -13,841 +13,6 @@ HoursDamper = IF THEN ELSE(Stock >= stock drain rate * TIME STEP,stock drain rat
 	~		|
 
 :END OF MACRO:
-advancing stagegate=
-	advance stagegate indicator / TIME STEP
-	~	
-	~	Divide by TIME STEP such that the level Stagegate increases by exactly 1 \
-		every time this flow is non-zero
-	|
-
-internal project value comparison=
-	internal project value - current discounted internal investment amount
-	~	
-	~		|
-
-internal project value=
-	NPV at required internal return + strategic internal value
-	~	USD
-	~	placeholder value - this should be replaced by one or more other measures of \
-		internal project value, possibly using the NPV calculation that excludes \
-		sunk costs
-		The parameter stragetic internal value will probably be added to whatever \
-		other measure of value we use but not certain
-	|
-
-discounted internal investment amount by stagegate[one]=
-	(1 + required internal return) / PROD(probability of project failure by stagegate[stagegates\
-		!]) *
-	(
-	internal investment amount by stagegate[two] * probability of project failure by stagegate\
-		[one]
-	+
-	internal investment amount by stagegate[three] * probability of project failure by stagegate\
-		[one]
-	                                               * probability of project failure by stagegate\
-		[two]
-	+
-	internal investment amount by stagegate[four] * probability of project failure by stagegate\
-		[one]
-	                                              * probability of project failure by stagegate\
-		[two] 
-	                                              * probability of project failure by stagegate\
-		[three]
-	+
-	internal investment amount by stagegate[five] * probability of project failure by stagegate\
-		[one]
-	                                              * probability of project failure by stagegate\
-		[two] 
-	                                              * probability of project failure by stagegate\
-		[three] 
-	                                              * probability of project failure by stagegate\
-		[four]
-	+
-	internal investment amount by stagegate[six] * probability of project failure by stagegate\
-		[one]
-	                                             * probability of project failure by stagegate\
-		[two] 
-	                                             * probability of project failure by stagegate\
-		[three] 
-	                                             * probability of project failure by stagegate\
-		[four] 
-	                                             * probability of project failure by stagegate\
-		[five]
-	+
-	internal investment amount by stagegate[seven] * probability of project failure by stagegate\
-		[one]
-	                                               * probability of project failure by stagegate\
-		[two] 
-	                                               * probability of project failure by stagegate\
-		[three] 
-	                                               * probability of project failure by stagegate\
-		[four] 
-	                                               * probability of project failure by stagegate\
-		[five] 
-	                                               * probability of project failure by stagegate\
-		[six]
-	+
-	internal investment amount by stagegate[eight] * probability of project failure by stagegate\
-		[one]
-	                                               * probability of project failure by stagegate\
-		[two] 
-	                                               * probability of project failure by stagegate\
-		[three] 
-	                                               * probability of project failure by stagegate\
-		[four] 
-	                                               * probability of project failure by stagegate\
-		[five] 
-	                                               * probability of project failure by stagegate\
-		[six] 
-	                                               * probability of project failure by stagegate\
-		[seven]
-	+
-	internal investment amount by stagegate[nine] * probability of project failure by stagegate\
-		[one]
-	                                              * probability of project failure by stagegate\
-		[two] 
-	                                              * probability of project failure by stagegate\
-		[three] 
-	                                              * probability of project failure by stagegate\
-		[four] 
-	                                              * probability of project failure by stagegate\
-		[five] 
-	                                              * probability of project failure by stagegate\
-		[six] 
-	                                              * probability of project failure by stagegate\
-		[seven]
-	                                              * probability of project failure by stagegate\
-		[eight]
-	+
-	internal investment amount by stagegate[ten] * probability of project failure by stagegate\
-		[one]
-	                                             * probability of project failure by stagegate\
-		[two] 
-	                                             * probability of project failure by stagegate\
-		[three] 
-	                                             * probability of project failure by stagegate\
-		[four] 
-	                                             * probability of project failure by stagegate\
-		[five] 
-	                                             * probability of project failure by stagegate\
-		[six] 
-	                                             * probability of project failure by stagegate\
-		[seven]
-	                                             * probability of project failure by stagegate\
-		[eight] 
-	                                             * probability of project failure by stagegate\
-		[nine]
-	) ~~|
-discounted internal investment amount by stagegate[two]=
-	(1 + required internal return) / PROD(probability of project failure by stagegate[stagegates\
-		!]) *
-	(
-	internal investment amount by stagegate[two] * probability of project failure by stagegate\
-		[one]
-	+
-	internal investment amount by stagegate[three] * probability of project failure by stagegate\
-		[one]
-	                                               * probability of project failure by stagegate\
-		[two]
-	+
-	internal investment amount by stagegate[four] * probability of project failure by stagegate\
-		[one]
-	                                              * probability of project failure by stagegate\
-		[two] 
-	                                              * probability of project failure by stagegate\
-		[three]
-	+
-	internal investment amount by stagegate[five] * probability of project failure by stagegate\
-		[one]
-	                                              * probability of project failure by stagegate\
-		[two] 
-	                                              * probability of project failure by stagegate\
-		[three] 
-	                                              * probability of project failure by stagegate\
-		[four]
-	+
-	internal investment amount by stagegate[six] * probability of project failure by stagegate\
-		[one]
-	                                             * probability of project failure by stagegate\
-		[two] 
-	                                             * probability of project failure by stagegate\
-		[three] 
-	                                             * probability of project failure by stagegate\
-		[four] 
-	                                             * probability of project failure by stagegate\
-		[five]
-	+
-	internal investment amount by stagegate[seven] * probability of project failure by stagegate\
-		[one]
-	                                               * probability of project failure by stagegate\
-		[two] 
-	                                               * probability of project failure by stagegate\
-		[three] 
-	                                               * probability of project failure by stagegate\
-		[four] 
-	                                               * probability of project failure by stagegate\
-		[five] 
-	                                               * probability of project failure by stagegate\
-		[six]
-	+
-	internal investment amount by stagegate[eight] * probability of project failure by stagegate\
-		[one]
-	                                               * probability of project failure by stagegate\
-		[two] 
-	                                               * probability of project failure by stagegate\
-		[three] 
-	                                               * probability of project failure by stagegate\
-		[four] 
-	                                               * probability of project failure by stagegate\
-		[five] 
-	                                               * probability of project failure by stagegate\
-		[six] 
-	                                               * probability of project failure by stagegate\
-		[seven]
-	+
-	internal investment amount by stagegate[nine] * probability of project failure by stagegate\
-		[one]
-	                                              * probability of project failure by stagegate\
-		[two] 
-	                                              * probability of project failure by stagegate\
-		[three] 
-	                                              * probability of project failure by stagegate\
-		[four] 
-	                                              * probability of project failure by stagegate\
-		[five] 
-	                                              * probability of project failure by stagegate\
-		[six] 
-	                                              * probability of project failure by stagegate\
-		[seven]
-	                                              * probability of project failure by stagegate\
-		[eight]
-	+
-	internal investment amount by stagegate[ten] * probability of project failure by stagegate\
-		[one]
-	                                             * probability of project failure by stagegate\
-		[two] 
-	                                             * probability of project failure by stagegate\
-		[three] 
-	                                             * probability of project failure by stagegate\
-		[four] 
-	                                             * probability of project failure by stagegate\
-		[five] 
-	                                             * probability of project failure by stagegate\
-		[six] 
-	                                             * probability of project failure by stagegate\
-		[seven]
-	                                             * probability of project failure by stagegate\
-		[eight] 
-	                                             * probability of project failure by stagegate\
-		[nine]
-	) ~~|
-discounted internal investment amount by stagegate[three]=
-	(1 + required internal return) / PROD(probability of project failure by stagegate[stagegates\
-		!]) *
-	(
-	internal investment amount by stagegate[three] * probability of project failure by stagegate\
-		[one]
-	                                               * probability of project failure by stagegate\
-		[two]
-	+
-	internal investment amount by stagegate[four] * probability of project failure by stagegate\
-		[one]
-	                                              * probability of project failure by stagegate\
-		[two] 
-	                                              * probability of project failure by stagegate\
-		[three]
-	+
-	internal investment amount by stagegate[five] * probability of project failure by stagegate\
-		[one]
-	                                              * probability of project failure by stagegate\
-		[two] 
-	                                              * probability of project failure by stagegate\
-		[three] 
-	                                              * probability of project failure by stagegate\
-		[four]
-	+
-	internal investment amount by stagegate[six] * probability of project failure by stagegate\
-		[one]
-	                                             * probability of project failure by stagegate\
-		[two] 
-	                                             * probability of project failure by stagegate\
-		[three] 
-	                                             * probability of project failure by stagegate\
-		[four] 
-	                                             * probability of project failure by stagegate\
-		[five]
-	+
-	internal investment amount by stagegate[seven] * probability of project failure by stagegate\
-		[one]
-	                                               * probability of project failure by stagegate\
-		[two] 
-	                                               * probability of project failure by stagegate\
-		[three] 
-	                                               * probability of project failure by stagegate\
-		[four] 
-	                                               * probability of project failure by stagegate\
-		[five] 
-	                                               * probability of project failure by stagegate\
-		[six]
-	+
-	internal investment amount by stagegate[eight] * probability of project failure by stagegate\
-		[one]
-	                                               * probability of project failure by stagegate\
-		[two] 
-	                                               * probability of project failure by stagegate\
-		[three] 
-	                                               * probability of project failure by stagegate\
-		[four] 
-	                                               * probability of project failure by stagegate\
-		[five] 
-	                                               * probability of project failure by stagegate\
-		[six] 
-	                                               * probability of project failure by stagegate\
-		[seven]
-	+
-	internal investment amount by stagegate[nine] * probability of project failure by stagegate\
-		[one]
-	                                              * probability of project failure by stagegate\
-		[two] 
-	                                              * probability of project failure by stagegate\
-		[three] 
-	                                              * probability of project failure by stagegate\
-		[four] 
-	                                              * probability of project failure by stagegate\
-		[five] 
-	                                              * probability of project failure by stagegate\
-		[six] 
-	                                              * probability of project failure by stagegate\
-		[seven]
-	                                              * probability of project failure by stagegate\
-		[eight]
-	+
-	internal investment amount by stagegate[ten] * probability of project failure by stagegate\
-		[one]
-	                                             * probability of project failure by stagegate\
-		[two] 
-	                                             * probability of project failure by stagegate\
-		[three] 
-	                                             * probability of project failure by stagegate\
-		[four] 
-	                                             * probability of project failure by stagegate\
-		[five] 
-	                                             * probability of project failure by stagegate\
-		[six] 
-	                                             * probability of project failure by stagegate\
-		[seven]
-	                                             * probability of project failure by stagegate\
-		[eight] 
-	                                             * probability of project failure by stagegate\
-		[nine]
-	) ~~|
-discounted internal investment amount by stagegate[four]=
-	(1 + required internal return) / PROD(probability of project failure by stagegate[stagegates\
-		!]) *
-	(
-	internal investment amount by stagegate[four] * probability of project failure by stagegate\
-		[one]
-	                                              * probability of project failure by stagegate\
-		[two] 
-	                                              * probability of project failure by stagegate\
-		[three]
-	+
-	internal investment amount by stagegate[five] * probability of project failure by stagegate\
-		[one]
-	                                              * probability of project failure by stagegate\
-		[two] 
-	                                              * probability of project failure by stagegate\
-		[three] 
-	                                              * probability of project failure by stagegate\
-		[four]
-	+
-	internal investment amount by stagegate[six] * probability of project failure by stagegate\
-		[one]
-	                                             * probability of project failure by stagegate\
-		[two] 
-	                                             * probability of project failure by stagegate\
-		[three] 
-	                                             * probability of project failure by stagegate\
-		[four] 
-	                                             * probability of project failure by stagegate\
-		[five]
-	+
-	internal investment amount by stagegate[seven] * probability of project failure by stagegate\
-		[one]
-	                                               * probability of project failure by stagegate\
-		[two] 
-	                                               * probability of project failure by stagegate\
-		[three] 
-	                                               * probability of project failure by stagegate\
-		[four] 
-	                                               * probability of project failure by stagegate\
-		[five] 
-	                                               * probability of project failure by stagegate\
-		[six]
-	+
-	internal investment amount by stagegate[eight] * probability of project failure by stagegate\
-		[one]
-	                                               * probability of project failure by stagegate\
-		[two] 
-	                                               * probability of project failure by stagegate\
-		[three] 
-	                                               * probability of project failure by stagegate\
-		[four] 
-	                                               * probability of project failure by stagegate\
-		[five] 
-	                                               * probability of project failure by stagegate\
-		[six] 
-	                                               * probability of project failure by stagegate\
-		[seven]
-	+
-	internal investment amount by stagegate[nine] * probability of project failure by stagegate\
-		[one]
-	                                              * probability of project failure by stagegate\
-		[two] 
-	                                              * probability of project failure by stagegate\
-		[three] 
-	                                              * probability of project failure by stagegate\
-		[four] 
-	                                              * probability of project failure by stagegate\
-		[five] 
-	                                              * probability of project failure by stagegate\
-		[six] 
-	                                              * probability of project failure by stagegate\
-		[seven]
-	                                              * probability of project failure by stagegate\
-		[eight]
-	+
-	internal investment amount by stagegate[ten] * probability of project failure by stagegate\
-		[one]
-	                                             * probability of project failure by stagegate\
-		[two] 
-	                                             * probability of project failure by stagegate\
-		[three] 
-	                                             * probability of project failure by stagegate\
-		[four] 
-	                                             * probability of project failure by stagegate\
-		[five] 
-	                                             * probability of project failure by stagegate\
-		[six] 
-	                                             * probability of project failure by stagegate\
-		[seven]
-	                                             * probability of project failure by stagegate\
-		[eight] 
-	                                             * probability of project failure by stagegate\
-		[nine]
-	) ~~|
-discounted internal investment amount by stagegate[five]=
-	(1 + required internal return) / PROD(probability of project failure by stagegate[stagegates\
-		!]) *
-	(
-	internal investment amount by stagegate[five] * probability of project failure by stagegate\
-		[one]
-	                                              * probability of project failure by stagegate\
-		[two] 
-	                                              * probability of project failure by stagegate\
-		[three] 
-	                                              * probability of project failure by stagegate\
-		[four]
-	+
-	internal investment amount by stagegate[six] * probability of project failure by stagegate\
-		[one]
-	                                             * probability of project failure by stagegate\
-		[two] 
-	                                             * probability of project failure by stagegate\
-		[three] 
-	                                             * probability of project failure by stagegate\
-		[four] 
-	                                             * probability of project failure by stagegate\
-		[five]
-	+
-	internal investment amount by stagegate[seven] * probability of project failure by stagegate\
-		[one]
-	                                               * probability of project failure by stagegate\
-		[two] 
-	                                               * probability of project failure by stagegate\
-		[three] 
-	                                               * probability of project failure by stagegate\
-		[four] 
-	                                               * probability of project failure by stagegate\
-		[five] 
-	                                               * probability of project failure by stagegate\
-		[six]
-	+
-	internal investment amount by stagegate[eight] * probability of project failure by stagegate\
-		[one]
-	                                               * probability of project failure by stagegate\
-		[two] 
-	                                               * probability of project failure by stagegate\
-		[three] 
-	                                               * probability of project failure by stagegate\
-		[four] 
-	                                               * probability of project failure by stagegate\
-		[five] 
-	                                               * probability of project failure by stagegate\
-		[six] 
-	                                               * probability of project failure by stagegate\
-		[seven]
-	+
-	internal investment amount by stagegate[nine] * probability of project failure by stagegate\
-		[one]
-	                                              * probability of project failure by stagegate\
-		[two] 
-	                                              * probability of project failure by stagegate\
-		[three] 
-	                                              * probability of project failure by stagegate\
-		[four] 
-	                                              * probability of project failure by stagegate\
-		[five] 
-	                                              * probability of project failure by stagegate\
-		[six] 
-	                                              * probability of project failure by stagegate\
-		[seven]
-	                                              * probability of project failure by stagegate\
-		[eight]
-	+
-	internal investment amount by stagegate[ten] * probability of project failure by stagegate\
-		[one]
-	                                             * probability of project failure by stagegate\
-		[two] 
-	                                             * probability of project failure by stagegate\
-		[three] 
-	                                             * probability of project failure by stagegate\
-		[four] 
-	                                             * probability of project failure by stagegate\
-		[five] 
-	                                             * probability of project failure by stagegate\
-		[six] 
-	                                             * probability of project failure by stagegate\
-		[seven]
-	                                             * probability of project failure by stagegate\
-		[eight] 
-	                                             * probability of project failure by stagegate\
-		[nine]
-	) ~~|
-discounted internal investment amount by stagegate[six]=
-	(1 + required internal return) / PROD(probability of project failure by stagegate[stagegates\
-		!]) *
-	(
-	internal investment amount by stagegate[six] * probability of project failure by stagegate\
-		[one]
-	                                             * probability of project failure by stagegate\
-		[two] 
-	                                             * probability of project failure by stagegate\
-		[three] 
-	                                             * probability of project failure by stagegate\
-		[four] 
-	                                             * probability of project failure by stagegate\
-		[five]
-	+
-	internal investment amount by stagegate[seven] * probability of project failure by stagegate\
-		[one]
-	                                               * probability of project failure by stagegate\
-		[two] 
-	                                               * probability of project failure by stagegate\
-		[three] 
-	                                               * probability of project failure by stagegate\
-		[four] 
-	                                               * probability of project failure by stagegate\
-		[five] 
-	                                               * probability of project failure by stagegate\
-		[six]
-	+
-	internal investment amount by stagegate[eight] * probability of project failure by stagegate\
-		[one]
-	                                               * probability of project failure by stagegate\
-		[two] 
-	                                               * probability of project failure by stagegate\
-		[three] 
-	                                               * probability of project failure by stagegate\
-		[four] 
-	                                               * probability of project failure by stagegate\
-		[five] 
-	                                               * probability of project failure by stagegate\
-		[six] 
-	                                               * probability of project failure by stagegate\
-		[seven]
-	+
-	internal investment amount by stagegate[nine] * probability of project failure by stagegate\
-		[one]
-	                                              * probability of project failure by stagegate\
-		[two] 
-	                                              * probability of project failure by stagegate\
-		[three] 
-	                                              * probability of project failure by stagegate\
-		[four] 
-	                                              * probability of project failure by stagegate\
-		[five] 
-	                                              * probability of project failure by stagegate\
-		[six] 
-	                                              * probability of project failure by stagegate\
-		[seven]
-	                                              * probability of project failure by stagegate\
-		[eight]
-	+
-	internal investment amount by stagegate[ten] * probability of project failure by stagegate\
-		[one]
-	                                             * probability of project failure by stagegate\
-		[two] 
-	                                             * probability of project failure by stagegate\
-		[three] 
-	                                             * probability of project failure by stagegate\
-		[four] 
-	                                             * probability of project failure by stagegate\
-		[five] 
-	                                             * probability of project failure by stagegate\
-		[six] 
-	                                             * probability of project failure by stagegate\
-		[seven]
-	                                             * probability of project failure by stagegate\
-		[eight] 
-	                                             * probability of project failure by stagegate\
-		[nine]
-	) ~~|
-discounted internal investment amount by stagegate[seven]=
-	(1 + required internal return) / PROD(probability of project failure by stagegate[stagegates\
-		!]) *
-	(
-	internal investment amount by stagegate[seven] * probability of project failure by stagegate\
-		[one]
-	                                               * probability of project failure by stagegate\
-		[two] 
-	                                               * probability of project failure by stagegate\
-		[three] 
-	                                               * probability of project failure by stagegate\
-		[four] 
-	                                               * probability of project failure by stagegate\
-		[five] 
-	                                               * probability of project failure by stagegate\
-		[six]
-	+
-	internal investment amount by stagegate[eight] * probability of project failure by stagegate\
-		[one]
-	                                               * probability of project failure by stagegate\
-		[two] 
-	                                               * probability of project failure by stagegate\
-		[three] 
-	                                               * probability of project failure by stagegate\
-		[four] 
-	                                               * probability of project failure by stagegate\
-		[five] 
-	                                               * probability of project failure by stagegate\
-		[six] 
-	                                               * probability of project failure by stagegate\
-		[seven]
-	+
-	internal investment amount by stagegate[nine] * probability of project failure by stagegate\
-		[one]
-	                                              * probability of project failure by stagegate\
-		[two] 
-	                                              * probability of project failure by stagegate\
-		[three] 
-	                                              * probability of project failure by stagegate\
-		[four] 
-	                                              * probability of project failure by stagegate\
-		[five] 
-	                                              * probability of project failure by stagegate\
-		[six] 
-	                                              * probability of project failure by stagegate\
-		[seven]
-	                                              * probability of project failure by stagegate\
-		[eight]
-	+
-	internal investment amount by stagegate[ten] * probability of project failure by stagegate\
-		[one]
-	                                             * probability of project failure by stagegate\
-		[two] 
-	                                             * probability of project failure by stagegate\
-		[three] 
-	                                             * probability of project failure by stagegate\
-		[four] 
-	                                             * probability of project failure by stagegate\
-		[five] 
-	                                             * probability of project failure by stagegate\
-		[six] 
-	                                             * probability of project failure by stagegate\
-		[seven]
-	                                             * probability of project failure by stagegate\
-		[eight] 
-	                                             * probability of project failure by stagegate\
-		[nine]
-	) ~~|
-discounted internal investment amount by stagegate[eight]=
-	(1 + required internal return) / PROD(probability of project failure by stagegate[stagegates\
-		!]) *
-	(
-	internal investment amount by stagegate[eight] * probability of project failure by stagegate\
-		[one]
-	                                               * probability of project failure by stagegate\
-		[two] 
-	                                               * probability of project failure by stagegate\
-		[three] 
-	                                               * probability of project failure by stagegate\
-		[four] 
-	                                               * probability of project failure by stagegate\
-		[five] 
-	                                               * probability of project failure by stagegate\
-		[six] 
-	                                               * probability of project failure by stagegate\
-		[seven]
-	+
-	internal investment amount by stagegate[nine] * probability of project failure by stagegate\
-		[one]
-	                                              * probability of project failure by stagegate\
-		[two] 
-	                                              * probability of project failure by stagegate\
-		[three] 
-	                                              * probability of project failure by stagegate\
-		[four] 
-	                                              * probability of project failure by stagegate\
-		[five] 
-	                                              * probability of project failure by stagegate\
-		[six] 
-	                                              * probability of project failure by stagegate\
-		[seven]
-	                                              * probability of project failure by stagegate\
-		[eight]
-	+
-	internal investment amount by stagegate[ten] * probability of project failure by stagegate\
-		[one]
-	                                             * probability of project failure by stagegate\
-		[two] 
-	                                             * probability of project failure by stagegate\
-		[three] 
-	                                             * probability of project failure by stagegate\
-		[four] 
-	                                             * probability of project failure by stagegate\
-		[five] 
-	                                             * probability of project failure by stagegate\
-		[six] 
-	                                             * probability of project failure by stagegate\
-		[seven]
-	                                             * probability of project failure by stagegate\
-		[eight] 
-	                                             * probability of project failure by stagegate\
-		[nine]
-	) ~~|
-discounted internal investment amount by stagegate[nine]=
-	(1 + required internal return) / PROD(probability of project failure by stagegate[stagegates\
-		!]) *
-	(
-	internal investment amount by stagegate[nine] * probability of project failure by stagegate\
-		[one]
-	                                              * probability of project failure by stagegate\
-		[two] 
-	                                              * probability of project failure by stagegate\
-		[three] 
-	                                              * probability of project failure by stagegate\
-		[four] 
-	                                              * probability of project failure by stagegate\
-		[five] 
-	                                              * probability of project failure by stagegate\
-		[six] 
-	                                              * probability of project failure by stagegate\
-		[seven]
-	                                              * probability of project failure by stagegate\
-		[eight]
-	+
-	internal investment amount by stagegate[ten] * probability of project failure by stagegate\
-		[one]
-	                                             * probability of project failure by stagegate\
-		[two] 
-	                                             * probability of project failure by stagegate\
-		[three] 
-	                                             * probability of project failure by stagegate\
-		[four] 
-	                                             * probability of project failure by stagegate\
-		[five] 
-	                                             * probability of project failure by stagegate\
-		[six] 
-	                                             * probability of project failure by stagegate\
-		[seven]
-	                                             * probability of project failure by stagegate\
-		[eight] 
-	                                             * probability of project failure by stagegate\
-		[nine]
-	) ~~|
-discounted internal investment amount by stagegate[ten]=
-	(1 + required internal return) / PROD(probability of project failure by stagegate[stagegates\
-		!]) *
-	(
-	internal investment amount by stagegate[ten] * probability of project failure by stagegate\
-		[one]
-	                                             * probability of project failure by stagegate\
-		[two] 
-	                                             * probability of project failure by stagegate\
-		[three] 
-	                                             * probability of project failure by stagegate\
-		[four] 
-	                                             * probability of project failure by stagegate\
-		[five] 
-	                                             * probability of project failure by stagegate\
-		[six] 
-	                                             * probability of project failure by stagegate\
-		[seven]
-	                                             * probability of project failure by stagegate\
-		[eight] 
-	                                             * probability of project failure by stagegate\
-		[nine]
-	)
-	~	
-	~		|
-
-internal investment amount by stagegate[one]=
-	1e+06 ~~|
-internal investment amount by stagegate[two]=
-	1e+06 ~~|
-internal investment amount by stagegate[three]=
-	1e+06 ~~|
-internal investment amount by stagegate[four]=
-	1e+06 ~~|
-internal investment amount by stagegate[five]=
-	1e+06 ~~|
-internal investment amount by stagegate[six]=
-	1e+06 ~~|
-internal investment amount by stagegate[seven]=
-	1e+06 ~~|
-internal investment amount by stagegate[eight]=
-	1e+06 ~~|
-internal investment amount by stagegate[nine]=
-	1e+06 ~~|
-internal investment amount by stagegate[ten]=
-	1e+06
-	~	
-	~	placeholder values for each stagegate that will eventually be calculated \
-		from forecasts elsewhere in the model
-	|
-
-probability of project failure by stagegate[one]=
-	0.7 ~~|
-probability of project failure by stagegate[two]=
-	0.6 ~~|
-probability of project failure by stagegate[three]=
-	0.5 ~~|
-probability of project failure by stagegate[four]=
-	0.45 ~~|
-probability of project failure by stagegate[five]=
-	0.4 ~~|
-probability of project failure by stagegate[six]=
-	0.25 ~~|
-probability of project failure by stagegate[seven]=
-	0.25 ~~|
-probability of project failure by stagegate[eight]=
-	0.1 ~~|
-probability of project failure by stagegate[nine]=
-	0.1 ~~|
-probability of project failure by stagegate[ten]=
-	0.1
-	~	Dmnl
-	~	currently made-up probabilities that decrease, with some plateaus, as \
-		stagegates progress SUCH THAT early-stage projects have a higher failure \
-		rate than late-stage projects
-	|
-
-stagegates:
-	one, two, three, four, five, six, seven, eight, nine, ten
-	~	
-	~		|
-
 ********************************************************
 	.indicators
 ********************************************************~
@@ -4722,6 +3887,847 @@ researching management overhead=
 ********************************************************~
 	|
 
+stagegates:
+	one, two, three, four, five, six, seven, eight, nine, ten
+	~	
+	~		|
+
+advancing stagegate=
+	advance stagegate indicator / TIME STEP
+	~	Dmnl
+	~	Divide by TIME STEP such that the level Stagegate increases by exactly 1 \
+		every time this flow is non-zero
+	|
+
+internal project value comparison=
+	internal project value - current discounted internal investment amount
+	~	USD
+	~	If this value is greater than zero (or some other value to be implemented \
+		later) then the project will be kept going, otherwise the project will not \
+		receive additional funding
+	|
+
+internal project value=
+	NPV at required internal return + strategic internal value
+	~	USD
+	~	placeholder value - this should be replaced by one or more other measures of \
+		internal project value, possibly using the NPV calculation that excludes \
+		sunk costs
+		The parameter stragetic internal value will probably be added to whatever \
+		other measure of value we use but not certain
+	|
+
+discounted internal investment amount by stagegate[one]=
+	(1 + required internal return) / PROD(probability of project failure by stagegate[stagegates\
+		!]) *
+	(
+	internal investment amount by stagegate[two] * probability of project failure by stagegate\
+		[one]
+	+
+	internal investment amount by stagegate[three] * probability of project failure by stagegate\
+		[one]
+	                                               * probability of project failure by stagegate\
+		[two]
+	+
+	internal investment amount by stagegate[four] * probability of project failure by stagegate\
+		[one]
+	                                              * probability of project failure by stagegate\
+		[two] 
+	                                              * probability of project failure by stagegate\
+		[three]
+	+
+	internal investment amount by stagegate[five] * probability of project failure by stagegate\
+		[one]
+	                                              * probability of project failure by stagegate\
+		[two] 
+	                                              * probability of project failure by stagegate\
+		[three] 
+	                                              * probability of project failure by stagegate\
+		[four]
+	+
+	internal investment amount by stagegate[six] * probability of project failure by stagegate\
+		[one]
+	                                             * probability of project failure by stagegate\
+		[two] 
+	                                             * probability of project failure by stagegate\
+		[three] 
+	                                             * probability of project failure by stagegate\
+		[four] 
+	                                             * probability of project failure by stagegate\
+		[five]
+	+
+	internal investment amount by stagegate[seven] * probability of project failure by stagegate\
+		[one]
+	                                               * probability of project failure by stagegate\
+		[two] 
+	                                               * probability of project failure by stagegate\
+		[three] 
+	                                               * probability of project failure by stagegate\
+		[four] 
+	                                               * probability of project failure by stagegate\
+		[five] 
+	                                               * probability of project failure by stagegate\
+		[six]
+	+
+	internal investment amount by stagegate[eight] * probability of project failure by stagegate\
+		[one]
+	                                               * probability of project failure by stagegate\
+		[two] 
+	                                               * probability of project failure by stagegate\
+		[three] 
+	                                               * probability of project failure by stagegate\
+		[four] 
+	                                               * probability of project failure by stagegate\
+		[five] 
+	                                               * probability of project failure by stagegate\
+		[six] 
+	                                               * probability of project failure by stagegate\
+		[seven]
+	+
+	internal investment amount by stagegate[nine] * probability of project failure by stagegate\
+		[one]
+	                                              * probability of project failure by stagegate\
+		[two] 
+	                                              * probability of project failure by stagegate\
+		[three] 
+	                                              * probability of project failure by stagegate\
+		[four] 
+	                                              * probability of project failure by stagegate\
+		[five] 
+	                                              * probability of project failure by stagegate\
+		[six] 
+	                                              * probability of project failure by stagegate\
+		[seven]
+	                                              * probability of project failure by stagegate\
+		[eight]
+	+
+	internal investment amount by stagegate[ten] * probability of project failure by stagegate\
+		[one]
+	                                             * probability of project failure by stagegate\
+		[two] 
+	                                             * probability of project failure by stagegate\
+		[three] 
+	                                             * probability of project failure by stagegate\
+		[four] 
+	                                             * probability of project failure by stagegate\
+		[five] 
+	                                             * probability of project failure by stagegate\
+		[six] 
+	                                             * probability of project failure by stagegate\
+		[seven]
+	                                             * probability of project failure by stagegate\
+		[eight] 
+	                                             * probability of project failure by stagegate\
+		[nine]
+	) ~~|
+discounted internal investment amount by stagegate[two]=
+	(1 + required internal return) / PROD(probability of project failure by stagegate[stagegates\
+		!]) *
+	(
+	internal investment amount by stagegate[two] * probability of project failure by stagegate\
+		[one]
+	+
+	internal investment amount by stagegate[three] * probability of project failure by stagegate\
+		[one]
+	                                               * probability of project failure by stagegate\
+		[two]
+	+
+	internal investment amount by stagegate[four] * probability of project failure by stagegate\
+		[one]
+	                                              * probability of project failure by stagegate\
+		[two] 
+	                                              * probability of project failure by stagegate\
+		[three]
+	+
+	internal investment amount by stagegate[five] * probability of project failure by stagegate\
+		[one]
+	                                              * probability of project failure by stagegate\
+		[two] 
+	                                              * probability of project failure by stagegate\
+		[three] 
+	                                              * probability of project failure by stagegate\
+		[four]
+	+
+	internal investment amount by stagegate[six] * probability of project failure by stagegate\
+		[one]
+	                                             * probability of project failure by stagegate\
+		[two] 
+	                                             * probability of project failure by stagegate\
+		[three] 
+	                                             * probability of project failure by stagegate\
+		[four] 
+	                                             * probability of project failure by stagegate\
+		[five]
+	+
+	internal investment amount by stagegate[seven] * probability of project failure by stagegate\
+		[one]
+	                                               * probability of project failure by stagegate\
+		[two] 
+	                                               * probability of project failure by stagegate\
+		[three] 
+	                                               * probability of project failure by stagegate\
+		[four] 
+	                                               * probability of project failure by stagegate\
+		[five] 
+	                                               * probability of project failure by stagegate\
+		[six]
+	+
+	internal investment amount by stagegate[eight] * probability of project failure by stagegate\
+		[one]
+	                                               * probability of project failure by stagegate\
+		[two] 
+	                                               * probability of project failure by stagegate\
+		[three] 
+	                                               * probability of project failure by stagegate\
+		[four] 
+	                                               * probability of project failure by stagegate\
+		[five] 
+	                                               * probability of project failure by stagegate\
+		[six] 
+	                                               * probability of project failure by stagegate\
+		[seven]
+	+
+	internal investment amount by stagegate[nine] * probability of project failure by stagegate\
+		[one]
+	                                              * probability of project failure by stagegate\
+		[two] 
+	                                              * probability of project failure by stagegate\
+		[three] 
+	                                              * probability of project failure by stagegate\
+		[four] 
+	                                              * probability of project failure by stagegate\
+		[five] 
+	                                              * probability of project failure by stagegate\
+		[six] 
+	                                              * probability of project failure by stagegate\
+		[seven]
+	                                              * probability of project failure by stagegate\
+		[eight]
+	+
+	internal investment amount by stagegate[ten] * probability of project failure by stagegate\
+		[one]
+	                                             * probability of project failure by stagegate\
+		[two] 
+	                                             * probability of project failure by stagegate\
+		[three] 
+	                                             * probability of project failure by stagegate\
+		[four] 
+	                                             * probability of project failure by stagegate\
+		[five] 
+	                                             * probability of project failure by stagegate\
+		[six] 
+	                                             * probability of project failure by stagegate\
+		[seven]
+	                                             * probability of project failure by stagegate\
+		[eight] 
+	                                             * probability of project failure by stagegate\
+		[nine]
+	) ~~|
+discounted internal investment amount by stagegate[three]=
+	(1 + required internal return) / PROD(probability of project failure by stagegate[stagegates\
+		!]) *
+	(
+	internal investment amount by stagegate[three] * probability of project failure by stagegate\
+		[one]
+	                                               * probability of project failure by stagegate\
+		[two]
+	+
+	internal investment amount by stagegate[four] * probability of project failure by stagegate\
+		[one]
+	                                              * probability of project failure by stagegate\
+		[two] 
+	                                              * probability of project failure by stagegate\
+		[three]
+	+
+	internal investment amount by stagegate[five] * probability of project failure by stagegate\
+		[one]
+	                                              * probability of project failure by stagegate\
+		[two] 
+	                                              * probability of project failure by stagegate\
+		[three] 
+	                                              * probability of project failure by stagegate\
+		[four]
+	+
+	internal investment amount by stagegate[six] * probability of project failure by stagegate\
+		[one]
+	                                             * probability of project failure by stagegate\
+		[two] 
+	                                             * probability of project failure by stagegate\
+		[three] 
+	                                             * probability of project failure by stagegate\
+		[four] 
+	                                             * probability of project failure by stagegate\
+		[five]
+	+
+	internal investment amount by stagegate[seven] * probability of project failure by stagegate\
+		[one]
+	                                               * probability of project failure by stagegate\
+		[two] 
+	                                               * probability of project failure by stagegate\
+		[three] 
+	                                               * probability of project failure by stagegate\
+		[four] 
+	                                               * probability of project failure by stagegate\
+		[five] 
+	                                               * probability of project failure by stagegate\
+		[six]
+	+
+	internal investment amount by stagegate[eight] * probability of project failure by stagegate\
+		[one]
+	                                               * probability of project failure by stagegate\
+		[two] 
+	                                               * probability of project failure by stagegate\
+		[three] 
+	                                               * probability of project failure by stagegate\
+		[four] 
+	                                               * probability of project failure by stagegate\
+		[five] 
+	                                               * probability of project failure by stagegate\
+		[six] 
+	                                               * probability of project failure by stagegate\
+		[seven]
+	+
+	internal investment amount by stagegate[nine] * probability of project failure by stagegate\
+		[one]
+	                                              * probability of project failure by stagegate\
+		[two] 
+	                                              * probability of project failure by stagegate\
+		[three] 
+	                                              * probability of project failure by stagegate\
+		[four] 
+	                                              * probability of project failure by stagegate\
+		[five] 
+	                                              * probability of project failure by stagegate\
+		[six] 
+	                                              * probability of project failure by stagegate\
+		[seven]
+	                                              * probability of project failure by stagegate\
+		[eight]
+	+
+	internal investment amount by stagegate[ten] * probability of project failure by stagegate\
+		[one]
+	                                             * probability of project failure by stagegate\
+		[two] 
+	                                             * probability of project failure by stagegate\
+		[three] 
+	                                             * probability of project failure by stagegate\
+		[four] 
+	                                             * probability of project failure by stagegate\
+		[five] 
+	                                             * probability of project failure by stagegate\
+		[six] 
+	                                             * probability of project failure by stagegate\
+		[seven]
+	                                             * probability of project failure by stagegate\
+		[eight] 
+	                                             * probability of project failure by stagegate\
+		[nine]
+	) ~~|
+discounted internal investment amount by stagegate[four]=
+	(1 + required internal return) / PROD(probability of project failure by stagegate[stagegates\
+		!]) *
+	(
+	internal investment amount by stagegate[four] * probability of project failure by stagegate\
+		[one]
+	                                              * probability of project failure by stagegate\
+		[two] 
+	                                              * probability of project failure by stagegate\
+		[three]
+	+
+	internal investment amount by stagegate[five] * probability of project failure by stagegate\
+		[one]
+	                                              * probability of project failure by stagegate\
+		[two] 
+	                                              * probability of project failure by stagegate\
+		[three] 
+	                                              * probability of project failure by stagegate\
+		[four]
+	+
+	internal investment amount by stagegate[six] * probability of project failure by stagegate\
+		[one]
+	                                             * probability of project failure by stagegate\
+		[two] 
+	                                             * probability of project failure by stagegate\
+		[three] 
+	                                             * probability of project failure by stagegate\
+		[four] 
+	                                             * probability of project failure by stagegate\
+		[five]
+	+
+	internal investment amount by stagegate[seven] * probability of project failure by stagegate\
+		[one]
+	                                               * probability of project failure by stagegate\
+		[two] 
+	                                               * probability of project failure by stagegate\
+		[three] 
+	                                               * probability of project failure by stagegate\
+		[four] 
+	                                               * probability of project failure by stagegate\
+		[five] 
+	                                               * probability of project failure by stagegate\
+		[six]
+	+
+	internal investment amount by stagegate[eight] * probability of project failure by stagegate\
+		[one]
+	                                               * probability of project failure by stagegate\
+		[two] 
+	                                               * probability of project failure by stagegate\
+		[three] 
+	                                               * probability of project failure by stagegate\
+		[four] 
+	                                               * probability of project failure by stagegate\
+		[five] 
+	                                               * probability of project failure by stagegate\
+		[six] 
+	                                               * probability of project failure by stagegate\
+		[seven]
+	+
+	internal investment amount by stagegate[nine] * probability of project failure by stagegate\
+		[one]
+	                                              * probability of project failure by stagegate\
+		[two] 
+	                                              * probability of project failure by stagegate\
+		[three] 
+	                                              * probability of project failure by stagegate\
+		[four] 
+	                                              * probability of project failure by stagegate\
+		[five] 
+	                                              * probability of project failure by stagegate\
+		[six] 
+	                                              * probability of project failure by stagegate\
+		[seven]
+	                                              * probability of project failure by stagegate\
+		[eight]
+	+
+	internal investment amount by stagegate[ten] * probability of project failure by stagegate\
+		[one]
+	                                             * probability of project failure by stagegate\
+		[two] 
+	                                             * probability of project failure by stagegate\
+		[three] 
+	                                             * probability of project failure by stagegate\
+		[four] 
+	                                             * probability of project failure by stagegate\
+		[five] 
+	                                             * probability of project failure by stagegate\
+		[six] 
+	                                             * probability of project failure by stagegate\
+		[seven]
+	                                             * probability of project failure by stagegate\
+		[eight] 
+	                                             * probability of project failure by stagegate\
+		[nine]
+	) ~~|
+discounted internal investment amount by stagegate[five]=
+	(1 + required internal return) / PROD(probability of project failure by stagegate[stagegates\
+		!]) *
+	(
+	internal investment amount by stagegate[five] * probability of project failure by stagegate\
+		[one]
+	                                              * probability of project failure by stagegate\
+		[two] 
+	                                              * probability of project failure by stagegate\
+		[three] 
+	                                              * probability of project failure by stagegate\
+		[four]
+	+
+	internal investment amount by stagegate[six] * probability of project failure by stagegate\
+		[one]
+	                                             * probability of project failure by stagegate\
+		[two] 
+	                                             * probability of project failure by stagegate\
+		[three] 
+	                                             * probability of project failure by stagegate\
+		[four] 
+	                                             * probability of project failure by stagegate\
+		[five]
+	+
+	internal investment amount by stagegate[seven] * probability of project failure by stagegate\
+		[one]
+	                                               * probability of project failure by stagegate\
+		[two] 
+	                                               * probability of project failure by stagegate\
+		[three] 
+	                                               * probability of project failure by stagegate\
+		[four] 
+	                                               * probability of project failure by stagegate\
+		[five] 
+	                                               * probability of project failure by stagegate\
+		[six]
+	+
+	internal investment amount by stagegate[eight] * probability of project failure by stagegate\
+		[one]
+	                                               * probability of project failure by stagegate\
+		[two] 
+	                                               * probability of project failure by stagegate\
+		[three] 
+	                                               * probability of project failure by stagegate\
+		[four] 
+	                                               * probability of project failure by stagegate\
+		[five] 
+	                                               * probability of project failure by stagegate\
+		[six] 
+	                                               * probability of project failure by stagegate\
+		[seven]
+	+
+	internal investment amount by stagegate[nine] * probability of project failure by stagegate\
+		[one]
+	                                              * probability of project failure by stagegate\
+		[two] 
+	                                              * probability of project failure by stagegate\
+		[three] 
+	                                              * probability of project failure by stagegate\
+		[four] 
+	                                              * probability of project failure by stagegate\
+		[five] 
+	                                              * probability of project failure by stagegate\
+		[six] 
+	                                              * probability of project failure by stagegate\
+		[seven]
+	                                              * probability of project failure by stagegate\
+		[eight]
+	+
+	internal investment amount by stagegate[ten] * probability of project failure by stagegate\
+		[one]
+	                                             * probability of project failure by stagegate\
+		[two] 
+	                                             * probability of project failure by stagegate\
+		[three] 
+	                                             * probability of project failure by stagegate\
+		[four] 
+	                                             * probability of project failure by stagegate\
+		[five] 
+	                                             * probability of project failure by stagegate\
+		[six] 
+	                                             * probability of project failure by stagegate\
+		[seven]
+	                                             * probability of project failure by stagegate\
+		[eight] 
+	                                             * probability of project failure by stagegate\
+		[nine]
+	) ~~|
+discounted internal investment amount by stagegate[six]=
+	(1 + required internal return) / PROD(probability of project failure by stagegate[stagegates\
+		!]) *
+	(
+	internal investment amount by stagegate[six] * probability of project failure by stagegate\
+		[one]
+	                                             * probability of project failure by stagegate\
+		[two] 
+	                                             * probability of project failure by stagegate\
+		[three] 
+	                                             * probability of project failure by stagegate\
+		[four] 
+	                                             * probability of project failure by stagegate\
+		[five]
+	+
+	internal investment amount by stagegate[seven] * probability of project failure by stagegate\
+		[one]
+	                                               * probability of project failure by stagegate\
+		[two] 
+	                                               * probability of project failure by stagegate\
+		[three] 
+	                                               * probability of project failure by stagegate\
+		[four] 
+	                                               * probability of project failure by stagegate\
+		[five] 
+	                                               * probability of project failure by stagegate\
+		[six]
+	+
+	internal investment amount by stagegate[eight] * probability of project failure by stagegate\
+		[one]
+	                                               * probability of project failure by stagegate\
+		[two] 
+	                                               * probability of project failure by stagegate\
+		[three] 
+	                                               * probability of project failure by stagegate\
+		[four] 
+	                                               * probability of project failure by stagegate\
+		[five] 
+	                                               * probability of project failure by stagegate\
+		[six] 
+	                                               * probability of project failure by stagegate\
+		[seven]
+	+
+	internal investment amount by stagegate[nine] * probability of project failure by stagegate\
+		[one]
+	                                              * probability of project failure by stagegate\
+		[two] 
+	                                              * probability of project failure by stagegate\
+		[three] 
+	                                              * probability of project failure by stagegate\
+		[four] 
+	                                              * probability of project failure by stagegate\
+		[five] 
+	                                              * probability of project failure by stagegate\
+		[six] 
+	                                              * probability of project failure by stagegate\
+		[seven]
+	                                              * probability of project failure by stagegate\
+		[eight]
+	+
+	internal investment amount by stagegate[ten] * probability of project failure by stagegate\
+		[one]
+	                                             * probability of project failure by stagegate\
+		[two] 
+	                                             * probability of project failure by stagegate\
+		[three] 
+	                                             * probability of project failure by stagegate\
+		[four] 
+	                                             * probability of project failure by stagegate\
+		[five] 
+	                                             * probability of project failure by stagegate\
+		[six] 
+	                                             * probability of project failure by stagegate\
+		[seven]
+	                                             * probability of project failure by stagegate\
+		[eight] 
+	                                             * probability of project failure by stagegate\
+		[nine]
+	) ~~|
+discounted internal investment amount by stagegate[seven]=
+	(1 + required internal return) / PROD(probability of project failure by stagegate[stagegates\
+		!]) *
+	(
+	internal investment amount by stagegate[seven] * probability of project failure by stagegate\
+		[one]
+	                                               * probability of project failure by stagegate\
+		[two] 
+	                                               * probability of project failure by stagegate\
+		[three] 
+	                                               * probability of project failure by stagegate\
+		[four] 
+	                                               * probability of project failure by stagegate\
+		[five] 
+	                                               * probability of project failure by stagegate\
+		[six]
+	+
+	internal investment amount by stagegate[eight] * probability of project failure by stagegate\
+		[one]
+	                                               * probability of project failure by stagegate\
+		[two] 
+	                                               * probability of project failure by stagegate\
+		[three] 
+	                                               * probability of project failure by stagegate\
+		[four] 
+	                                               * probability of project failure by stagegate\
+		[five] 
+	                                               * probability of project failure by stagegate\
+		[six] 
+	                                               * probability of project failure by stagegate\
+		[seven]
+	+
+	internal investment amount by stagegate[nine] * probability of project failure by stagegate\
+		[one]
+	                                              * probability of project failure by stagegate\
+		[two] 
+	                                              * probability of project failure by stagegate\
+		[three] 
+	                                              * probability of project failure by stagegate\
+		[four] 
+	                                              * probability of project failure by stagegate\
+		[five] 
+	                                              * probability of project failure by stagegate\
+		[six] 
+	                                              * probability of project failure by stagegate\
+		[seven]
+	                                              * probability of project failure by stagegate\
+		[eight]
+	+
+	internal investment amount by stagegate[ten] * probability of project failure by stagegate\
+		[one]
+	                                             * probability of project failure by stagegate\
+		[two] 
+	                                             * probability of project failure by stagegate\
+		[three] 
+	                                             * probability of project failure by stagegate\
+		[four] 
+	                                             * probability of project failure by stagegate\
+		[five] 
+	                                             * probability of project failure by stagegate\
+		[six] 
+	                                             * probability of project failure by stagegate\
+		[seven]
+	                                             * probability of project failure by stagegate\
+		[eight] 
+	                                             * probability of project failure by stagegate\
+		[nine]
+	) ~~|
+discounted internal investment amount by stagegate[eight]=
+	(1 + required internal return) / PROD(probability of project failure by stagegate[stagegates\
+		!]) *
+	(
+	internal investment amount by stagegate[eight] * probability of project failure by stagegate\
+		[one]
+	                                               * probability of project failure by stagegate\
+		[two] 
+	                                               * probability of project failure by stagegate\
+		[three] 
+	                                               * probability of project failure by stagegate\
+		[four] 
+	                                               * probability of project failure by stagegate\
+		[five] 
+	                                               * probability of project failure by stagegate\
+		[six] 
+	                                               * probability of project failure by stagegate\
+		[seven]
+	+
+	internal investment amount by stagegate[nine] * probability of project failure by stagegate\
+		[one]
+	                                              * probability of project failure by stagegate\
+		[two] 
+	                                              * probability of project failure by stagegate\
+		[three] 
+	                                              * probability of project failure by stagegate\
+		[four] 
+	                                              * probability of project failure by stagegate\
+		[five] 
+	                                              * probability of project failure by stagegate\
+		[six] 
+	                                              * probability of project failure by stagegate\
+		[seven]
+	                                              * probability of project failure by stagegate\
+		[eight]
+	+
+	internal investment amount by stagegate[ten] * probability of project failure by stagegate\
+		[one]
+	                                             * probability of project failure by stagegate\
+		[two] 
+	                                             * probability of project failure by stagegate\
+		[three] 
+	                                             * probability of project failure by stagegate\
+		[four] 
+	                                             * probability of project failure by stagegate\
+		[five] 
+	                                             * probability of project failure by stagegate\
+		[six] 
+	                                             * probability of project failure by stagegate\
+		[seven]
+	                                             * probability of project failure by stagegate\
+		[eight] 
+	                                             * probability of project failure by stagegate\
+		[nine]
+	) ~~|
+discounted internal investment amount by stagegate[nine]=
+	(1 + required internal return) / PROD(probability of project failure by stagegate[stagegates\
+		!]) *
+	(
+	internal investment amount by stagegate[nine] * probability of project failure by stagegate\
+		[one]
+	                                              * probability of project failure by stagegate\
+		[two] 
+	                                              * probability of project failure by stagegate\
+		[three] 
+	                                              * probability of project failure by stagegate\
+		[four] 
+	                                              * probability of project failure by stagegate\
+		[five] 
+	                                              * probability of project failure by stagegate\
+		[six] 
+	                                              * probability of project failure by stagegate\
+		[seven]
+	                                              * probability of project failure by stagegate\
+		[eight]
+	+
+	internal investment amount by stagegate[ten] * probability of project failure by stagegate\
+		[one]
+	                                             * probability of project failure by stagegate\
+		[two] 
+	                                             * probability of project failure by stagegate\
+		[three] 
+	                                             * probability of project failure by stagegate\
+		[four] 
+	                                             * probability of project failure by stagegate\
+		[five] 
+	                                             * probability of project failure by stagegate\
+		[six] 
+	                                             * probability of project failure by stagegate\
+		[seven]
+	                                             * probability of project failure by stagegate\
+		[eight] 
+	                                             * probability of project failure by stagegate\
+		[nine]
+	) ~~|
+discounted internal investment amount by stagegate[ten]=
+	(1 + required internal return) / PROD(probability of project failure by stagegate[stagegates\
+		!]) *
+	(
+	internal investment amount by stagegate[ten] * probability of project failure by stagegate\
+		[one]
+	                                             * probability of project failure by stagegate\
+		[two] 
+	                                             * probability of project failure by stagegate\
+		[three] 
+	                                             * probability of project failure by stagegate\
+		[four] 
+	                                             * probability of project failure by stagegate\
+		[five] 
+	                                             * probability of project failure by stagegate\
+		[six] 
+	                                             * probability of project failure by stagegate\
+		[seven]
+	                                             * probability of project failure by stagegate\
+		[eight] 
+	                                             * probability of project failure by stagegate\
+		[nine]
+	)
+	~	USD
+	~	this value incorporates both the internal cost of capital ("discounted") \
+		and probability of failure at each stagegate. for equation source, see \
+		Ford et al (2007) footnote 37 on page 17
+	|
+
+internal investment amount by stagegate[one]=
+	1e+06 ~~|
+internal investment amount by stagegate[two]=
+	1e+06 ~~|
+internal investment amount by stagegate[three]=
+	1e+06 ~~|
+internal investment amount by stagegate[four]=
+	1e+06 ~~|
+internal investment amount by stagegate[five]=
+	1e+06 ~~|
+internal investment amount by stagegate[six]=
+	1e+06 ~~|
+internal investment amount by stagegate[seven]=
+	1e+06 ~~|
+internal investment amount by stagegate[eight]=
+	1e+06 ~~|
+internal investment amount by stagegate[nine]=
+	1e+06 ~~|
+internal investment amount by stagegate[ten]=
+	1e+06
+	~	USD
+	~	placeholder values for each stagegate that will eventually be calculated \
+		from forecasts elsewhere in the model
+	|
+
+probability of project failure by stagegate[one]=
+	0.7 ~~|
+probability of project failure by stagegate[two]=
+	0.6 ~~|
+probability of project failure by stagegate[three]=
+	0.5 ~~|
+probability of project failure by stagegate[four]=
+	0.45 ~~|
+probability of project failure by stagegate[five]=
+	0.4 ~~|
+probability of project failure by stagegate[six]=
+	0.25 ~~|
+probability of project failure by stagegate[seven]=
+	0.25 ~~|
+probability of project failure by stagegate[eight]=
+	0.1 ~~|
+probability of project failure by stagegate[nine]=
+	0.1 ~~|
+probability of project failure by stagegate[ten]=
+	0.1
+	~	Dmnl
+	~	currently made-up probabilities that decrease, with some plateaus, as \
+		stagegates progress SUCH THAT early-stage projects have a higher failure \
+		rate than late-stage projects
+	|
+
 internal stagegate length=
 	1.5
 	~	year [0,10,0.25]
@@ -5281,12 +5287,12 @@ Internal Investor Decisions
 10,78,strategic internal value,82,487,50,17,8,131,0,0,0,0,0,0
 10,79,internal stagegate length,97,113,55,19,8,3,0,0,0,0,0,0
 10,80,internal project value,175,372,48,19,8,3,0,0,0,0,0,0
-10,81,probability of project failure by stagegate,124,637,67,19,8,3,0,0,0,0,0,0
+10,81,probability of project failure by stagegate,124,637,67,19,8,3,0,2,0,0,0,0,-1--1--1,0-0-0,|12||255-0-0
 10,82,discounted internal investment amount by stagegate,333,619,69,28,8,3,0,0,0,0,0,0
 1,83,81,82,0,0,0,0,0,128,0,-1--1--1,,1|(220,628)|
 10,84,internal project value comparison,433,411,66,19,8,3,0,0,0,0,0,0
 1,85,80,84,0,0,0,0,0,128,0,-1--1--1,,1|(288,388)|
-10,86,internal investment amount by stagegate,524,696,65,19,8,3,0,0,0,0,0,0
+10,86,internal investment amount by stagegate,524,696,65,19,8,3,0,2,0,0,0,0,-1--1--1,0-0-0,|12||255-0-0
 1,87,86,82,0,0,0,0,0,128,0,-1--1--1,,1|(445,664)|
 1,88,72,80,1,0,0,0,0,128,0,-1--1--1,,1|(189,261)|
 1,89,70,82,0,0,0,0,0,64,0,-1--1--1,,1|(230,585)|
@@ -5298,8 +5304,8 @@ Internal Investor Decisions
 1,95,96,93,100,0,0,22,0,0,0,-1--1--1,,1|(275,765)|
 11,96,48,314,765,6,8,34,3,0,0,1,0,0,0
 10,97,advancing stagegate,314,792,32,19,40,3,0,0,-1,0,0,0
-10,98,advance stagegate indicator,189,833,63,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,99,98,97,1,0,0,0,0,128,0,-1--1--1,,1|(304,822)|
+10,98,advance stagegate indicator,196,825,63,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,99,98,97,1,0,0,0,0,128,0,-1--1--1,,1|(303,818)|
 10,100,TIME STEP,375,848,50,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
 1,101,100,97,0,0,0,0,0,64,0,-1--1--1,,1|(354,828)|
 10,102,stagegate number indicator,331,500,60,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
@@ -5311,7 +5317,7 @@ V300  Do not put anything below this section - it will be ignored
 *Investor Computations
 $192-192-192,0,Times New Roman|12||0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|96,96,95,0
 10,1,Working Capital,946,752,52,11,0,3,0,0,0,0,0,0
-11,2,1116,1050,722,8,11,34,3,0,0,1,0,0,0
+11,2,908,1050,722,8,11,34,3,0,0,1,0,0,0
 10,3,actual spending,1050,758,37,25,40,131,0,0,-1,0,0,0
 10,4,hypothetical net income,1861,332,80,11,8,3,0,0,0,0,0,0
 1,5,4,6,1,0,0,0,0,64,0,-1--1--1,,1|(1884,557)|
@@ -5701,7 +5707,7 @@ $192-192-192,0,Times New Roman|12||0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|96,96,1
 10,7,Completed Piloting,481,445,40,20,3,3,0,0,0,0,0,0
 1,8,10,7,4,0,0,22,0,0,0,-1--1--1,,1|(416,447)|
 1,9,10,1,100,0,0,22,0,0,0,-1--1--1,,1|(353,447)|
-11,10,8044,385,447,6,8,34,3,0,0,1,0,0,0
+11,10,7852,385,447,6,8,34,3,0,0,1,0,0,0
 10,11,piloting,385,466,24,11,40,3,0,0,-1,0,0,0
 10,12,target pilot hours,196,525,53,11,8,3,0,0,0,0,0,0
 1,13,1,5,1,0,0,0,0,128,0,-1--1--1,,1|(258,481)|
@@ -5718,7 +5724,7 @@ $192-192-192,0,Times New Roman|12||0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|96,96,1
 10,24,redemoing,1160,580,34,11,40,3,0,0,-1,0,0,0
 1,25,27,19,4,0,0,22,0,0,0,-1--1--1,,1|(1235,493)|
 1,26,27,18,100,0,0,22,0,0,0,-1--1--1,,1|(1174,493)|
-11,27,7596,1205,493,6,8,34,3,0,0,1,0,0,0
+11,27,7404,1205,493,6,8,34,3,0,0,1,0,0,0
 10,28,demoing,1205,512,28,11,40,3,0,0,-1,0,0,0
 1,29,18,23,1,0,0,0,0,128,0,-1--1--1,,1|(1080,537)|
 10,30,Pilot Capital Expense,497,114,48,29,3,131,0,0,0,0,0,0
@@ -5746,7 +5752,7 @@ $192-192-192,0,Times New Roman|12||0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|96,96,1
 10,52,Startup Piloting Hours,355,363,40,24,3,131,0,0,0,0,0,0
 1,53,55,7,4,0,0,22,0,0,0,-1--1--1,,1|(492,397)|
 1,54,55,52,100,0,0,22,0,0,0,-1--1--1,,1|(440,362)|
-11,55,2092,492,362,6,8,34,3,0,0,4,0,0,0
+11,55,1884,492,362,6,8,34,3,0,0,4,0,0,0
 10,56,startup piloting,544,362,46,11,40,3,0,0,-1,0,0,0
 10,57,startup piloting period,321,276,72,15,8,131,0,0,0,0,0,0
 1,58,57,52,1,0,0,0,0,128,1,-1--1--1,,1|(315,320)|
@@ -5756,7 +5762,7 @@ $192-192-192,0,Times New Roman|12||0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|96,96,1
 10,62,Startup Demoing Hours,1138,383,40,25,3,131,0,0,0,0,0,0
 1,63,65,19,4,0,0,22,0,0,0,-1--1--1,,1|(1300,429)|
 1,64,65,62,100,0,0,22,0,0,0,-1--1--1,,1|(1236,378)|
-11,65,1196,1300,378,6,8,34,3,0,0,4,0,0,0
+11,65,988,1300,378,6,8,34,3,0,0,4,0,0,0
 10,66,startup demoing,1357,378,50,11,40,3,0,0,-1,0,0,0
 10,67,startup demoing period,1153,284,74,13,8,131,0,0,0,0,0,0
 1,68,67,62,1,0,0,0,0,128,1,-1--1--1,,1|(1130,323)|
@@ -7470,7 +7476,7 @@ Flow Dampers
 10,365,stagegate number indicator,1125,842,56,19,8,3,0,0,0,0,0,0
 10,366,Stagegate,991,852,41,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
 1,367,366,365,0,0,0,0,0,64,0,-1--1--1,,1|(1043,848)|
-10,368,Stagegate,1384,860,41,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|0||128-128-128
+10,368,Stagegate,1384,860,41,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
 1,369,368,358,0,0,0,0,0,64,0,-1--1--1,,1|(1437,842)|
 ///---\\\
 :GRAPH Capital
@@ -7665,7 +7671,7 @@ Flow Dampers
 27:0,
 34:0,
 4:Time
-5:discounted internal investment amount by stagegate[stagegates]
+5:probability of project failure by stagegate[stagegates]
 35:Date
 36:YYYY-MM-DD
 37:2000
