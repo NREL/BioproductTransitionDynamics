@@ -3274,11 +3274,11 @@ Feedstock Price=
 feedstock price selector array[corn]=
 	0 ~~|
 feedstock price selector array[corn stover]=
-	1 ~~|
+	0 ~~|
 feedstock price selector array[soybean]=
 	0 ~~|
 feedstock price selector array[commodity sugar]=
-	0 ~~|
+	1 ~~|
 feedstock price selector array[generic perennial]=
 	0 ~~|
 feedstock price selector array[generic fossil]=
@@ -6671,9 +6671,9 @@ Flow Dampers
 :VAR idealized demo completion time
 :VAR idealized commercial construction time
 :L<%^E!@
-1:issue-23-local.vdf
+1:issue-23.vdf
 1:latest-commit.vdf
-9:issue-23-local
+9:issue-23
 22:$,Dollar,Dollars,$s
 22:Hour,Hours
 22:Month,Months
@@ -6688,7 +6688,7 @@ Flow Dampers
 27:0,
 34:0,
 4:Time
-5:Feedstock Price
+5:feedstock price selector array[feedstock]
 35:Date
 36:YYYY-MM-DD
 37:2000
