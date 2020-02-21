@@ -1,0 +1,127 @@
+{UTF-8}
+commercial plant capacity scaled=
+	10000
+	~	tonsProduct/Year [0,?]
+	~		|
+
+commercial plant constructed=
+	1
+	~	Dmnl [0,1,1]
+	~		|
+
+commercial plant startup period=
+	2
+	~	Year [0,10]
+	~		|
+
+Cumulative Production= INTEG (
+	production,
+		0)
+	~	tonsProduct
+	~		|
+
+demo plant capacity scaled=
+	1000
+	~	tonsProduct/Year [0,?]
+	~		|
+
+demoing=
+	demo plant capacity scaled
+	~	tonsProduct/Year [0,?]
+	~		|
+
+Demoing Production= INTEG (
+	demoing,
+		0)
+	~	tonsProduct
+	~		|
+
+production=
+	profitable * commercial plant constructed
+	* RAMP( (1/commercial plant startup period) * commercial plant capacity scaled , 0 ,\
+		 commercial plant startup period )
+	+ demoing
+	~	tonsProduct/Year [0,?]
+	~	the first element in the RAMP is the slope of the ramp
+	|
+
+profitable=
+	1
+	~	Dmnl [0,1,1]
+	~		|
+
+********************************************************
+	.Control
+********************************************************~
+		Simulation Control Parameters
+	|
+
+FINAL TIME  = 100
+	~	Year
+	~	The final time for the simulation.
+	|
+
+INITIAL TIME  = 0
+	~	Year
+	~	The initial time for the simulation.
+	|
+
+SAVEPER  = 
+        TIME STEP 
+	~	Year [0,?]
+	~	The frequency with which output is stored.
+	|
+
+TIME STEP  = 1
+	~	Year [0,?]
+	~	The time step for the simulation.
+	|
+
+\\\---/// Sketch information - do not modify anything except names
+V300  Do not put anything below this section - it will be ignored
+*View 1
+$192-192-192,0,Times New Roman|12||0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|96,96,100,0
+10,1,Cumulative Production,518,194,40,20,3,3,0,0,0,0,0,0
+10,2,Demoing Production,494,344,40,20,3,3,0,0,0,0,0,0
+12,3,48,229,344,10,8,0,3,0,0,-1,0,0,0
+1,4,6,2,4,0,0,22,0,0,0,-1--1--1,,1|(403,344)|
+1,5,6,3,100,0,0,22,0,0,0,-1--1--1,,1|(289,344)|
+11,6,0,346,344,6,8,34,3,0,0,1,0,0,0
+10,7,demoing,346,363,28,11,40,3,0,0,-1,0,0,0
+12,8,48,223,190,10,8,0,3,0,0,-1,0,0,0
+1,9,11,1,4,0,0,22,0,0,0,-1--1--1,,1|(419,190)|
+1,10,11,8,100,0,0,22,0,0,0,-1--1--1,,1|(291,190)|
+11,11,0,355,190,6,8,34,3,0,0,1,0,0,0
+10,12,production,355,209,35,11,40,3,0,0,-1,0,0,0
+10,13,profitable,343,80,31,11,8,3,0,0,0,0,0,0
+10,14,commercial plant constructed,484,91,54,19,8,3,0,0,0,0,0,0
+10,15,commercial plant capacity scaled,241,101,54,19,8,3,0,0,0,0,0,0
+1,16,15,11,0,0,0,0,0,128,0,-1--1--1,,1|(301,148)|
+1,17,13,11,0,0,0,0,0,128,0,-1--1--1,,1|(348,130)|
+1,18,14,11,1,0,0,0,0,128,0,-1--1--1,,1|(361,182)|
+10,19,demo plant capacity scaled,267,434,49,19,8,3,0,0,0,0,0,0
+1,20,19,7,0,0,0,0,0,128,0,-1--1--1,,1|(305,399)|
+1,21,6,12,0,0,0,0,0,128,0,-1--1--1,,1|(349,286)|
+10,22,commercial plant startup period,145,145,54,19,8,3,0,0,0,0,0,0
+1,23,22,11,1,0,0,0,0,128,0,-1--1--1,,1|(255,154)|
+///---\\\
+:L<%^E!@
+1:startup-period-local.vdf
+9:startup-period-local
+15:0,0,0,0,0,0
+19:100,0
+27:0,
+34:0,
+4:Time
+5:production
+35:Date
+36:YYYY-MM-DD
+37:2000
+38:1
+39:1
+40:0
+41:0
+42:1
+24:0
+25:100
+26:100
