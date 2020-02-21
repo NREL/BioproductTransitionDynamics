@@ -24,7 +24,7 @@ Vensim will frequently save new versions of a model when the model has only been
 
 ## Branching
 
-Create a new branch when making significant changes to `BTD.mdl` that will break the model for several commits - for instance, when integrating a submodel into the BTD or when resolving a complex issue. Give the branch an explanatory name. Once BTD.mdl is running in the branch and related development is complete, create a pull request and assign at least one reviewer.
+The two branches that should (until the final model lock) remain in the repo are `master` and `dev`. `master` should always have a working copy of the BTD that gives correct results to our best knowledge. Small model changes can be made directly in `dev`, and we will pull `dev` into `master` regularly to keep our working BTD copy as up to date as possible. Larger model changes that will temporarily break the model or take multiple days to complete - for instance, when integrating a submodel into the BTD or when resolving a complex issue - should begin with a new branch off `dev`. Give the branch an explanatory name. Once BTD.mdl is running in the branch and related development is complete, create a pull request to pull the branch into `dev` and assign at least one reviewer.
 
 ## Repo contents
 
