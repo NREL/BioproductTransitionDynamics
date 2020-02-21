@@ -1419,7 +1419,7 @@ IS variable costs=
 	commercial plant operation * (
 	Commercial Variable Operating Cost Scaled
 	+
-	Feedstock Price / Process Yield * production
+	Feedstock Price / commercial process yield * production
 	)
 	~	USD/year [0,?]
 	~		|
@@ -1707,7 +1707,7 @@ startup demoing=
 	~		|
 
 Demo Feedstock Cost=
-	demo capacity * (1 / Process Yield) * Feedstock Price
+	demo capacity * (1 / commercial process yield) * Feedstock Price
 	~	USD/year [0,?]
 	~		|
 
@@ -1897,7 +1897,7 @@ startup piloting=
 	~		|
 
 Pilot Feedstock Cost=
-	pilot capacity * (1 / Process Yield) * Feedstock Price
+	pilot capacity * (1 / commercial process yield) * Feedstock Price
 	~	USD/year [0,?]
 	~		|
 
@@ -2638,7 +2638,7 @@ demoing production=
 	~		|
 
 Commercial Feedstock Cost Scaled=
-	Feedstock Price * commercial plant capacity scaled * (1 / Process Yield)
+	Feedstock Price * commercial plant capacity scaled * (1 / commercial process yield)
 	~	USD/year [0,?]
 	~		|
 
@@ -2672,7 +2672,7 @@ Cumulative Demoing Production= INTEG (
 	|
 
 feedstock consumption=
-	( production + piloting production ) * ( 1 / Process Yield )
+	( production + piloting production ) * ( 1 / commercial process yield )
 	~	tonFeedstock/year [0,?]
 	~		|
 
@@ -2706,11 +2706,6 @@ commercial total operating cost=
 	~	USD/year [0,?]
 	~		~	:SUPPLEMENTARY 
 	|
-
-Process Yield=
-	commercial process yield
-	~	tonProduct/tonFeedstock [0,?]
-	~		|
 
 commercial plant capacity scaled=
 	730480
@@ -3429,9 +3424,9 @@ Balance_Sheet_Diagnostics
 10,160,smoothed NPV deviation fraction,1115,199,55,19,8,3,0,0,0,0,0,0
 1,161,151,160,0,0,0,0,0,128,0,-1--1--1,,1|(939,188)|
 1,162,157,160,0,0,0,0,0,128,0,-1--1--1,,1|(1038,225)|
-10,163,researching,402,451,45,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|0||128-128-128
+10,163,researching,402,451,45,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
 1,164,163,49,0,0,0,0,0,64,0,-1--1--1,,1|(402,443)|
-10,165,researching,376,650,45,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|0||128-128-128
+10,165,researching,376,650,45,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
 1,166,165,50,0,0,0,0,0,64,0,-1--1--1,,1|(376,642)|
 \\\---/// Sketch information - do not modify anything except names
 V300  Do not put anything below this section - it will be ignored
@@ -3539,7 +3534,6 @@ $192-192-192,0,Times New Roman|12||0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|96,96,5
 10,1,Pilot Capital Cost,532,170,56,11,8,131,0,0,0,0,0,0
 10,2,Pilot Fixed Operating Cost,528,321,49,19,8,131,0,0,0,0,0,0
 10,3,Pilot Variable Operating Cost,528,464,49,19,8,131,0,0,0,0,0,0
-10,4,Process Yield,627,592,53,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
 10,5,pilot capital cost scaling factor,634,112,52,19,8,3,0,0,0,0,0,0
 1,6,5,1,1,0,0,0,0,128,0,-1--1--1,,1|(555,128)|
 10,7,Pilot Feedstock Cost,525,655,52,25,8,131,0,0,0,0,0,0
@@ -3566,7 +3560,6 @@ $192-192-192,0,Times New Roman|12||0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|96,96,5
 10,28,commercial fixed operating cost unscaled,1221,225,60,25,8,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
 10,29,commercial variable operating cost unscaled,1171,384,65,23,8,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
 10,30,Feedstock Price,1229,489,39,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-10,31,Process Yield,1363,494,53,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
 1,32,27,20,1,0,0,0,0,128,0,-1--1--1,,1|(1230,112)|
 1,33,24,20,1,0,0,0,0,128,0,-1--1--1,,1|(1365,122)|
 1,34,28,21,1,0,0,0,0,128,0,-1--1--1,,1|(1300,227)|
@@ -3875,28 +3868,26 @@ $192-192-192,0,Times New Roman|12||0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|96,96,5
 10,4,commercial capital cost unscaled,1019,236,59,19,8,3,0,0,0,0,0,0
 10,5,commercial fixed operating cost unscaled,939,360,74,19,8,3,0,0,0,0,0,0
 10,6,commercial variable operating cost unscaled,805,401,74,19,8,3,0,0,0,0,0,0
-10,7,Process Yield,908,560,44,11,8,3,0,0,0,0,0,0
-10,8,commercial process yield,1067,585,42,19,8,3,0,0,0,0,0,0
-1,9,4,3,0,0,0,0,0,128,0,-1--1--1,,1|(973,213)|
-1,10,5,1,0,0,0,0,0,128,0,-1--1--1,,1|(930,338)|
-1,11,6,2,1,0,0,0,0,128,0,-1--1--1,,1|(865,430)|
-1,12,8,7,0,0,0,0,0,128,0,-1--1--1,,1|(995,573)|
-10,13,commercial plant capacity scaled,574,585,54,19,8,3,0,0,0,0,0,0
-10,14,Commercial Feedstock Cost Scaled,912,688,42,25,8,131,0,0,0,0,0,0
-10,15,Feedstock Price,763,721,39,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,16,15,14,0,0,0,0,0,128,0,-1--1--1,,1|(829,706)|
-1,17,7,14,1,0,0,0,0,128,0,-1--1--1,,1|(891,612)|
-1,18,13,2,1,0,0,0,0,64,0,-1--1--1,,1|(736,503)|
-1,19,13,14,1,0,0,0,0,64,0,-1--1--1,,1|(731,659)|
-10,20,commercial total operating cost,1203,417,53,19,8,3,0,0,0,0,0,0
-1,21,1,20,0,0,0,0,0,128,0,-1--1--1,,1|(1049,348)|
-1,22,2,20,0,0,0,0,0,128,0,-1--1--1,,1|(1045,449)|
-1,23,14,20,1,0,0,0,0,128,0,-1--1--1,,1|(1150,598)|
-1,24,13,1,1,0,0,0,0,128,0,-1--1--1,,1|(652,409)|
-1,25,13,3,1,0,0,0,0,128,0,-1--1--1,,1|(663,303)|
-10,26,commercial plant capacity unscaled,562,291,56,19,8,3,0,0,0,0,0,0
-1,27,26,3,1,0,0,0,0,128,0,-1--1--1,,1|(737,175)|
-1,28,26,1,1,0,0,0,0,128,0,-1--1--1,,1|(778,268)|
+10,7,commercial process yield,977,570,42,19,8,3,0,0,0,0,0,0
+1,8,4,3,0,0,0,0,0,128,0,-1--1--1,,1|(973,213)|
+1,9,5,1,0,0,0,0,0,128,0,-1--1--1,,1|(930,338)|
+1,10,6,2,1,0,0,0,0,128,0,-1--1--1,,1|(865,430)|
+10,11,commercial plant capacity scaled,574,585,54,19,8,3,0,0,0,0,0,0
+10,12,Commercial Feedstock Cost Scaled,912,688,42,25,8,131,0,0,0,0,0,0
+10,13,Feedstock Price,763,721,39,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,14,13,12,0,0,0,0,0,128,0,-1--1--1,,1|(829,706)|
+1,15,11,2,1,0,0,0,0,64,0,-1--1--1,,1|(736,503)|
+1,16,11,12,1,0,0,0,0,64,0,-1--1--1,,1|(731,659)|
+10,17,commercial total operating cost,1203,417,53,19,8,3,0,0,0,0,0,0
+1,18,1,17,0,0,0,0,0,128,0,-1--1--1,,1|(1049,348)|
+1,19,2,17,0,0,0,0,0,128,0,-1--1--1,,1|(1045,449)|
+1,20,12,17,1,0,0,0,0,128,0,-1--1--1,,1|(1150,598)|
+1,21,11,1,1,0,0,0,0,128,0,-1--1--1,,1|(652,409)|
+1,22,11,3,1,0,0,0,0,128,0,-1--1--1,,1|(663,303)|
+10,23,commercial plant capacity unscaled,562,291,56,19,8,3,0,0,0,0,0,0
+1,24,23,3,1,0,0,0,0,128,0,-1--1--1,,1|(737,175)|
+1,25,23,1,1,0,0,0,0,128,0,-1--1--1,,1|(778,268)|
+1,26,7,12,0,0,0,0,0,64,0,-1--1--1,,1|(949,619)|
 \\\---/// Sketch information - do not modify anything except names
 V300  Do not put anything below this section - it will be ignored
 *Commercial Process
@@ -3918,7 +3909,6 @@ $192-192-192,0,Times New Roman|12||0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|96,96,5
 11,15,48,977,431,6,8,34,3,0,0,1,0,0,0
 10,16,feedstock consumption,977,458,41,19,40,3,0,0,-1,0,0,0
 1,17,6,15,1,0,0,0,0,128,0,-1--1--1,,1|(950,331)|
-10,18,Process Yield,834,487,53,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
 1,19,18,16,1,0,0,0,0,64,0,-1--1--1,,1|(919,497)|
 1,20,1,10,1,0,0,0,0,128,0,-1--1--1,,1|(1138,266)|
 10,21,Selling Price,1266,396,48,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
@@ -4036,7 +4026,6 @@ $192-192-192,0,Times New Roman|12||0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|96,96,8
 1,31,29,2,1,0,0,0,0,128,0,-1--1--1,,1|(242,182)|
 10,32,Commercial Fixed Operating Cost Scaled,119,281,62,24,8,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
 10,33,Commercial Variable Operating Cost Scaled,125,348,69,27,8,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-10,34,Process Yield,118,559,53,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
 1,35,25,7,1,0,0,0,0,128,0,-1--1--1,,1|(28,309)|
 1,36,34,7,1,0,0,0,0,128,0,-1--1--1,,1|(308,515)|
 1,37,33,7,1,0,0,0,0,128,0,-1--1--1,,1|(227,372)|
@@ -4383,7 +4372,7 @@ Idealized Forecast
 1,129,7,65,0,1,0,0,0,64,0,-1--1--1,,1|(947,126)|
 10,130,INITIAL TIME,1091,30,60,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
 1,131,130,6,0,1,0,0,0,64,0,-1--1--1,,1|(1070,46)|
-10,132,researching,1238,762,45,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|0||128-128-128
+10,132,researching,1238,762,45,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
 1,133,132,115,0,0,0,0,0,64,0,-1--1--1,,1|(1229,747)|
 \\\---/// Sketch information - do not modify anything except names
 V300  Do not put anything below this section - it will be ignored
@@ -5348,8 +5337,9 @@ Flow Dampers
 :VAR idealized demo completion time
 :VAR idealized commercial construction time
 :L<%^E!@
+1:latest-commit-local.vdf
 1:latest-commit.vdf
-9:latest-commit
+9:latest-commit-local
 22:$,Dollar,Dollars,$s
 22:Hour,Hours
 22:Month,Months
@@ -5360,11 +5350,11 @@ Flow Dampers
 22:Day,Days
 23:0
 15:0,0,0,0,0,0
-19:98,5
+19:5,9
 27:0,
 34:0,
 4:Time
-5:research rate
+5:"account for demo plant production?"
 35:Date
 36:YYYY-MM-DD
 37:2000
