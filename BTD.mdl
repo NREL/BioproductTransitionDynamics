@@ -13,10 +13,214 @@ HoursDamper = IF THEN ELSE(Stock >= stock drain rate * TIME STEP,stock drain rat
 	~		|
 
 :END OF MACRO:
+commercial capital expenditure damper=
+	SpendingDamper(Commercial Capital Expense, Commercial Capital Cost Scaled, commercial construction time\
+		, TIME STEP)
+	~	USD/year [0,?]
+	~		|
+
+piloting damper=
+	HoursDamper(Continuous Piloting Hours, actual piloting rate, TIME STEP, one Year)
+	~	hours/year
+	~		|
+
+demoing damper=
+	HoursDamper(Continuous Demoing Hours, actual demoing rate, TIME STEP, one Year)
+	~	hours/year
+	~		|
+
+demoing capital expenditure damper=
+	SpendingDamper(Demo Capital Expense, Demo Capital Cost, demo construction time, TIME STEP\
+		)
+	~	USD/year [0,?]
+	~		|
+
+startup demoing damper=
+	HoursDamper(Startup Demoing Hours, startup demoing rate, TIME STEP, one Year)
+	~	hours/year [0,8766]
+	~		|
+
+startup piloting damper=
+	HoursDamper(Startup Piloting Hours, startup piloting rate, TIME STEP, one Year)
+	~	hours/year [0,8766]
+	~		|
+
+regulatory process spending damper=
+	SpendingDamper(Regulatory Costs, total approval cost, total approval time, TIME STEP\
+		)
+	~	USD/year [0,?]
+	~		|
+
+piloting capital expenditure damper=
+	SpendingDamper(Pilot Capital Expense, Pilot Capital Cost, pilot construction time, TIME STEP\
+		)
+	~	USD/year [0,?]
+	~		|
+
+commercial plant construction=
+	demoing complete * (1 - regulatory delay) * (1 - "pre-commercial") *
+	IF THEN ELSE(Working Capital >= TIME STEP * Commercial Capital Cost Scaled / commercial construction time
+	             :AND: Commercial Capital Expense > 0,
+	             1,
+	             0)
+	~	Dmnl [0,?]
+	~		|
+
+commercial plant is built=
+	IF THEN ELSE(Commercial Capital Expense <= 0,
+	             1,
+	             0)
+	~	Dmnl [0,1]
+	~		|
+
+commercial plant operation=
+	IF THEN ELSE(commercial plant is built = 1
+	             :AND: profitable = 1,
+	             1,
+	             0)
+	~	Dmnl [0,1]
+	~		|
+
+demo plant construction=
+	piloting complete * (1 - "pre-demoing") *
+	IF THEN ELSE(Working Capital >= TIME STEP * Demo Capital Cost / demo construction time
+	             :AND: Demo Capital Expense > 0,
+	             1,
+	             0)
+	~	Dmnl [0,1]
+	~		|
+
+demo plant is built=
+	IF THEN ELSE(Demo Capital Expense <= 0,
+	             1,
+	             0)
+	~	Dmnl [0,1]
+	~		|
+
+demoing complete=
+	IF THEN ELSE(Continuous Demoing Hours <= 0, 
+	             1,
+	             0)
+	~	Dmnl [0,1]
+	~		|
+
+demoing ongoing=
+	IF THEN ELSE(demo plant is built = 1 :AND: Continuous Demoing Hours > 0,
+	             1,
+	             0)
+	~	Dmnl [0,1]
+	~		|
+
+"pre-commercial"=
+	IF THEN ELSE(Regulatory Costs = 0
+	             :AND: Working Capital < Commercial Capital Cost Scaled
+	             :AND: Commercial Capital Expense = Commercial Capital Cost Scaled,
+	             1,
+	             0)
+	~	Dmnl [0,1]
+	~		|
+
+pilot plant construction=
+	(1 - "pre-piloting") *
+	IF THEN ELSE(Working Capital >= TIME STEP * Pilot Capital Cost / pilot construction time
+	             :AND: Pilot Capital Expense > 0,
+	             1,
+	             0)
+	~	Dmnl [0,1]
+	~	Pilot plant construction continues provided there are sufficient funds in \
+		Working Capital to satisfy the next time step's worth of construction \
+		expenses, and there are remaining construction expenses in Pilot Capital \
+		Expense.
+	|
+
+pilot plant is built=
+	IF THEN ELSE(Pilot Capital Expense <= 0,
+	             1,
+	             0)
+	~	Dmnl [0,1]
+	~		|
+
+piloting complete=
+	IF THEN ELSE(Continuous Piloting Hours <= 0, 1, 0)
+	~	Dmnl [0,1]
+	~		|
+
+piloting ongoing=
+	IF THEN ELSE(pilot plant is built = 1 :AND: Continuous Piloting Hours > 0,
+	             1,
+	             0)
+	~	Dmnl [0,1]
+	~		|
+
+"pre-piloting"=
+	IF THEN ELSE(Working Capital < Pilot Capital Cost
+	             :AND: Pilot Capital Expense = Pilot Capital Cost,
+	             1,
+	             0)
+	~	Dmnl [0,1]
+	~	Pre-piloting is the period of gathering funds before pilot plant \
+		construction can begin. Once sufficient funds have accumulated in Working \
+		Capital to build the plant, construction begins.
+	|
+
+"pre-demoing"=
+	piloting complete *
+	IF THEN ELSE(Working Capital < Demo Capital Cost
+	             :AND: Demo Capital Expense = Demo Capital Cost,
+	             1,
+	             0)
+	~	Dmnl [0,2]
+	~		|
+
+regulatory process begins=
+	IF THEN ELSE(Continuous Demoing Hours <= regulatory process starting point * target demo hours\
+		,
+	             1,
+	             0)
+	~	Dmnl [-1,1]
+	~		|
+
+regulatory delay=
+	IF THEN ELSE(demoing complete = 1 :AND: Regulatory Costs > 0,
+	             1,
+	             0)
+	~	Dmnl [0,1]
+	~		|
+
+startup demoing completed=
+	IF THEN ELSE(Startup Demoing Hours <= 0,
+	             1,
+	             0)
+	~	Dmnl [0,?]
+	~		|
+
+startup piloting complete=
+	IF THEN ELSE(Startup Piloting Hours <= 0,
+	             1,
+	             0)
+	~	Dmnl [0,?]
+	~		|
+
 ********************************************************
 	.indicators
 ********************************************************~
 	|
+
+shared learning from feedstock logistics=
+	IF THEN ELSE(Cumulative Feedstock Consumption >= shared learning threshold for feedstock logistics\
+		,
+	             Cumulative Feedstock Consumption,
+	             0)
+	~	tonFeedstock [0,?]
+	~		|
+
+shared learning from bioproduct production=
+	IF THEN ELSE(Cumulative Production > shared learning threshold for bioproduct production\
+		,
+	             Cumulative Production,
+	             0)
+	~	tonProduct [0,?]
+	~		|
 
 Selling Price=
 	IF THEN ELSE(selling price selector = 0, Default Selling Price, Custom Selling Price\
@@ -78,43 +282,13 @@ actual piloting rate=
 	~	hours/year [0,?]
 	~		|
 
-demoing damper=
-	HoursDamper(Continuous Demoing Hours, actual demoing rate, TIME STEP, one Year)
-	~	hours/year
-	~		|
-
-piloting damper=
-	HoursDamper(Continuous Piloting Hours, actual piloting rate, TIME STEP, one Year)
-	~	hours/year
-	~		|
-
-commercial plant construction=
-	demoing complete * (1 - regulatory delay) * (1 - "pre-commercial") *
-	IF THEN ELSE(Working Capital >= TIME STEP * Commercial Capital Cost Scaled / commercial construction time
-	             :AND: Commercial Capital Expense > 0,
-	             1,
-	             0)
-	~	Dmnl [0,?]
-	~		|
-
-startup demoing damper=
-	HoursDamper(Startup Demoing Hours, startup demoing rate, TIME STEP, one Year)
-	~	hours/year [0,8766]
-	~		|
-
-regulatory process spending damper=
-	SpendingDamper(Regulatory Costs, total approval cost, total approval time, TIME STEP\
-		)
-	~	USD/year [0,?]
-	~		|
-
 perennial monthly change in price indicator=
 	IF THEN ELSE(Time - INTEGER(Time) >= 0.25 :AND: Time - INTEGER(Time) <= 0.5, 1, 0)
 	~	Dmnl [0,1]
 	~		|
 
 feedstock selection check=
-	IF THEN ELSE(SUM( feedstock price selector array[feedstock!] ) = 1,
+	IF THEN ELSE(SUM( feedstock selector array[feedstock!] ) = 1,
 	             1 , 
 	             0 )
 	~	Dmnl [1,1]
@@ -150,13 +324,6 @@ demoing spending indicator=
 	~	Dmnl [0,1]
 	~		|
 
-shared learning from bioproduct production=
-	IF THEN ELSE(Cumulative Production > 10000,
-	             Cumulative Production,
-	             0)
-	~	tonProduct [0,?]
-	~		|
-
 FM positive cash flow=
 	IF THEN ELSE( CFS net change of cash and cash equivalents > 0 , Time , 9999 )
 	~	year
@@ -170,14 +337,6 @@ government operating grant amount indicator=
 actual net income indicator=
 	IF THEN ELSE (Commercial Capital Expense > 0, 0, 1)
 	~	Dmnl [0,1]
-	~		|
-
-regulatory process begins=
-	IF THEN ELSE(Continuous Demoing Hours <= regulatory process starting point * target demo hours\
-		,
-	             1,
-	             0)
-	~	Dmnl [-1,1]
 	~		|
 
 research runway response=
@@ -262,151 +421,12 @@ idealized demo revenue indicator[forecast year]=
 	~	Dmnl
 	~		|
 
-startup demoing completed=
-	IF THEN ELSE(Startup Demoing Hours <= 0,
-	             1,
-	             0)
-	~	Dmnl [0,?]
-	~		|
-
-commercial capital expenditure damper=
-	SpendingDamper(Commercial Capital Expense, Commercial Capital Cost Scaled, commercial construction time\
-		, TIME STEP)
-	~	USD/year [0,?]
-	~		|
-
-startup piloting complete=
-	IF THEN ELSE(Startup Piloting Hours <= 0,
-	             1,
-	             0)
-	~	Dmnl [0,?]
-	~		|
-
-demoing capital expenditure damper=
-	SpendingDamper(Demo Capital Expense, Demo Capital Cost, demo construction time, TIME STEP\
-		)
-	~	USD/year [0,?]
-	~		|
-
-commercial plant is built=
-	IF THEN ELSE(Commercial Capital Expense <= 0,
-	             1,
-	             0)
-	~	Dmnl [0,1]
-	~		|
-
-commercial plant operation=
-	IF THEN ELSE(commercial plant is built = 1
-	             :AND: profitable = 1,
-	             1,
-	             0)
-	~	Dmnl [0,1]
-	~		|
-
-demo plant construction=
-	piloting complete * (1 - "pre-demoing") *
-	IF THEN ELSE(Working Capital >= TIME STEP * Demo Capital Cost / demo construction time
-	             :AND: Demo Capital Expense > 0,
-	             1,
-	             0)
-	~	Dmnl [0,1]
-	~		|
-
-demo plant is built=
-	IF THEN ELSE(Demo Capital Expense <= 0,
-	             1,
-	             0)
-	~	Dmnl [0,1]
-	~		|
-
-"pre-commercial"=
-	IF THEN ELSE(Regulatory Costs = 0
-	             :AND: Working Capital < Commercial Capital Cost Scaled
-	             :AND: Commercial Capital Expense = Commercial Capital Cost Scaled,
-	             1,
-	             0)
-	~	Dmnl [0,1]
-	~		|
-
-demoing complete=
-	IF THEN ELSE(Continuous Demoing Hours <= 0, 
-	             1,
-	             0)
-	~	Dmnl [0,1]
-	~		|
-
-demoing ongoing=
-	IF THEN ELSE(demo plant is built = 1 :AND: Continuous Demoing Hours > 0,
-	             1,
-	             0)
-	~	Dmnl [0,1]
-	~		|
-
-regulatory delay=
-	IF THEN ELSE(demoing complete = 1 :AND: Regulatory Costs > 0,
-	             1,
-	             0)
-	~	Dmnl [0,1]
-	~		|
-
-pilot plant is built=
-	IF THEN ELSE(Pilot Capital Expense <= 0,
-	             1,
-	             0)
-	~	Dmnl [0,1]
-	~		|
-
-piloting capital expenditure damper=
-	SpendingDamper(Pilot Capital Expense, Pilot Capital Cost, pilot construction time, TIME STEP\
-		)
-	~	USD/year [0,?]
-	~		|
-
-piloting complete=
-	IF THEN ELSE(Continuous Piloting Hours <= 0, 1, 0)
-	~	Dmnl [0,1]
-	~		|
-
-piloting ongoing=
-	IF THEN ELSE(pilot plant is built = 1 :AND: Continuous Piloting Hours > 0,
-	             1,
-	             0)
-	~	Dmnl [0,1]
-	~		|
-
-pilot plant construction=
-	(1 - "pre-piloting") *
-	IF THEN ELSE(Working Capital >= TIME STEP * Pilot Capital Cost / pilot construction time
-	             :AND: Pilot Capital Expense > 0,
-	             1,
-	             0)
-	~	Dmnl [0,1]
-	~	Pilot plant construction continues provided there are sufficient funds in \
-		Working Capital to satisfy the next time step's worth of construction \
-		expenses, and there are remaining construction expenses in Pilot Capital \
-		Expense.
-	|
-
-"pre-demoing"=
-	piloting complete *
-	IF THEN ELSE(Working Capital < Demo Capital Cost
-	             :AND: Demo Capital Expense = Demo Capital Cost,
-	             1,
-	             0)
-	~	Dmnl [0,2]
-	~		|
-
 pilot and demo spending control indicator=
 	IF THEN ELSE(actual spending >= allowable spending :OR: actual spending >= conserve spending\
 		 ,
 	             pilot and demo runway response,
 	             1 )
 	~	Dmnl [0,1]
-	~		|
-
-startup piloting damper=
-	HoursDamper(Startup Piloting Hours, startup piloting rate, TIME STEP, one Year)
-	~	hours/year [0,8766]
 	~		|
 
 in business=
@@ -420,17 +440,6 @@ profitable=
 	IF THEN ELSE(hypothetical net margin > 0, 1, 0)
 	~	Dmnl [0,1]
 	~		|
-
-"pre-piloting"=
-	IF THEN ELSE(Working Capital < Pilot Capital Cost
-	             :AND: Pilot Capital Expense = Pilot Capital Cost,
-	             1,
-	             0)
-	~	Dmnl [0,1]
-	~	Pre-piloting is the period of gathering funds before pilot plant \
-		construction can begin. Once sufficient funds have accumulated in Working \
-		Capital to build the plant, construction begins.
-	|
 
 idealized commercial revenue indicator[forecast year]=
 	IF THEN ELSE (years ahead[forecast year] >= idealized commercial construction time, \
@@ -465,6 +474,13 @@ granting decision=
 ********************************************************~
 	|
 
+idealized commercial construction time=
+	idealized demo completion time
+	+ commercial construction time
+	* (1 - commercial plant is built)
+	~	year [0,?]
+	~		|
+
 idealized demo construction time=
 	idealized pilot completion time
 	+
@@ -474,13 +490,6 @@ idealized demo construction time=
 
 idealized pilot construction time=
 	(1 - pilot plant is built) * pilot construction time
-	~	year [0,?]
-	~		|
-
-idealized commercial construction time=
-	idealized demo completion time
-	+ commercial construction time
-	* (1 - commercial plant is built)
 	~	year [0,?]
 	~		|
 
@@ -510,7 +519,7 @@ idealized regulatory wait=
 	~		|
 
 idealized research expenses[forecast year]=
-	research rate
+	researching
 	~	USD/year
 	~		|
 
@@ -1046,6 +1055,41 @@ value of intellectual property=
 ********************************************************~
 	|
 
+demo capital granting=
+	granting decision * piloting complete * ( Government Demo Capital Grant / TIME STEP \
+		)
+	~	USD/year [0,?]
+	~		|
+
+commercial capital granting=
+	granting decision * demoing complete * ( Government Commercial Capital Grant / TIME STEP\
+		 )
+	~	USD/year [0,?]
+	~		|
+
+investment amount=
+	seed investment * PULSE(2015, 0) / TIME STEP
+	+
+	investment decision * 
+	MAX
+	( 0 ,
+	  (1 - granting decision * government capital cost share ) * (Pilot Capital Expense \
+		+ 
+	                                                              piloting complete * Demo Capital Expense\
+		 +
+	                                                              demoing complete * Commercial Capital Expense\
+		) + 
+	  (1 / investor ask rate) * ( (1 - granting decision * government research cost share\
+		) * researching +
+	                                    (1 - granting decision * government operating cost share\
+		) * ( piloting spending + 
+	                                                                                   demoing spending\
+		 ) ) - 
+	  Working Capital
+	) / TIME STEP
+	~	USD/year
+	~		|
+
 smoothed NPV deviation fraction=
 	smoothed NPV deviation
 	/
@@ -1102,7 +1146,7 @@ government operating grant amount=
 	(
 	  0
 	, 
-	  forward funding * ( government research cost share * research rate + 
+	  forward funding * ( government research cost share * researching + 
 	                      government operating cost share * ( piloting spending + demoing spending\
 		 ) )
 	)
@@ -1115,41 +1159,6 @@ actual net income=
 	~	USD/year
 	~		~	:SUPPLEMENTARY 
 	|
-
-demo capital granting=
-	granting decision * piloting complete * ( Government Demo Capital Grant / TIME STEP \
-		)
-	~	USD/year [0,?]
-	~		|
-
-investment amount=
-	seed investment * PULSE(2015, 0) / TIME STEP
-	+
-	investment decision * 
-	MAX
-	( 0 ,
-	  (1 - granting decision * government capital cost share ) * (Pilot Capital Expense \
-		+ 
-	                                                              piloting complete * Demo Capital Expense\
-		 +
-	                                                              demoing complete * Commercial Capital Expense\
-		) + 
-	  (1 / investor ask rate) * ( (1 - granting decision * government research cost share\
-		) * research rate +
-	                                    (1 - granting decision * government operating cost share\
-		) * ( piloting spending + 
-	                                                                                   demoing spending\
-		 ) ) - 
-	  Working Capital
-	) / TIME STEP
-	~	USD/year
-	~		|
-
-commercial capital granting=
-	granting decision * demoing complete * ( Government Commercial Capital Grant / TIME STEP\
-		 )
-	~	USD/year [0,?]
-	~		|
 
 Government Commercial Capital Grant= INTEG (
 	-commercial capital granting,
@@ -1410,22 +1419,22 @@ CFS receipt of capital incentives=
 ********************************************************~
 	|
 
-IS sales=
-	Selling Price * production
-	~	USD/year [0,?]
-	~		|
-
 IS variable costs=
 	commercial plant operation * (
 	Commercial Variable Operating Cost Scaled
 	+
-	Feedstock Price / Process Yield * production
+	Feedstock Price / commercial process yield * production
 	)
 	~	USD/year [0,?]
 	~		|
 
 IS fixed costs=
 	commercial plant operation * Commercial Fixed Operating Cost Scaled
+	~	USD/year [0,?]
+	~		|
+
+IS sales=
+	Selling Price * production
 	~	USD/year [0,?]
 	~		|
 
@@ -1544,44 +1553,123 @@ IS taxes due=
 ********************************************************~
 	|
 
-shared learning for biological upgrading of lignocellulosic feedstock to biofuel[unit operation\
-		]=
-	shared learning from bioproduct production * 
-	  biological upgrading of lignocellulosic feedstock to biofuel unit operations[unit operation\
-		] * 
-	  bioproduct unit operations[unit operation] * 
-	  shared learning rates[unit operation]
-	~	tonProduct [0,?]
-	~		~	:SUPPLEMENTARY 
-	|
-
-shared learning for catalytic upgrading of lignocellulosic feedstock to biofuel[unit operation\
-		]=
-	shared learning from bioproduct production * catalytic upgrading of lignocellulosic feedstock to biofuel unit operations
-	[unit operation] * bioproduct unit operations
-	[unit operation] * shared learning rates[unit operation]
-	~	tonProduct [0,?]
-	~		~	:SUPPLEMENTARY 
-	|
-
-shared learning for lignocellulosic feedstock to ethanol[unit operation]=
-	shared learning from bioproduct production * lignocellulosic feedstock to ethanol unit operations\
-		[unit operation] * bioproduct unit operations
-	[unit operation] * shared learning rates
-	[unit operation]
-	~	tonProduct [0,?]
-	~		~	:SUPPLEMENTARY 
-	|
-
-biological upgrading of lignocellulosic feedstock to biofuel unit operations[unit operation\
-		]=
-	1, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0
+biofuel feedstock[corn]=
+	1 ~~|
+biofuel feedstock[corn stover]=
+	0 ~~|
+biofuel feedstock[soybean]=
+	0 ~~|
+biofuel feedstock[commodity sugar]=
+	0 ~~|
+biofuel feedstock[generic perennial]=
+	0 ~~|
+biofuel feedstock[generic fossil]=
+	0 ~~|
+biofuel feedstock[custom]=
+	0
 	~	Dmnl [0,1,1]
-	~	An element equal to 1 indicates that the corresponding unit operation is \
-		present in the process
+	~	A 1 indicates that the biofuel of interest uses that feedstock.
 	|
 
-bioproduct unit operations[unit operation]=
+biofuel technology unit operations[onsite lignocellulosic biomass processing]=
+	1 ~~|
+biofuel technology unit operations[onsite starch biomass processing]=
+	0 ~~|
+biofuel technology unit operations[lignocellulosic pretreatment and conditioning]=
+	1 ~~|
+biofuel technology unit operations[starch biomass fermentation]=
+	0 ~~|
+biofuel technology unit operations[sugar fermentation]=
+	0 ~~|
+biofuel technology unit operations[fixed bed reactor]=
+	0 ~~|
+biofuel technology unit operations[enzymatic hydrolysis]=
+	1 ~~|
+biofuel technology unit operations[flash tank]=
+	0 ~~|
+biofuel technology unit operations[solids liquids separation]=
+	1 ~~|
+biofuel technology unit operations[distillation]=
+	0 ~~|
+biofuel technology unit operations[hydrolysate clarification]=
+	0 ~~|
+biofuel technology unit operations[agitated pressurized reactor]=
+	0 ~~|
+biofuel technology unit operations[biological conversion]=
+	0 ~~|
+biofuel technology unit operations[crystallizer]=
+	0 ~~|
+biofuel technology unit operations[catalytic conversion]=
+	0 ~~|
+biofuel technology unit operations[centrifuge]=
+	0 ~~|
+biofuel technology unit operations[extraction purification and fuel finishing]=
+	1 ~~|
+biofuel technology unit operations[extraction purification and product finishing]=
+	0
+	~	Dmnl [0,1,1]
+	~	Default values are for biological upgrading of lignocellulosic feedstock to biofuels
+		Alternate values are as follows:
+		Catalytic upgrading of lignocellulosic feedstock to biofuels: 1, 0, 1, 0, 0, 0, 1, \
+		0, 1, 0, 1, 0, 0, 0, 1, 0, 1, 0
+		Lignocellulosic feedstock to ethanol: 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, \
+		0, 0, 0, 0, 0, 0
+	|
+
+shared learning threshold for bioproduct production=
+	10000
+	~	tonProduct [0,?,100]
+	~	Shared learning is assumed to begin after some amount of bioproduct has \
+		been manufactured; prior to that threshold being met, sufficient learning \
+		for the bioproduct technology has not taken place.
+	|
+
+shared learning for bioproduct to biofuel technology[unit operation]=
+	shared learning from bioproduct production * 
+	  biofuel technology unit operations[unit operation] * 
+	  bioproduct technology unit operations[unit operation] * 
+	  shared learning rates for unit operations[unit operation]
+	~	tonProduct [0,?]
+	~		~	:SUPPLEMENTARY 
+	|
+
+shared learning for feedstock logistics[feedstock]=
+	shared learning from feedstock logistics * 
+	  biofuel feedstock[feedstock] * 
+	  feedstock selector array[feedstock] * 
+	  shared learning rates for feedstock logistics[feedstock]
+	~	tonFeedstock [0,?]
+	~		|
+
+shared learning rates for feedstock logistics[corn]=
+	0.2 ~~|
+shared learning rates for feedstock logistics[corn stover]=
+	0.2 ~~|
+shared learning rates for feedstock logistics[soybean]=
+	0.2 ~~|
+shared learning rates for feedstock logistics[commodity sugar]=
+	0 ~~|
+shared learning rates for feedstock logistics[generic perennial]=
+	0.2 ~~|
+shared learning rates for feedstock logistics[generic fossil]=
+	0 ~~|
+shared learning rates for feedstock logistics[custom]=
+	0.2
+	~	Dmnl [0,1]
+	~	Shared learning rates for feedstock logistics are assumed to be 20% for \
+		all feedstocks except the commodity sugar and generic fossil feedstocks, \
+		for which supply chains are assumed to be well-established during the \
+		modeled time period
+	|
+
+shared learning threshold for feedstock logistics=
+	10000
+	~	tonFeedstock [0,?,100]
+	~	Shared learning for feedstock logistics takes place only after this amount \
+		of feedstock has been sourced and converted to bioproduct.
+	|
+
+bioproduct technology unit operations[unit operation]=
 	1, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1
 	~	Dmnl [0,1,1]
 	~	Unit operations for succinic acid are as follows:
@@ -1591,22 +1679,48 @@ bioproduct unit operations[unit operation]=
 		0, 1, 0, 0
 	|
 
-catalytic upgrading of lignocellulosic feedstock to biofuel unit operations[unit operation\
+shared learning rates for unit operations[onsite lignocellulosic biomass processing]=
+	0.2 ~~|
+shared learning rates for unit operations[onsite starch biomass processing]=
+	0.2 ~~|
+shared learning rates for unit operations[lignocellulosic pretreatment and conditioning\
 		]=
-	1, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1, 0
-	~	Dmnl [0,1,1]
-	~		|
-
-lignocellulosic feedstock to ethanol unit operations[unit operation]=
-	1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-	~	Dmnl [0,1,1]
-	~		|
-
-shared learning rates[unit operation]=
-	0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2,\
-		 0.2
+	0.2 ~~|
+shared learning rates for unit operations[starch biomass fermentation]=
+	0.2 ~~|
+shared learning rates for unit operations[sugar fermentation]=
+	0.2 ~~|
+shared learning rates for unit operations[fixed bed reactor]=
+	0.2 ~~|
+shared learning rates for unit operations[enzymatic hydrolysis]=
+	0.2 ~~|
+shared learning rates for unit operations[flash tank]=
+	0.2 ~~|
+shared learning rates for unit operations[solids liquids separation]=
+	0.2 ~~|
+shared learning rates for unit operations[distillation]=
+	0.2 ~~|
+shared learning rates for unit operations[hydrolysate clarification]=
+	0.2 ~~|
+shared learning rates for unit operations[agitated pressurized reactor]=
+	0.2 ~~|
+shared learning rates for unit operations[biological conversion]=
+	0.2 ~~|
+shared learning rates for unit operations[crystallizer]=
+	0.2 ~~|
+shared learning rates for unit operations[catalytic conversion]=
+	0.2 ~~|
+shared learning rates for unit operations[centrifuge]=
+	0.2 ~~|
+shared learning rates for unit operations[extraction purification and fuel finishing]\
+		=
+	0.2 ~~|
+shared learning rates for unit operations[extraction purification and product finishing\
+		]=
+	0.2
 	~	Dmnl [0,1,0.05]
-	~		|
+	~	Default value for shared learning rates is 20% across all unit operations.
+	|
 
 unit operation:
 	onsite lignocellulosic biomass processing, 
@@ -1680,6 +1794,22 @@ piloting delta TRL=
 ********************************************************~
 	|
 
+demoing=
+	pilot and demo spending control * startup demoing completed * demoing damper
+	~	hours/year [0,8766]
+	~	damper variable prevents Continuous Demoing Hours from going negative.
+	|
+
+startup demoing=
+	pilot and demo spending control * demo plant is built * startup demoing damper
+	~	hours/year [0,8766]
+	~		|
+
+demo capital expenditure=
+	demo plant construction * demoing capital expenditure damper
+	~	USD/year [0,?]
+	~		|
+
 demo staff salaries=
 	demoing ongoing * pilot and demo spending control * INTEGER( staff sent to demo * total staff\
 		 ) * researcher average salary
@@ -1696,18 +1826,8 @@ demoing spending=
 	~	Spending and cumulative cost do NOT include the initial capital expenditure
 	|
 
-demo capital expenditure=
-	demo plant construction * demoing capital expenditure damper
-	~	USD/year [0,?]
-	~		|
-
-startup demoing=
-	pilot and demo spending control * demo plant is built * startup demoing damper
-	~	hours/year [0,8766]
-	~		|
-
 Demo Feedstock Cost=
-	demo capacity * (1 / Process Yield) * Feedstock Price
+	demo capacity * (1 / commercial process yield) * Feedstock Price
 	~	USD/year [0,?]
 	~		|
 
@@ -1726,12 +1846,6 @@ remaining demoing duration=
 	( Startup Demoing Hours + Continuous Demoing Hours ) * (1 / hours per year)
 	~	year [0,?]
 	~		|
-
-demoing=
-	pilot and demo spending control * startup demoing completed * demoing damper
-	~	hours/year [0,8766]
-	~	damper variable prevents Continuous Demoing Hours from going negative.
-	|
 
 staff sent to demo=
 	0.75
@@ -1864,6 +1978,25 @@ demo capacity=
 ********************************************************~
 	|
 
+pilot capital expenditure=
+	pilot plant construction * piloting capital expenditure damper
+	~	USD/year [0,?]
+	~		|
+
+startup piloting=
+	pilot and demo spending control * pilot plant is built *
+	startup piloting damper
+	~	hours/year [0,8766]
+	~		|
+
+piloting=
+	pilot and demo spending control * startup piloting complete * piloting damper
+	~	hours/year [0,8766]
+	~	damper variable is used to prevent Continuous Piloting Hours from going negative
+		The upper limit on this variable is the number of hours in one year \
+		(accounting for 1/4 leap day per year)
+	|
+
 pilot staff salaries=
 	piloting ongoing * pilot and demo spending control * INTEGER( staff sent to pilot * \
 		total staff ) * researcher average salary
@@ -1885,19 +2018,8 @@ piloting spending=
 	~	USD/year [0,?]
 	~		|
 
-pilot capital expenditure=
-	pilot plant construction * piloting capital expenditure damper
-	~	USD/year [0,?]
-	~		|
-
-startup piloting=
-	pilot and demo spending control * pilot plant is built *
-	startup piloting damper
-	~	hours/year [0,8766]
-	~		|
-
 Pilot Feedstock Cost=
-	pilot capacity * (1 / Process Yield) * Feedstock Price
+	pilot capacity * (1 / commercial process yield) * Feedstock Price
 	~	USD/year [0,?]
 	~		|
 
@@ -1916,14 +2038,6 @@ Continuous Piloting Hours= INTEG (
 		target pilot hours)
 	~	hours [0,?]
 	~		|
-
-piloting=
-	pilot and demo spending control * startup piloting complete * piloting damper
-	~	hours/year [0,8766]
-	~	damper variable is used to prevent Continuous Piloting Hours from going negative
-		The upper limit on this variable is the number of hours in one year \
-		(accounting for 1/4 leap day per year)
-	|
 
 piloting failure distribution max=
 	5
@@ -2168,39 +2282,37 @@ feedstock price array[custom]=
 
 Feedstock Price=
 	feedstock selection check * 
-	( feedstock price array[corn] * feedstock price selector array[corn]
+	( feedstock price array[corn] * feedstock selector array[corn]
 	  +
-	  feedstock price array[corn stover] * feedstock price selector array[corn stover]
+	  feedstock price array[corn stover] * feedstock selector array[corn stover]
 	  +
-	  feedstock price array[soybean] * feedstock price selector array[soybean]
+	  feedstock price array[soybean] * feedstock selector array[soybean]
 	  +
-	  feedstock price array[commodity sugar] * feedstock price selector array[commodity sugar\
+	  feedstock price array[commodity sugar] * feedstock selector array[commodity sugar]
+	  +
+	  feedstock price array[generic perennial] * feedstock selector array[generic perennial\
 		]
 	  +
-	  feedstock price array[generic perennial] * feedstock price selector array[generic perennial\
-		]
+	  feedstock price array[generic fossil] * feedstock selector array[generic fossil]
 	  +
-	  feedstock price array[generic fossil] * feedstock price selector array[generic fossil\
-		]
-	  +
-	  feedstock price array[custom] * feedstock price selector array[custom]
+	  feedstock price array[custom] * feedstock selector array[custom]
 	)
 	~	USD/tonFeedstock [0,?]
 	~		|
 
-feedstock price selector array[corn]=
+feedstock selector array[corn]=
 	0 ~~|
-feedstock price selector array[corn stover]=
+feedstock selector array[corn stover]=
 	0 ~~|
-feedstock price selector array[soybean]=
+feedstock selector array[soybean]=
 	0 ~~|
-feedstock price selector array[commodity sugar]=
+feedstock selector array[commodity sugar]=
 	1 ~~|
-feedstock price selector array[generic perennial]=
+feedstock selector array[generic perennial]=
 	0 ~~|
-feedstock price selector array[generic fossil]=
+feedstock selector array[generic fossil]=
 	0 ~~|
-feedstock price selector array[custom]=
+feedstock selector array[custom]=
 	0
 	~	Dmnl [0,1,1]
 	~		|
@@ -2607,6 +2719,24 @@ commercial capital expenditure=
 	~	USD/year [0,?]
 	~		|
 
+production=
+	profitable * commercial plant is built 
+	* RAMP( (1 / commercial plant startup period) * commercial plant capacity scaled ,
+	         0 ,
+	         commercial plant startup period)
+	+ demoing production
+	~	tonProduct/year [0,?]
+	~	demoing production is only non-zero if demo plant production is being \
+		counted as marketable production
+	|
+
+commercial plant startup period=
+	3
+	~	year [0,20,0.25]
+	~	Time during which the commercial plant linearly ramps up production from \
+		zero to the scaled plant capacity
+	|
+
 Commercial Capital Expense= INTEG (
 	-commercial capital expenditure,
 		Commercial Capital Cost Scaled)
@@ -2616,13 +2746,6 @@ Commercial Capital Expense= INTEG (
 commercial construction time=
 	2
 	~	year [1,5,0.1]
-	~		|
-
-production=
-	commercial plant capacity scaled * profitable * IF THEN ELSE(Commercial Capital Expense\
-		 <= 0, 1, 0) +
-	demoing production
-	~	tonProduct/year [0,?]
 	~		|
 
 piloting production=
@@ -2638,7 +2761,7 @@ demoing production=
 	~		|
 
 Commercial Feedstock Cost Scaled=
-	Feedstock Price * commercial plant capacity scaled * (1 / Process Yield)
+	Feedstock Price * commercial plant capacity scaled * (1 / commercial process yield)
 	~	USD/year [0,?]
 	~		|
 
@@ -2672,7 +2795,7 @@ Cumulative Demoing Production= INTEG (
 	|
 
 feedstock consumption=
-	( production + piloting production ) * ( 1 / Process Yield )
+	( production + piloting production ) * ( 1 / commercial process yield )
 	~	tonFeedstock/year [0,?]
 	~		|
 
@@ -2706,11 +2829,6 @@ commercial total operating cost=
 	~	USD/year [0,?]
 	~		~	:SUPPLEMENTARY 
 	|
-
-Process Yield=
-	commercial process yield
-	~	tonProduct/tonFeedstock [0,?]
-	~		|
 
 commercial plant capacity scaled=
 	730480
@@ -2770,6 +2888,20 @@ commercial fixed operating cost unscaled=
 ********************************************************~
 	|
 
+number of researchers=
+	total staff
+	 - piloting ongoing * pilot and demo spending control * INTEGER( staff sent to pilot\
+		 * total staff )
+	 - demoing ongoing * pilot and demo spending control * INTEGER( staff sent to demo *\
+		 total staff )
+	~	Person [1,50,1]
+	~	For staff to be transferred to the pilot/demo plant, piloting/demoing must \
+		be ongoing (has begun and the target continuous hours not yet met) and the \
+		pilot/demo plants must be operating according to the spending control. If \
+		the spending control parameter forces the plants to shut down, staff is \
+		brought back to the research team.
+	|
+
 researching=
 	research rate
 	~	USD/year [0,?]
@@ -2785,20 +2917,6 @@ total staff=
 	15
 	~	Person [1,100,1]
 	~		|
-
-number of researchers=
-	total staff
-	 - piloting ongoing * pilot and demo spending control * INTEGER( staff sent to pilot\
-		 * total staff )
-	 - demoing ongoing * pilot and demo spending control * INTEGER( staff sent to demo *\
-		 total staff )
-	~	Person [1,50,1]
-	~	For staff to be transferred to the pilot/demo plant, piloting/demoing must \
-		be ongoing (has begun and the target continuous hours not yet met) and the \
-		pilot/demo plants must be operating according to the spending control. If \
-		the spending control parameter forces the plants to shut down, staff is \
-		brought back to the research team.
-	|
 
 Completed Research= INTEG (
 	researching,
@@ -3118,41 +3236,41 @@ long term selling price,0,10000,10
 12,36,0,242,934,88,17,8,135,0,24,-1,0,0,0,-1--1--1,0-0-0,|18|I|0-0-0
 Shared Learning
 12,37,2167662,349,986,120,18,3,252,0,0,0,0,0,0
-shared learning rates[onsite lignocellulosic biomass processing],0,1,0.05
+shared learning rates for unit operations[onsite lignocellulosic biomass processing],0,1,0.05
 12,38,2167676,752,987,111,18,3,252,0,0,0,0,0,0
-shared learning rates[onsite starch biomass processing],0,1,0.01
+shared learning rates for unit operations[onsite starch biomass processing],0,1,0.01
 12,39,2167680,355,1061,80,20,3,124,0,0,0,0,0,0
-shared learning rates[lignocellulosic pretreatment and conditioning],0,1,0.05
+shared learning rates for unit operations[lignocellulosic pretreatment and conditioning],0,1,0.05
 12,40,2233090,741,1063,80,20,3,124,0,0,0,0,0,0
-shared learning rates[starch biomass fermentation],0,1,0.05
+shared learning rates for unit operations[starch biomass fermentation],0,1,0.05
 12,41,2495368,755,1183,80,20,3,124,0,0,0,0,0,0
-shared learning rates[sugar fermentation],0,1,0.05
+shared learning rates for unit operations[sugar fermentation],0,1,0.05
 12,42,2233072,1061,980,80,20,3,124,0,0,0,0,0,0
-shared learning rates[fixed bed reactor],0,1,0.05
+shared learning rates for unit operations[fixed bed reactor],0,1,0.05
 12,43,2231692,355,1146,80,20,3,124,0,0,0,0,0,0
-shared learning rates[enzymatic hydrolysis],0,1,0.05
+shared learning rates for unit operations[enzymatic hydrolysis],0,1,0.05
 12,44,3870994,1307,978,80,20,3,124,0,0,0,0,0,0
-shared learning rates[flash tank],0,1,0.05
+shared learning rates for unit operations[flash tank],0,1,0.05
 12,45,2364074,598,1362,80,20,3,124,0,0,0,0,0,0
-shared learning rates[solids liquids separation],0,1,0.05
+shared learning rates for unit operations[solids liquids separation],0,1,0.05
 12,46,7145556,1064,1070,80,20,3,124,0,0,0,0,0,0
-shared learning rates[distillation],0,1,0.05
+shared learning rates for unit operations[distillation],0,1,0.05
 12,47,1971030,352,1230,80,20,3,124,0,0,0,0,0,0
-shared learning rates[hydrolysate condensate],0,1,0.05
+shared learning rates for unit operations[hydrolysate condensate],0,1,0.05
 12,48,1971020,1169,1140,80,20,3,124,0,0,0,0,0,0
-shared learning rates[agitated pressurized reactor],0,1,0.05
+shared learning rates for unit operations[agitated pressurized reactor],0,1,0.05
 12,49,1971018,329,1393,80,20,3,124,0,0,0,0,0,0
-shared learning rates[biological conversion],0,1,0.05
+shared learning rates for unit operations[biological conversion],0,1,0.05
 12,50,1971012,1061,1225,80,20,3,124,0,0,0,0,0,0
-shared learning rates[crystallizer],0,1,0.05
+shared learning rates for unit operations[crystallizer],0,1,0.05
 12,51,1971006,317,1328,80,20,3,124,0,0,0,0,0,0
-shared learning rates[catalytic conversion],0,1,0.05
+shared learning rates for unit operations[catalytic conversion],0,1,0.05
 12,52,1971002,1279,1222,80,20,3,124,0,0,0,0,0,0
-shared learning rates[centrifuge],0,1,0.05
+shared learning rates for unit operations[centrifuge],0,1,0.05
 12,53,1970998,948,1317,80,20,3,124,0,0,0,0,0,0
-shared learning rates[extraction purification and fuel finishing],0,1,0.05
+shared learning rates for unit operations[extraction purification and fuel finishing],0,1,0.05
 12,54,1970996,948,1391,80,20,3,124,0,0,0,0,0,0
-shared learning rates[extraction purification and product finishing],0,1,0.05
+shared learning rates for unit operations[extraction purification and product finishing],0,1,0.05
 12,55,0,364,1121,209,163,3,135,0,0,-1,0,0,0
  
 12,56,0,752,1045,173,88,3,135,0,0,-1,0,0,0
@@ -3175,19 +3293,19 @@ market_share
 12,65,1970982,1243,189,80,20,3,124,0,0,0,0,0,0
 commercial plant capacity scaled,0,3.6524e+06,10
 12,66,1970980,1156,325,80,20,3,124,0,0,0,0,0,0
-feedstock price selector array[corn],0,1,1
+feedstock selector array[corn],0,1,1
 12,67,1970974,1156,411,80,20,3,124,0,0,0,0,0,0
-feedstock price selector array[corn stover],0,1,1
+feedstock selector array[corn stover],0,1,1
 12,68,3215706,1156,497,80,20,3,124,0,0,0,0,0,0
-feedstock price selector array[soybean],0,1,1
+feedstock selector array[soybean],0,1,1
 12,69,1970968,1625,318,80,20,3,124,0,0,0,0,0,0
-feedstock price selector array[commodity sugar],0,1,1
+feedstock selector array[commodity sugar],0,1,1
 12,70,1970964,1625,403,80,20,3,124,0,0,0,0,0,0
-feedstock price selector array[generic perennial],0,1,1
+feedstock selector array[generic perennial],0,1,1
 12,71,2036546,1625,489,80,20,3,124,0,0,0,0,0,0
-feedstock price selector array[generic fossil],0,1,1
+feedstock selector array[generic fossil],0,1,1
 12,72,6164526,1366,372,80,20,3,124,0,0,0,0,0,0
-feedstock price selector array[custom],0,1,1
+feedstock selector array[custom],0,1,1
 \\\---/// Sketch information - do not modify anything except names
 V300  Do not put anything below this section - it will be ignored
 *Investor Decisions
@@ -3265,173 +3383,174 @@ Venture Capital Investor Decision
 V300  Do not put anything below this section - it will be ignored
 *Investor Computations
 $192-192-192,0,Times New Roman|12||0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|96,96,95,0
-10,1,Working Capital,982,699,52,11,0,3,0,0,0,0,0,0
-11,2,732,1086,669,8,11,34,3,0,0,1,0,0,0
-10,3,actual spending,1086,705,37,25,40,131,0,0,-1,0,0,0
-10,4,hypothetical net income,1897,279,80,11,8,3,0,0,0,0,0,0
-1,5,4,6,1,0,0,0,0,64,0,-1--1--1,,1|(1920,504)|
-10,6,actual net income,1514,639,60,11,8,3,0,0,0,0,0,0
-10,7,Total Investment,688,380,53,27,3,3,0,0,0,0,0,0
-12,8,48,534,378,10,8,0,3,0,0,-1,0,0,0
-1,9,11,7,4,0,0,22,0,0,0,-1--1--1,,1|(617,378)|
-1,10,11,8,100,0,0,22,0,0,0,-1--1--1,,1|(563,378)|
-11,11,48,591,378,8,11,34,3,0,0,1,0,0,0
-10,12,investing,591,400,32,11,40,131,0,0,-1,0,0,0
-10,13,seed investment,337,307,37,18,8,131,0,0,0,0,0,0
-10,14,hypothetical net margin,1554,448,79,11,8,3,0,0,0,0,0,0
-1,15,4,14,1,0,0,0,0,64,0,-1--1--1,,1|(1807,498)|
-10,16,forward funding,573,522,30,17,8,131,0,0,0,0,0,0
-1,17,31,4,1,0,0,0,0,64,0,-1--1--1,,1|(1816,210)|
-10,18,Commercial Variable Operating Cost Scaled,1702,239,57,30,8,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,19,18,4,1,0,0,0,0,64,0,-1--1--1,,1|(1788,240)|
-12,20,0,1499,62,97,11,0,7,0,16,-1,0,0,0,-1--1--1,0-0-0,|12|BU|0-0-0
+10,1,Working Capital,999,610,52,11,0,3,0,0,0,0,0,0
+11,2,764,1103,580,8,11,34,3,0,0,1,0,0,0
+10,3,actual spending,1103,616,37,25,40,131,0,0,-1,0,0,0
+10,4,hypothetical net income,1914,190,80,11,8,3,0,0,0,0,0,0
+1,5,4,6,1,0,0,0,0,64,0,-1--1--1,,1|(1937,415)|
+10,6,actual net income,1531,550,60,11,8,3,0,0,0,0,0,0
+10,7,Total Investment,705,291,53,27,3,3,0,0,0,0,0,0
+12,8,48,551,289,10,8,0,3,0,0,-1,0,0,0
+1,9,11,7,4,0,0,22,0,0,0,-1--1--1,,1|(634,289)|
+1,10,11,8,100,0,0,22,0,0,0,-1--1--1,,1|(580,289)|
+11,11,48,608,289,8,11,34,3,0,0,1,0,0,0
+10,12,investing,608,311,32,11,40,131,0,0,-1,0,0,0
+10,13,seed investment,354,218,37,18,8,131,0,0,0,0,0,0
+10,14,hypothetical net margin,1571,359,79,11,8,3,0,0,0,0,0,0
+1,15,4,14,1,0,0,0,0,64,0,-1--1--1,,1|(1824,409)|
+10,16,forward funding,590,433,30,17,8,131,0,0,0,0,0,0
+1,17,31,4,1,0,0,0,0,64,0,-1--1--1,,1|(1833,121)|
+10,18,Commercial Variable Operating Cost Scaled,1719,150,57,30,8,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,19,18,4,1,0,0,0,0,64,0,-1--1--1,,1|(1805,151)|
+12,20,0,1516,-27,97,11,0,7,0,16,-1,0,0,0,-1--1--1,0-0-0,|12|BU|0-0-0
 Estimation of Future Income
-10,21,Total Grants,700,588,53,30,3,131,0,0,0,0,0,0
-12,22,48,552,588,10,8,0,3,0,0,-1,0,0,0
-1,23,25,21,4,0,0,22,0,0,0,-1--1--1,,1|(623,588)|
-1,24,25,22,100,0,0,22,0,0,0,-1--1--1,,1|(576,588)|
-11,25,48,595,588,5,9,34,131,0,0,1,0,0,0
-10,26,granting,595,608,26,11,40,3,0,0,-1,0,0,0
-10,27,government production incentive,1695,107,64,19,8,3,0,0,0,0,0,0
-1,28,27,4,1,0,0,0,0,128,0,-1--1--1,,1|(1813,163)|
-10,29,investor optimism,1405,173,55,11,8,3,0,0,0,0,0,0
-10,30,expected hypothetical net income,1394,303,69,19,8,3,0,0,0,0,0,0
-10,31,Commercial Fixed Operating Cost Scaled,1693,177,56,26,8,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,32,31,30,1,0,0,0,0,64,0,-1--1--1,,1|(1546,223)|
-1,33,27,30,1,0,0,0,0,64,0,-1--1--1,,1|(1533,177)|
-1,34,29,30,1,0,0,0,0,64,0,-1--1--1,,1|(1386,222)|
-1,35,18,30,1,0,0,0,0,64,0,-1--1--1,,1|(1560,261)|
-10,36,Commercial Feedstock Cost Scaled,1705,300,52,26,8,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,37,36,30,1,0,0,0,0,128,0,-1--1--1,,1|(1561,287)|
-1,38,36,4,1,0,0,0,0,128,0,-1--1--1,,1|(1787,276)|
-10,39,Selling Price,1712,344,48,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,40,39,30,0,0,0,0,0,128,0,-1--1--1,,1|(1570,325)|
-1,41,39,4,0,0,0,0,0,128,0,-1--1--1,,1|(1797,313)|
-10,42,commercial plant capacity scaled,1441,397,52,23,8,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,43,42,30,0,0,0,0,0,64,0,-1--1--1,,1|(1419,354)|
-1,44,42,14,0,0,0,0,0,128,0,-1--1--1,,1|(1503,425)|
-10,45,commercial plant capacity scaled,1910,153,50,24,8,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,46,45,4,1,0,0,0,0,128,0,-1--1--1,,1|(1938,229)|
-10,47,expected continuity of government policy,1353,129,74,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,48,47,30,1,0,0,0,0,64,0,-1--1--1,,1|(1329,199)|
-10,49,investment amount,402,416,63,16,8,131,0,0,0,0,0,0
-10,50,government operating grant amount,376,606,74,25,8,131,0,0,0,0,0,0
-1,51,16,50,1,0,0,0,0,64,0,-1--1--1,,1|(476,556)|
-10,52,Demo Capital Expense,116,422,50,23,3,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,53,52,49,0,0,0,0,0,64,0,-1--1--1,,1|(245,419)|
-10,54,government capital cost share,135,583,65,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,55,54,49,0,0,0,0,0,64,0,-1--1--1,,1|(264,501)|
-10,56,government research cost share,125,623,66,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,57,56,49,1,0,0,0,0,64,0,-1--1--1,,1|(280,536)|
-10,58,granting decision,410,523,49,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-10,59,Pilot Capital Expense,108,310,46,23,3,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,60,59,49,0,0,0,0,0,64,0,-1--1--1,,1|(248,360)|
-10,61,research rate,130,273,50,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,62,61,49,0,0,0,0,0,64,0,-1--1--1,,1|(254,338)|
-1,63,13,49,0,0,0,0,0,64,0,-1--1--1,,1|(365,356)|
-10,64,TIME STEP,343,501,50,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,65,64,49,0,1,0,0,0,64,0,-1--1--1,,1|(366,466)|
-1,66,1,49,1,0,0,0,0,64,0,-1--1--1,,1|(903,466)|
-1,67,49,12,0,0,0,0,0,128,0,-1--1--1,,1|(505,407)|
-1,68,50,26,1,0,0,0,0,128,0,-1--1--1,,1|(500,610)|
-1,69,58,50,0,0,0,0,0,128,0,-1--1--1,,1|(397,555)|
-1,70,56,50,0,0,0,0,0,128,0,-1--1--1,,1|(239,615)|
-1,71,61,50,1,0,0,0,0,128,0,-1--1--1,,1|(288,400)|
-10,72,piloting spending,127,349,62,11,8,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-10,73,demoing spending,122,461,68,11,8,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,74,72,49,0,0,0,0,0,128,0,-1--1--1,,1|(248,378)|
-1,75,73,49,0,0,0,0,0,128,0,-1--1--1,,1|(257,439)|
-10,76,investment decision,476,482,39,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,77,76,49,0,0,0,0,0,128,0,-1--1--1,,1|(442,452)|
-10,78,investor ask rate,546,442,43,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,79,78,49,0,0,0,0,0,128,0,-1--1--1,,1|(490,432)|
-10,80,BS assets,834,614,41,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,81,80,1,1,0,0,0,0,64,0,-1--1--1,,1|(902,635)|
-10,82,BS liabilities,885,582,48,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,83,82,1,1,0,0,0,0,64,0,-1--1--1,,1|(933,614)|
-10,84,CFS net cash,1153,605,52,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,85,84,3,1,0,0,0,0,64,0,-1--1--1,,1|(1138,656)|
-12,86,1838678,1343,847,565,102,3,188,0,0,1,0,0,0
+10,21,Total Grants,717,499,53,30,3,131,0,0,0,0,0,0
+12,22,48,569,499,10,8,0,3,0,0,-1,0,0,0
+1,23,25,21,4,0,0,22,0,0,0,-1--1--1,,1|(640,499)|
+1,24,25,22,100,0,0,22,0,0,0,-1--1--1,,1|(593,499)|
+11,25,48,612,499,5,9,34,131,0,0,1,0,0,0
+10,26,granting,612,519,26,11,40,3,0,0,-1,0,0,0
+10,27,government production incentive,1712,18,64,19,8,3,0,0,0,0,0,0
+1,28,27,4,1,0,0,0,0,128,0,-1--1--1,,1|(1830,74)|
+10,29,investor optimism,1422,84,55,11,8,3,0,0,0,0,0,0
+10,30,expected hypothetical net income,1411,214,69,19,8,3,0,0,0,0,0,0
+10,31,Commercial Fixed Operating Cost Scaled,1710,88,56,26,8,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,32,31,30,1,0,0,0,0,64,0,-1--1--1,,1|(1563,134)|
+1,33,27,30,1,0,0,0,0,64,0,-1--1--1,,1|(1550,88)|
+1,34,29,30,1,0,0,0,0,64,0,-1--1--1,,1|(1403,133)|
+1,35,18,30,1,0,0,0,0,64,0,-1--1--1,,1|(1577,172)|
+10,36,Commercial Feedstock Cost Scaled,1722,211,52,26,8,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,37,36,30,1,0,0,0,0,128,0,-1--1--1,,1|(1578,198)|
+1,38,36,4,1,0,0,0,0,128,0,-1--1--1,,1|(1804,187)|
+10,39,Selling Price,1729,255,48,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,40,39,30,0,0,0,0,0,128,0,-1--1--1,,1|(1587,236)|
+1,41,39,4,0,0,0,0,0,128,0,-1--1--1,,1|(1814,224)|
+10,42,commercial plant capacity scaled,1458,308,52,23,8,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,43,42,30,0,0,0,0,0,64,0,-1--1--1,,1|(1436,265)|
+1,44,42,14,0,0,0,0,0,128,0,-1--1--1,,1|(1520,336)|
+10,45,commercial plant capacity scaled,1927,64,50,24,8,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,46,45,4,1,0,0,0,0,128,0,-1--1--1,,1|(1955,140)|
+10,47,expected continuity of government policy,1370,40,74,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,48,47,30,1,0,0,0,0,64,0,-1--1--1,,1|(1346,110)|
+10,49,investment amount,419,327,63,16,8,131,0,0,0,0,0,0
+10,50,government operating grant amount,393,517,74,25,8,131,0,0,0,0,0,0
+1,51,16,50,1,0,0,0,0,64,0,-1--1--1,,1|(493,467)|
+10,52,Demo Capital Expense,133,333,50,23,3,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,53,52,49,0,0,0,0,0,64,0,-1--1--1,,1|(262,330)|
+10,54,government capital cost share,152,494,65,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,55,54,49,0,0,0,0,0,64,0,-1--1--1,,1|(281,412)|
+10,56,government research cost share,142,534,66,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,57,56,49,1,0,0,0,0,64,0,-1--1--1,,1|(297,447)|
+10,58,granting decision,427,434,49,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,59,Pilot Capital Expense,125,221,46,23,3,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,60,59,49,0,0,0,0,0,64,0,-1--1--1,,1|(265,271)|
+1,61,13,49,0,0,0,0,0,64,0,-1--1--1,,1|(382,267)|
+10,62,TIME STEP,360,412,50,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,63,62,49,0,1,0,0,0,64,0,-1--1--1,,1|(383,377)|
+1,64,1,49,1,0,0,0,0,64,0,-1--1--1,,1|(920,377)|
+1,65,49,12,0,0,0,0,0,128,0,-1--1--1,,1|(522,318)|
+1,66,50,26,1,0,0,0,0,128,0,-1--1--1,,1|(517,521)|
+1,67,58,50,0,0,0,0,0,128,0,-1--1--1,,1|(414,466)|
+1,68,56,50,0,0,0,0,0,128,0,-1--1--1,,1|(256,526)|
+10,69,piloting spending,144,260,62,11,8,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,70,demoing spending,139,372,68,11,8,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,71,69,49,0,0,0,0,0,128,0,-1--1--1,,1|(265,289)|
+1,72,70,49,0,0,0,0,0,128,0,-1--1--1,,1|(274,350)|
+10,73,investment decision,493,393,39,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,74,73,49,0,0,0,0,0,128,0,-1--1--1,,1|(459,363)|
+10,75,investor ask rate,563,353,43,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,76,75,49,0,0,0,0,0,128,0,-1--1--1,,1|(507,343)|
+10,77,BS assets,851,525,41,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,78,77,1,1,0,0,0,0,64,0,-1--1--1,,1|(919,546)|
+10,79,BS liabilities,902,493,48,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,80,79,1,1,0,0,0,0,64,0,-1--1--1,,1|(950,525)|
+10,81,CFS net cash,1170,516,52,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,82,81,3,1,0,0,0,0,64,0,-1--1--1,,1|(1155,567)|
+12,83,0,1360,758,565,102,3,188,0,0,1,0,0,0
 Balance_Sheet_Diagnostics
-10,87,Government Pilot Capital Grant,386,736,52,32,3,131,0,0,0,0,0,0
-10,88,Government Demo Capital Grant,389,814,57,33,3,131,0,0,0,0,0,0
-10,89,Government Commercial Capital Grant,394,888,59,33,3,131,0,0,0,0,0,0
-10,90,Pilot Capital Expense,171,732,44,23,3,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,91,90,87,0,0,0,0,0,128,1,-1--1--1,,1|(267,733)|
-10,92,Demo Capital Expense,243,794,44,24,3,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,93,92,88,0,0,0,0,0,128,1,-1--1--1,,1|(302,802)|
-12,94,48,577,733,10,8,0,3,0,0,-1,0,0,0
-1,95,97,94,4,0,0,22,0,0,0,-1--1--1,,1|(536,734)|
-1,96,97,87,100,0,0,22,0,0,0,-1--1--1,,1|(465,734)|
-11,97,48,499,734,6,8,34,3,0,0,1,0,0,0
-10,98,pilot capital granting,499,761,37,19,40,3,0,0,-1,0,0,0
-12,99,48,593,807,10,8,0,3,0,0,-1,0,0,0
-1,100,102,99,4,0,0,22,0,0,0,-1--1--1,,1|(550,804)|
-1,101,102,88,100,0,0,22,0,0,0,-1--1--1,,1|(475,804)|
-11,102,48,511,804,6,8,34,3,0,0,1,0,0,0
-10,103,demo capital granting,511,831,41,19,40,3,0,0,-1,0,0,0
-12,104,48,590,887,10,8,0,3,0,0,-1,0,0,0
-1,105,107,104,4,0,0,22,0,0,0,-1--1--1,,1|(549,891)|
-1,106,107,89,100,0,0,22,0,0,0,-1--1--1,,1|(479,891)|
-11,107,48,512,891,6,8,34,3,0,0,1,0,0,0
-10,108,commercial capital granting,512,927,53,28,40,131,0,0,-1,0,0,0
-10,109,government capital cost share,106,849,64,25,8,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,110,109,87,1,0,0,0,0,128,1,-1--1--1,,1|(241,748)|
-1,111,109,88,1,0,0,0,0,128,1,-1--1--1,,1|(244,832)|
-1,112,109,89,1,0,0,0,0,128,1,-1--1--1,,1|(247,848)|
-1,113,87,97,1,0,0,0,0,128,0,-1--1--1,,1|(476,710)|
-1,114,88,102,1,0,0,0,0,128,0,-1--1--1,,1|(494,791)|
-1,115,89,107,1,0,0,0,0,128,0,-1--1--1,,1|(499,873)|
-10,116,TIME STEP,658,724,50,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,117,116,103,1,0,0,0,0,64,0,-1--1--1,,1|(600,774)|
-10,118,granting decision,736,813,31,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,119,118,98,1,0,0,0,0,128,0,-1--1--1,,1|(622,797)|
-1,120,118,103,0,0,0,0,0,128,0,-1--1--1,,1|(635,820)|
-1,121,118,108,1,0,0,0,0,128,0,-1--1--1,,1|(675,896)|
-1,122,116,98,1,0,0,0,0,128,0,-1--1--1,,1|(584,759)|
-1,123,116,108,1,0,0,0,0,128,0,-1--1--1,,1|(650,871)|
-1,124,58,49,1,0,0,0,0,128,0,-1--1--1,,1|(400,469)|
-10,125,pilot capital granting,485,644,42,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-10,126,demo capital granting,583,667,46,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-10,127,commercial capital granting,699,663,64,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,128,125,26,1,0,0,0,0,128,0,-1--1--1,,1|(563,631)|
-1,129,126,26,1,0,0,0,0,128,0,-1--1--1,,1|(606,642)|
-1,130,127,26,1,0,0,0,0,128,0,-1--1--1,,1|(643,632)|
-1,131,72,50,0,0,0,0,0,128,0,-1--1--1,,1|(239,465)|
-1,132,73,50,0,0,0,0,0,128,0,-1--1--1,,1|(230,523)|
-10,133,government operating cost share,122,667,69,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,134,133,50,1,0,0,0,0,128,0,-1--1--1,,1|(289,647)|
-1,135,133,49,1,0,0,0,0,128,0,-1--1--1,,1|(269,593)|
-10,136,Commercial Capital Expense,203,906,54,27,3,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,137,136,89,0,0,0,0,0,64,1,-1--1--1,,1|(289,897)|
-10,138,Commercial Capital Expense,455,292,48,27,3,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,139,138,49,0,0,0,0,0,64,0,-1--1--1,,1|(428,353)|
-10,140,demoing complete,381,237,34,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,141,140,49,0,0,0,0,0,64,0,-1--1--1,,1|(390,321)|
-10,142,piloting complete,552,298,34,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,143,142,49,1,0,0,0,0,64,0,-1--1--1,,1|(467,350)|
-10,144,piloting complete,595,858,34,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,145,144,103,1,0,0,0,0,64,0,-1--1--1,,1|(539,866)|
-10,146,demoing complete,585,977,34,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,147,146,108,1,0,0,0,0,64,0,-1--1--1,,1|(528,957)|
-10,148,actual net income indicator,1381,566,60,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,149,148,6,1,0,0,0,0,64,0,-1--1--1,,1|(1466,585)|
-10,150,government operating grant amount indicator,361,677,75,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,151,150,50,0,0,0,0,0,64,0,-1--1--1,,1|(366,651)|
-10,152,idealized NPV,614,237,55,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-10,153,investor history,795,239,48,11,8,3,0,0,0,0,0,0
-10,154,smoothed NPV,782,180,50,11,8,3,0,0,0,0,0,0
-1,155,152,154,0,0,0,0,0,64,0,-1--1--1,,1|(690,210)|
-1,156,153,154,0,0,0,0,0,64,0,-1--1--1,,1|(790,216)|
-10,157,smoothed NPV squared,799,317,50,19,8,3,0,0,0,0,0,0
-1,158,152,157,0,0,0,0,0,64,0,-1--1--1,,1|(690,270)|
-1,159,153,157,0,0,0,0,0,64,0,-1--1--1,,1|(796,267)|
-10,160,smoothed NPV deviation,981,246,50,19,8,3,0,0,0,0,0,0
-1,161,154,160,0,0,0,0,0,64,0,-1--1--1,,1|(866,207)|
-1,162,157,160,0,0,0,0,0,64,0,-1--1--1,,1|(882,284)|
-10,163,smoothed NPV deviation fraction,1115,199,55,19,8,3,0,0,0,0,0,0
-1,164,154,163,0,0,0,0,0,128,0,-1--1--1,,1|(939,188)|
-1,165,160,163,0,0,0,0,0,128,0,-1--1--1,,1|(1038,225)|
+10,84,Government Pilot Capital Grant,403,647,52,32,3,131,0,0,0,0,0,0
+10,85,Government Demo Capital Grant,406,725,57,33,3,131,0,0,0,0,0,0
+10,86,Government Commercial Capital Grant,411,799,59,33,3,131,0,0,0,0,0,0
+10,87,Pilot Capital Expense,188,643,44,23,3,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,88,87,84,0,0,0,0,0,128,1,-1--1--1,,1|(284,644)|
+10,89,Demo Capital Expense,260,705,44,24,3,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,90,89,85,0,0,0,0,0,128,1,-1--1--1,,1|(319,713)|
+12,91,48,594,644,10,8,0,3,0,0,-1,0,0,0
+1,92,94,91,4,0,0,22,0,0,0,-1--1--1,,1|(553,645)|
+1,93,94,84,100,0,0,22,0,0,0,-1--1--1,,1|(482,645)|
+11,94,48,516,645,6,8,34,3,0,0,1,0,0,0
+10,95,pilot capital granting,516,672,37,19,40,3,0,0,-1,0,0,0
+12,96,48,610,718,10,8,0,3,0,0,-1,0,0,0
+1,97,99,96,4,0,0,22,0,0,0,-1--1--1,,1|(567,715)|
+1,98,99,85,100,0,0,22,0,0,0,-1--1--1,,1|(492,715)|
+11,99,48,528,715,6,8,34,3,0,0,1,0,0,0
+10,100,demo capital granting,528,742,41,19,40,3,0,0,-1,0,0,0
+12,101,48,607,798,10,8,0,3,0,0,-1,0,0,0
+1,102,104,101,4,0,0,22,0,0,0,-1--1--1,,1|(566,802)|
+1,103,104,86,100,0,0,22,0,0,0,-1--1--1,,1|(496,802)|
+11,104,48,529,802,6,8,34,3,0,0,1,0,0,0
+10,105,commercial capital granting,529,838,53,28,40,131,0,0,-1,0,0,0
+10,106,government capital cost share,123,760,64,25,8,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,107,106,84,1,0,0,0,0,128,1,-1--1--1,,1|(258,659)|
+1,108,106,85,1,0,0,0,0,128,1,-1--1--1,,1|(261,743)|
+1,109,106,86,1,0,0,0,0,128,1,-1--1--1,,1|(264,759)|
+1,110,84,94,1,0,0,0,0,128,0,-1--1--1,,1|(493,621)|
+1,111,85,99,1,0,0,0,0,128,0,-1--1--1,,1|(511,702)|
+1,112,86,104,1,0,0,0,0,128,0,-1--1--1,,1|(516,784)|
+10,113,TIME STEP,675,635,50,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,114,113,100,1,0,0,0,0,64,0,-1--1--1,,1|(617,685)|
+10,115,granting decision,753,724,31,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,116,115,95,1,0,0,0,0,128,0,-1--1--1,,1|(639,708)|
+1,117,115,100,0,0,0,0,0,128,0,-1--1--1,,1|(652,731)|
+1,118,115,105,1,0,0,0,0,128,0,-1--1--1,,1|(692,807)|
+1,119,113,95,1,0,0,0,0,128,0,-1--1--1,,1|(601,670)|
+1,120,113,105,1,0,0,0,0,128,0,-1--1--1,,1|(667,782)|
+1,121,58,49,1,0,0,0,0,128,0,-1--1--1,,1|(417,380)|
+10,122,pilot capital granting,502,555,42,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,123,demo capital granting,600,578,46,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,124,commercial capital granting,716,574,64,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,125,122,26,1,0,0,0,0,128,0,-1--1--1,,1|(580,542)|
+1,126,123,26,1,0,0,0,0,128,0,-1--1--1,,1|(623,553)|
+1,127,124,26,1,0,0,0,0,128,0,-1--1--1,,1|(660,543)|
+1,128,69,50,0,0,0,0,0,128,0,-1--1--1,,1|(256,376)|
+1,129,70,50,0,0,0,0,0,128,0,-1--1--1,,1|(247,434)|
+10,130,government operating cost share,139,578,69,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,131,130,50,1,0,0,0,0,128,0,-1--1--1,,1|(306,558)|
+1,132,130,49,1,0,0,0,0,128,0,-1--1--1,,1|(286,504)|
+10,133,Commercial Capital Expense,220,817,54,27,3,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,134,133,86,0,0,0,0,0,64,1,-1--1--1,,1|(306,808)|
+10,135,Commercial Capital Expense,472,203,48,27,3,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,136,135,49,0,0,0,0,0,64,0,-1--1--1,,1|(445,264)|
+10,137,actual net income indicator,1398,477,60,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,138,137,6,1,0,0,0,0,64,0,-1--1--1,,1|(1483,496)|
+10,139,government operating grant amount indicator,378,588,75,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,140,139,50,0,0,0,0,0,64,0,-1--1--1,,1|(383,562)|
+10,141,idealized NPV,631,148,55,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,142,investor history,812,150,48,11,8,3,0,0,0,0,0,0
+10,143,smoothed NPV,799,91,50,11,8,3,0,0,0,0,0,0
+1,144,141,143,0,0,0,0,0,64,0,-1--1--1,,1|(707,121)|
+1,145,142,143,0,0,0,0,0,64,0,-1--1--1,,1|(807,127)|
+10,146,smoothed NPV squared,816,228,50,19,8,3,0,0,0,0,0,0
+1,147,141,146,0,0,0,0,0,64,0,-1--1--1,,1|(707,181)|
+1,148,142,146,0,0,0,0,0,64,0,-1--1--1,,1|(813,178)|
+10,149,smoothed NPV deviation,998,157,50,19,8,3,0,0,0,0,0,0
+1,150,143,149,0,0,0,0,0,64,0,-1--1--1,,1|(883,118)|
+1,151,146,149,0,0,0,0,0,64,0,-1--1--1,,1|(899,195)|
+10,152,smoothed NPV deviation fraction,1132,110,55,19,8,3,0,0,0,0,0,0
+1,153,143,152,0,0,0,0,0,128,0,-1--1--1,,1|(956,99)|
+1,154,149,152,0,0,0,0,0,128,0,-1--1--1,,1|(1055,136)|
+10,155,researching,122,402,45,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,156,155,49,0,0,0,0,0,64,0,-1--1--1,,1|(253,368)|
+10,157,researching,393,561,45,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,158,157,50,0,0,0,0,0,64,0,-1--1--1,,1|(393,553)|
+10,159,piloting complete,626,767,34,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,160,159,100,1,0,0,0,0,64,0,-1--1--1,,1|(575,772)|
+10,161,demoing complete,125,454,65,9,8,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,162,161,49,0,0,0,0,0,64,0,-1--1--1,,1|(256,396)|
+10,163,piloting complete,118,432,66,9,8,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,164,163,49,0,0,0,0,0,64,0,-1--1--1,,1|(251,385)|
+10,165,demoing complete,414,885,34,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,166,165,105,0,0,0,0,0,64,0,-1--1--1,,1|(455,868)|
 \\\---/// Sketch information - do not modify anything except names
 V300  Do not put anything below this section - it will be ignored
 *Developer Decisions
@@ -3509,28 +3628,26 @@ $192-192-192,0,Times New Roman|12||0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|96,96,9
 10,24,management spending control,454,219,57,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
 1,25,23,1,0,0,0,0,0,128,0,-1--1--1,,1|(625,158)|
 1,26,24,1,0,0,0,0,0,128,0,-1--1--1,,1|(557,219)|
-10,27,demoing ongoing,973,153,32,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,28,27,6,0,0,0,0,0,64,0,-1--1--1,,1|(910,169)|
-10,29,piloting ongoing,876,110,58,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,30,29,6,0,0,0,0,0,64,0,-1--1--1,,1|(855,142)|
-10,31,pilot staff salaries,1147,180,54,11,8,3,0,0,0,0,0,0
-10,32,demo staff salaries,1147,239,58,11,8,3,0,0,0,0,0,0
-1,33,19,31,0,0,0,0,0,128,0,-1--1--1,,1|(1053,189)|
-1,34,21,32,0,0,0,0,0,128,0,-1--1--1,,1|(1051,231)|
-10,35,total staff,1279,165,39,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-10,36,researcher average salary,1275,210,50,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,37,35,31,0,0,0,0,0,128,0,-1--1--1,,1|(1227,170)|
-1,38,35,32,0,0,0,0,0,128,0,-1--1--1,,1|(1219,198)|
-1,39,36,31,0,0,0,0,0,128,0,-1--1--1,,1|(1215,196)|
-1,40,36,32,0,0,0,0,0,128,0,-1--1--1,,1|(1216,222)|
-10,41,piloting ongoing,1138,125,58,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,42,41,31,0,0,0,0,0,64,0,-1--1--1,,1|(1140,145)|
-10,43,demoing ongoing,1220,300,32,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,44,43,32,0,0,0,0,0,64,0,-1--1--1,,1|(1184,269)|
-10,45,pilot and demo spending control,1007,294,57,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,46,45,6,1,0,0,0,0,64,0,-1--1--1,,1|(908,257)|
-1,47,45,32,1,0,0,0,0,128,0,-1--1--1,,1|(1070,272)|
-1,48,45,31,1,0,0,0,0,128,0,-1--1--1,,1|(1059,224)|
+10,27,pilot staff salaries,1147,180,54,11,8,3,0,0,0,0,0,0
+10,28,demo staff salaries,1147,239,58,11,8,3,0,0,0,0,0,0
+1,29,19,27,0,0,0,0,0,128,0,-1--1--1,,1|(1053,189)|
+1,30,21,28,0,0,0,0,0,128,0,-1--1--1,,1|(1051,231)|
+10,31,total staff,1279,165,39,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,32,researcher average salary,1275,210,50,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,33,31,27,0,0,0,0,0,128,0,-1--1--1,,1|(1227,170)|
+1,34,31,28,0,0,0,0,0,128,0,-1--1--1,,1|(1219,198)|
+1,35,32,27,0,0,0,0,0,128,0,-1--1--1,,1|(1215,196)|
+1,36,32,28,0,0,0,0,0,128,0,-1--1--1,,1|(1216,222)|
+10,37,pilot and demo spending control,1007,294,57,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,38,37,6,1,0,0,0,0,64,0,-1--1--1,,1|(908,257)|
+1,39,37,28,1,0,0,0,0,128,0,-1--1--1,,1|(1070,272)|
+1,40,37,27,1,0,0,0,0,128,0,-1--1--1,,1|(1059,224)|
+10,41,piloting ongoing,1033,119,58,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,42,41,27,0,0,0,0,0,64,0,-1--1--1,,1|(1083,146)|
+10,43,demoing ongoing,974,149,32,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,44,43,28,0,0,0,0,0,64,0,-1--1--1,,1|(1059,193)|
+1,45,43,6,1,0,0,0,0,128,0,-1--1--1,,1|(875,168)|
+1,46,41,6,1,0,0,0,0,128,0,-1--1--1,,1|(872,126)|
 \\\---/// Sketch information - do not modify anything except names
 V300  Do not put anything below this section - it will be ignored
 *Piloting and Demoing Costs
@@ -3538,97 +3655,97 @@ $192-192-192,0,Times New Roman|12||0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|96,96,5
 10,1,Pilot Capital Cost,532,170,56,11,8,131,0,0,0,0,0,0
 10,2,Pilot Fixed Operating Cost,528,321,49,19,8,131,0,0,0,0,0,0
 10,3,Pilot Variable Operating Cost,528,464,49,19,8,131,0,0,0,0,0,0
-10,4,Process Yield,627,592,53,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-10,5,pilot capital cost scaling factor,634,112,52,19,8,3,0,0,0,0,0,0
-1,6,5,1,1,0,0,0,0,128,0,-1--1--1,,1|(555,128)|
-10,7,Pilot Feedstock Cost,525,655,52,25,8,131,0,0,0,0,0,0
-10,8,Feedstock Price,645,558,63,11,8,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,9,8,7,1,0,0,0,0,128,0,-1--1--1,,1|(540,586)|
-1,10,4,7,1,0,0,0,0,128,0,-1--1--1,,1|(549,602)|
-10,11,commercial capital cost unscaled,305,109,71,19,8,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-10,12,commercial fixed operating cost unscaled,434,253,55,24,8,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,13,11,1,1,0,0,0,0,128,0,-1--1--1,,1|(413,96)|
-1,14,12,2,1,0,0,0,0,128,0,-1--1--1,,1|(503,276)|
-10,15,pilot capacity,214,263,42,11,8,3,0,0,0,0,0,0
-10,16,pilot fixed operating cost scaling factor,682,258,63,19,8,3,0,0,0,0,0,0
-1,17,16,2,1,0,0,0,0,128,0,-1--1--1,,1|(563,249)|
-10,18,commercial variable operating cost unscaled,706,369,64,24,8,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,19,18,3,1,0,0,0,0,128,0,-1--1--1,,1|(593,385)|
-10,20,Demo Capital Cost,1340,173,53,29,8,131,0,0,0,0,0,0
-10,21,Demo Fixed Operating Cost,1322,280,44,25,8,131,0,0,0,0,0,0
-10,22,Demo Variable Operating Cost,1337,419,59,29,8,131,0,0,0,0,0,0
-10,23,Demo Feedstock Cost,1319,575,46,26,8,131,0,0,0,0,0,0
-10,24,demo capital cost scaling factor,1449,111,56,19,8,3,0,0,0,0,0,0
-10,25,demo fixed operating cost scaling factor,1455,232,67,19,8,3,0,0,0,0,0,0
-10,26,demo capacity,927,286,39,19,8,3,0,0,0,0,0,0
-10,27,commercial capital cost unscaled,1140,97,67,19,8,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-10,28,commercial fixed operating cost unscaled,1221,225,60,25,8,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-10,29,commercial variable operating cost unscaled,1171,384,65,23,8,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-10,30,Feedstock Price,1229,489,39,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-10,31,Process Yield,1363,494,53,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,32,27,20,1,0,0,0,0,128,0,-1--1--1,,1|(1230,112)|
-1,33,24,20,1,0,0,0,0,128,0,-1--1--1,,1|(1365,122)|
-1,34,28,21,1,0,0,0,0,128,0,-1--1--1,,1|(1300,227)|
-1,35,25,21,1,0,0,0,0,128,0,-1--1--1,,1|(1349,230)|
-1,36,29,22,1,0,0,0,0,128,0,-1--1--1,,1|(1253,351)|
-1,37,30,23,1,0,0,0,0,128,0,-1--1--1,,1|(1280,515)|
-1,38,31,23,1,0,0,0,0,128,0,-1--1--1,,1|(1331,521)|
-10,39,piloting spending,679,735,52,11,8,3,0,0,0,0,0,0
-10,40,piloting management overhead,843,755,65,19,8,3,0,0,0,0,0,0
-10,41,pilot opex,725,643,32,11,8,3,0,0,0,0,0,0
-10,42,hours per year,658,807,55,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,43,42,39,0,1,0,0,0,64,0,-1--1--1,,1|(666,777)|
-1,44,41,39,0,0,0,0,0,64,0,-1--1--1,,1|(705,682)|
-10,45,piloting,549,711,33,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,46,45,39,0,0,0,0,0,64,0,-1--1--1,,1|(597,719)|
-1,47,40,39,0,0,0,0,0,64,0,-1--1--1,,1|(761,745)|
-1,48,2,41,1,0,0,0,0,128,0,-1--1--1,,1|(677,486)|
-1,49,3,41,0,0,0,0,0,128,0,-1--1--1,,1|(624,552)|
-1,50,7,41,0,0,0,0,0,128,0,-1--1--1,,1|(628,648)|
-10,51,demoing spending,1310,688,56,11,8,3,0,0,0,0,0,0
-10,52,demo opex,1436,639,36,11,8,3,0,0,-1,0,0,0
-1,53,52,51,0,0,0,0,0,64,0,-1--1--1,,1|(1379,660)|
-10,54,demoing,1225,646,37,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,55,54,51,0,0,0,0,0,64,0,-1--1--1,,1|(1260,663)|
-10,56,demoing management overhead,1525,737,69,19,8,3,0,0,-1,0,0,0
-1,57,56,51,0,0,0,0,0,64,0,-1--1--1,,1|(1413,712)|
-10,58,hours per year,1209,655,55,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,59,58,51,0,1,0,0,0,64,0,-1--1--1,,1|(1252,669)|
-1,60,21,52,1,0,0,0,0,128,0,-1--1--1,,1|(1512,441)|
-1,61,22,52,1,0,0,0,0,128,0,-1--1--1,,1|(1450,505)|
-1,62,23,52,0,0,0,0,0,128,0,-1--1--1,,1|(1383,610)|
-10,63,startup piloting,500,760,52,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,64,63,39,0,0,0,0,0,128,0,-1--1--1,,1|(582,748)|
-10,65,startup demoing,1160,686,59,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,66,65,51,0,0,0,0,0,128,0,-1--1--1,,1|(1229,686)|
-10,67,management spending control,818,690,57,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-10,68,management spending control,1516,675,57,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,69,67,39,0,0,0,0,0,128,0,-1--1--1,,1|(743,713)|
-1,70,68,51,0,0,0,0,0,128,0,-1--1--1,,1|(1419,680)|
-10,71,commercial plant capacity unscaled,285,154,61,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,72,71,1,0,0,0,0,0,64,0,-1--1--1,,1|(404,161)|
-1,73,15,1,0,0,0,0,0,64,0,-1--1--1,,1|(365,218)|
-10,74,commercial plant capacity unscaled,391,400,61,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,75,74,2,0,0,0,0,0,64,0,-1--1--1,,1|(452,363)|
-1,76,15,2,1,0,0,0,0,64,0,-1--1--1,,1|(349,314)|
-1,77,15,3,1,0,0,0,0,128,0,-1--1--1,,1|(317,403)|
-1,78,15,7,1,0,0,0,0,128,0,-1--1--1,,1|(336,560)|
-10,79,commercial plant capacity unscaled,1108,150,61,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,80,79,20,0,0,0,0,0,64,0,-1--1--1,,1|(1221,160)|
-1,81,26,20,1,0,0,0,0,64,0,-1--1--1,,1|(1113,209)|
-10,82,commercial plant capacity unscaled,1188,320,61,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,83,82,21,0,0,0,0,0,64,0,-1--1--1,,1|(1256,299)|
-1,84,26,21,0,0,0,0,0,64,0,-1--1--1,,1|(1115,283)|
-1,85,26,22,1,0,0,0,0,128,0,-1--1--1,,1|(1105,422)|
-1,86,26,23,1,0,0,0,0,128,0,-1--1--1,,1|(1138,525)|
-10,87,demoing spending indicator,1308,757,62,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,88,87,51,0,0,0,0,0,64,0,-1--1--1,,1|(1308,725)|
-10,89,piloting spending indicator,672,796,58,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,90,89,39,0,0,0,0,0,64,0,-1--1--1,,1|(674,768)|
-10,91,pilot staff salaries,775,802,34,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-10,92,demo staff salaries,1407,767,39,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,93,91,39,0,0,0,0,0,128,0,-1--1--1,,1|(726,768)|
-1,94,92,51,0,0,0,0,0,128,0,-1--1--1,,1|(1358,727)|
+10,4,pilot capital cost scaling factor,634,112,52,19,8,3,0,0,0,0,0,0
+1,5,4,1,1,0,0,0,0,128,0,-1--1--1,,1|(555,128)|
+10,6,Pilot Feedstock Cost,525,655,52,25,8,131,0,0,0,0,0,0
+10,7,Feedstock Price,645,558,63,11,8,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,8,7,6,1,0,0,0,0,128,0,-1--1--1,,1|(540,586)|
+10,9,commercial capital cost unscaled,305,109,71,19,8,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,10,commercial fixed operating cost unscaled,434,253,55,24,8,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,11,9,1,1,0,0,0,0,128,0,-1--1--1,,1|(413,96)|
+1,12,10,2,1,0,0,0,0,128,0,-1--1--1,,1|(503,276)|
+10,13,pilot capacity,214,263,42,11,8,3,0,0,0,0,0,0
+10,14,pilot fixed operating cost scaling factor,682,258,63,19,8,3,0,0,0,0,0,0
+1,15,14,2,1,0,0,0,0,128,0,-1--1--1,,1|(563,249)|
+10,16,commercial variable operating cost unscaled,706,369,64,24,8,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,17,16,3,1,0,0,0,0,128,0,-1--1--1,,1|(593,385)|
+10,18,Demo Capital Cost,1340,173,53,29,8,131,0,0,0,0,0,0
+10,19,Demo Fixed Operating Cost,1322,280,44,25,8,131,0,0,0,0,0,0
+10,20,Demo Variable Operating Cost,1337,419,59,29,8,131,0,0,0,0,0,0
+10,21,Demo Feedstock Cost,1319,575,46,26,8,131,0,0,0,0,0,0
+10,22,demo capital cost scaling factor,1449,111,56,19,8,3,0,0,0,0,0,0
+10,23,demo fixed operating cost scaling factor,1455,232,67,19,8,3,0,0,0,0,0,0
+10,24,demo capacity,927,286,39,19,8,3,0,0,0,0,0,0
+10,25,commercial capital cost unscaled,1140,97,67,19,8,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,26,commercial fixed operating cost unscaled,1221,225,60,25,8,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,27,commercial variable operating cost unscaled,1171,384,65,23,8,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,28,Feedstock Price,1229,489,39,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,29,25,18,1,0,0,0,0,128,0,-1--1--1,,1|(1230,112)|
+1,30,22,18,1,0,0,0,0,128,0,-1--1--1,,1|(1365,122)|
+1,31,26,19,1,0,0,0,0,128,0,-1--1--1,,1|(1300,227)|
+1,32,23,19,1,0,0,0,0,128,0,-1--1--1,,1|(1349,230)|
+1,33,27,20,1,0,0,0,0,128,0,-1--1--1,,1|(1253,351)|
+1,34,28,21,1,0,0,0,0,128,0,-1--1--1,,1|(1280,515)|
+10,35,piloting spending,679,735,52,11,8,3,0,0,0,0,0,0
+10,36,piloting management overhead,843,755,65,19,8,3,0,0,0,0,0,0
+10,37,pilot opex,725,643,32,11,8,3,0,0,0,0,0,0
+10,38,hours per year,658,807,55,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,39,38,35,0,1,0,0,0,64,0,-1--1--1,,1|(666,777)|
+1,40,37,35,0,0,0,0,0,64,0,-1--1--1,,1|(705,682)|
+10,41,piloting,549,711,33,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,42,41,35,0,0,0,0,0,64,0,-1--1--1,,1|(597,719)|
+1,43,36,35,0,0,0,0,0,64,0,-1--1--1,,1|(761,745)|
+1,44,2,37,1,0,0,0,0,128,0,-1--1--1,,1|(677,486)|
+1,45,3,37,0,0,0,0,0,128,0,-1--1--1,,1|(624,552)|
+1,46,6,37,0,0,0,0,0,128,0,-1--1--1,,1|(628,648)|
+10,47,demoing spending,1310,688,56,11,8,3,0,0,0,0,0,0
+10,48,demo opex,1436,639,36,11,8,3,0,0,-1,0,0,0
+1,49,48,47,0,0,0,0,0,64,0,-1--1--1,,1|(1379,660)|
+10,50,demoing,1225,646,37,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,51,50,47,0,0,0,0,0,64,0,-1--1--1,,1|(1260,663)|
+10,52,demoing management overhead,1525,737,69,19,8,3,0,0,-1,0,0,0
+1,53,52,47,0,0,0,0,0,64,0,-1--1--1,,1|(1413,712)|
+10,54,hours per year,1209,655,55,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,55,54,47,0,1,0,0,0,64,0,-1--1--1,,1|(1252,669)|
+1,56,19,48,1,0,0,0,0,128,0,-1--1--1,,1|(1512,441)|
+1,57,20,48,1,0,0,0,0,128,0,-1--1--1,,1|(1450,505)|
+1,58,21,48,0,0,0,0,0,128,0,-1--1--1,,1|(1383,610)|
+10,59,startup piloting,500,760,52,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,60,59,35,0,0,0,0,0,128,0,-1--1--1,,1|(582,748)|
+10,61,startup demoing,1160,686,59,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,62,61,47,0,0,0,0,0,128,0,-1--1--1,,1|(1229,686)|
+10,63,management spending control,818,690,57,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,64,management spending control,1516,675,57,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,65,63,35,0,0,0,0,0,128,0,-1--1--1,,1|(743,713)|
+1,66,64,47,0,0,0,0,0,128,0,-1--1--1,,1|(1419,680)|
+10,67,commercial plant capacity unscaled,285,154,61,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,68,67,1,0,0,0,0,0,64,0,-1--1--1,,1|(404,161)|
+1,69,13,1,0,0,0,0,0,64,0,-1--1--1,,1|(365,218)|
+10,70,commercial plant capacity unscaled,391,400,61,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,71,70,2,0,0,0,0,0,64,0,-1--1--1,,1|(452,363)|
+1,72,13,2,1,0,0,0,0,64,0,-1--1--1,,1|(349,314)|
+1,73,13,3,1,0,0,0,0,128,0,-1--1--1,,1|(317,403)|
+1,74,13,6,1,0,0,0,0,128,0,-1--1--1,,1|(336,560)|
+10,75,commercial plant capacity unscaled,1108,150,61,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,76,75,18,0,0,0,0,0,64,0,-1--1--1,,1|(1221,160)|
+1,77,24,18,1,0,0,0,0,64,0,-1--1--1,,1|(1113,209)|
+10,78,commercial plant capacity unscaled,1188,320,61,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,79,78,19,0,0,0,0,0,64,0,-1--1--1,,1|(1256,299)|
+1,80,24,19,0,0,0,0,0,64,0,-1--1--1,,1|(1115,283)|
+1,81,24,20,1,0,0,0,0,128,0,-1--1--1,,1|(1105,422)|
+1,82,24,21,1,0,0,0,0,128,0,-1--1--1,,1|(1138,525)|
+10,83,demoing spending indicator,1308,757,62,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,84,83,47,0,0,0,0,0,64,0,-1--1--1,,1|(1308,725)|
+10,85,piloting spending indicator,672,796,58,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,86,85,35,0,0,0,0,0,64,0,-1--1--1,,1|(674,768)|
+10,87,pilot staff salaries,775,802,34,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,88,demo staff salaries,1407,767,39,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,89,87,35,0,0,0,0,0,128,0,-1--1--1,,1|(726,768)|
+1,90,88,47,0,0,0,0,0,128,0,-1--1--1,,1|(1358,727)|
+10,91,commercial process yield,525,699,47,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,92,91,6,0,0,0,0,0,64,0,-1--1--1,,1|(525,687)|
+10,93,commercial process yield,1319,620,47,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,94,93,21,0,0,0,0,0,64,0,-1--1--1,,1|(1319,601)|
 \\\---/// Sketch information - do not modify anything except names
 V300  Do not put anything below this section - it will be ignored
 *Piloting and Demoing Process
@@ -3642,7 +3759,7 @@ $192-192-192,0,Times New Roman|12||0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|96,96,1
 10,7,Completed Piloting,481,496,40,20,3,3,0,0,0,0,0,0
 1,8,10,7,4,0,0,22,0,0,0,-1--1--1,,1|(416,498)|
 1,9,10,1,100,0,0,22,0,0,0,-1--1--1,,1|(353,498)|
-11,10,7484,385,498,6,8,34,3,0,0,1,0,0,0
+11,10,6716,385,498,6,8,34,3,0,0,1,0,0,0
 10,11,piloting,385,517,24,11,40,3,0,0,-1,0,0,0
 10,12,target pilot hours,196,576,53,11,8,3,0,0,0,0,0,0
 1,13,1,5,1,0,0,0,0,128,0,-1--1--1,,1|(258,532)|
@@ -3659,7 +3776,7 @@ $192-192-192,0,Times New Roman|12||0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|96,96,1
 10,24,redemoing,1160,631,34,11,40,3,0,0,-1,0,0,0
 1,25,27,19,4,0,0,22,0,0,0,-1--1--1,,1|(1235,544)|
 1,26,27,18,100,0,0,22,0,0,0,-1--1--1,,1|(1174,544)|
-11,27,7036,1205,544,6,8,34,3,0,0,1,0,0,0
+11,27,6268,1205,544,6,8,34,3,0,0,1,0,0,0
 10,28,demoing,1205,563,28,11,40,3,0,0,-1,0,0,0
 1,29,18,23,1,0,0,0,0,128,0,-1--1--1,,1|(1080,588)|
 10,30,Pilot Capital Expense,497,165,48,29,3,131,0,0,0,0,0,0
@@ -3687,7 +3804,7 @@ $192-192-192,0,Times New Roman|12||0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|96,96,1
 10,52,Startup Piloting Hours,355,414,40,24,3,131,0,0,0,0,0,0
 1,53,55,7,4,0,0,22,0,0,0,-1--1--1,,1|(492,448)|
 1,54,55,52,100,0,0,22,0,0,0,-1--1--1,,1|(440,413)|
-11,55,1660,492,413,6,8,34,3,0,0,4,0,0,0
+11,55,540,492,413,6,8,34,3,0,0,4,0,0,0
 10,56,startup piloting,544,413,46,11,40,3,0,0,-1,0,0,0
 10,57,startup piloting period,321,327,72,15,8,131,0,0,0,0,0,0
 1,58,57,52,1,0,0,0,0,128,1,-1--1--1,,1|(315,371)|
@@ -3697,7 +3814,7 @@ $192-192-192,0,Times New Roman|12||0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|96,96,1
 10,62,Startup Demoing Hours,1138,434,40,25,3,131,0,0,0,0,0,0
 1,63,65,19,4,0,0,22,0,0,0,-1--1--1,,1|(1300,480)|
 1,64,65,62,100,0,0,22,0,0,0,-1--1--1,,1|(1236,429)|
-11,65,812,1300,429,6,8,34,3,0,0,4,0,0,0
+11,65,492,1300,429,6,8,34,3,0,0,4,0,0,0
 10,66,startup demoing,1357,429,50,11,40,3,0,0,-1,0,0,0
 10,67,startup demoing period,1153,335,74,13,8,131,0,0,0,0,0,0
 1,68,67,62,1,0,0,0,0,128,1,-1--1--1,,1|(1130,374)|
@@ -3751,223 +3868,216 @@ $192-192-192,0,Times New Roman|12||0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|96,96,1
 10,116,random stream,910,720,56,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
 1,117,116,93,0,0,0,0,0,64,0,-1--1--1,,1|(977,730)|
 10,118,TIME STEP,530,575,50,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-10,119,TIME STEP,1385,619,50,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-10,120,TIME STEP,613,346,50,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-10,121,TIME STEP,1413,354,50,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-10,122,one Year,1203,615,39,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-10,123,one Year,387,571,39,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,124,14,111,1,1,0,0,0,64,0,-1--1--1,,1|(978,368)|
-10,125,hours per year,135,339,55,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,126,125,108,0,1,0,0,0,128,0,-1--1--1,,1|(158,363)|
-10,127,one Year,1357,481,39,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-10,128,one Year,545,460,39,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-10,129,pilot plant is built,489,316,43,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,130,129,56,1,0,0,0,0,128,0,-1--1--1,,1|(531,367)|
-10,131,demo plant is built,1300,325,47,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,132,131,66,1,0,0,0,0,64,0,-1--1--1,,1|(1336,368)|
-10,133,piloting capital expenditure damper,582,256,68,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,134,133,37,0,0,0,0,0,64,0,-1--1--1,,1|(612,228)|
-10,135,demoing capital expenditure damper,1244,255,68,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,136,135,44,0,0,0,0,0,64,0,-1--1--1,,1|(1268,229)|
-10,137,startup piloting damper,688,455,52,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,138,137,56,0,0,0,0,0,64,0,-1--1--1,,1|(615,433)|
-10,139,pilot plant construction,739,253,44,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,140,139,37,0,0,0,0,0,128,0,-1--1--1,,1|(702,226)|
-10,141,demo plant construction,1395,254,44,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,142,141,44,0,0,0,0,0,128,0,-1--1--1,,1|(1354,227)|
-10,143,redemoing indicator,1173,686,39,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,144,143,24,1,0,0,0,0,64,0,-1--1--1,,1|(1140,658)|
-10,145,repiloting indicator,410,638,34,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,146,145,6,1,0,0,0,0,64,0,-1--1--1,,1|(357,639)|
-10,147,piloting damper,387,584,58,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,148,147,11,1,0,0,0,0,64,0,-1--1--1,,1|(352,532)|
-10,149,startup piloting complete,527,598,52,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,150,149,11,1,0,0,0,0,64,0,-1--1--1,,1|(423,555)|
-10,151,startup demoing damper,1569,469,56,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,152,151,66,0,0,0,0,0,64,0,-1--1--1,,1|(1466,449)|
-10,153,demoing damper,1276,661,32,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,154,153,28,1,0,0,0,0,64,0,-1--1--1,,1|(1214,614)|
-10,155,startup demoing completed,1387,631,56,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,156,155,28,1,0,0,0,0,64,0,-1--1--1,,1|(1260,615)|
-1,157,71,77,1,0,0,0,0,64,0,-1--1--1,,1|(413,747)|
-1,158,71,72,1,0,0,0,0,64,1,-1--1--1,,1|(522,726)|
-1,159,70,92,0,0,0,0,0,64,0,-1--1--1,,1|(1324,759)|
-1,160,70,87,0,0,0,0,0,64,1,-1--1--1,,1|(1393,756)|
-10,161,one hour,752,628,29,11,8,3,1,0,0,0,0,0
-10,162,one Year,760,695,39,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,119,one Year,387,571,39,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,120,14,111,1,1,0,0,0,64,0,-1--1--1,,1|(978,368)|
+10,121,hours per year,135,339,55,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,122,121,108,0,1,0,0,0,128,0,-1--1--1,,1|(158,363)|
+10,123,one Year,545,460,39,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,124,redemoing indicator,1173,686,39,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,125,124,24,1,0,0,0,0,64,0,-1--1--1,,1|(1140,658)|
+10,126,repiloting indicator,410,638,34,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,127,126,6,1,0,0,0,0,64,0,-1--1--1,,1|(357,639)|
+1,128,71,77,1,0,0,0,0,64,0,-1--1--1,,1|(413,747)|
+1,129,71,72,1,0,0,0,0,64,1,-1--1--1,,1|(522,726)|
+1,130,70,92,0,0,0,0,0,64,0,-1--1--1,,1|(1324,759)|
+1,131,70,87,0,0,0,0,0,64,1,-1--1--1,,1|(1393,756)|
+10,132,one hour,752,628,29,11,8,3,1,0,0,0,0,0
+10,133,pilot plant construction,718,264,44,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,134,133,37,0,0,0,0,0,64,0,-1--1--1,,1|(691,232)|
+10,135,pilot plant is built,686,444,43,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,136,135,56,0,0,0,0,0,64,0,-1--1--1,,1|(623,430)|
+10,137,startup piloting complete,520,580,52,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,138,137,11,1,0,0,0,0,64,0,-1--1--1,,1|(435,554)|
+10,139,demo plant construction,1433,255,44,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,140,139,44,0,0,0,0,0,64,0,-1--1--1,,1|(1374,227)|
+10,141,demo plant is built,1313,376,47,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,142,141,66,1,0,0,0,0,64,0,-1--1--1,,1|(1369,387)|
+10,143,startup demoing completed,1191,488,56,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,144,143,28,1,0,0,0,0,64,0,-1--1--1,,1|(1181,521)|
+10,145,piloting capital expenditure damper,576,254,68,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,146,145,37,0,0,0,0,0,64,0,-1--1--1,,1|(609,226)|
+10,147,demoing capital expenditure damper,1267,264,68,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,148,147,44,0,0,0,0,0,64,0,-1--1--1,,1|(1281,235)|
+10,149,piloting damper,401,588,58,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,150,149,11,0,0,0,0,0,64,0,-1--1--1,,1|(394,559)|
+10,151,startup piloting damper,513,354,52,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,152,151,56,0,0,0,0,0,64,0,-1--1--1,,1|(526,381)|
+10,153,startup demoing damper,1521,447,56,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,154,153,66,0,0,0,0,0,64,0,-1--1--1,,1|(1442,438)|
+10,155,demoing damper,1271,633,32,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,156,155,28,0,0,0,0,0,64,0,-1--1--1,,1|(1239,599)|
 \\\---/// Sketch information - do not modify anything except names
 V300  Do not put anything below this section - it will be ignored
 *Regulatory Delays
 $192-192-192,0,Times New Roman|12||0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|96,96,5,0
-10,1,feedstock approval required,786,53,61,19,8,3,0,0,0,0,0,0
-10,2,pathway approval required,739,148,57,19,8,3,0,0,0,0,0,0
-10,3,product approval required,792,319,55,19,8,3,0,0,0,0,0,0
-10,4,feedstock approval minimum cost,438,71,61,19,8,3,0,0,0,0,0,0
-10,5,pathway approval minimum cost,439,208,57,19,8,3,0,0,0,0,0,0
-10,6,product approval minimum cost,442,344,55,19,8,3,0,0,0,0,0,0
-10,7,regulatory process starting point,550,124,61,18,8,131,0,0,0,0,0,0
-10,8,feedstock approval maximum cost,445,25,61,19,8,3,0,0,0,0,0,0
-10,9,pathway approval maximum cost,442,166,57,19,8,3,0,0,0,0,0,0
-10,10,product approval maximum cost,447,295,55,19,8,3,0,0,0,0,0,0
-10,11,feedstock approval cost,645,53,44,19,8,3,0,0,0,0,0,0
-10,12,pathway approval cost,635,192,44,19,8,3,0,0,0,0,0,0
-10,13,product approval cost,654,319,55,19,8,3,0,0,0,0,0,0
-1,14,8,11,0,0,0,0,0,128,0,-1--1--1,,1|(546,38)|
-1,15,4,11,0,0,0,0,0,128,0,-1--1--1,,1|(542,61)|
-1,16,9,12,0,0,0,0,0,128,0,-1--1--1,,1|(538,178)|
-1,17,5,12,0,0,0,0,0,128,0,-1--1--1,,1|(536,200)|
-1,18,10,13,0,0,0,0,0,128,0,-1--1--1,,1|(543,305)|
-1,19,6,13,0,0,0,0,0,128,0,-1--1--1,,1|(541,332)|
-10,20,Regulatory Costs,1126,183,48,27,3,131,0,0,0,0,0,0
-10,21,regulatory process starting point,544,254,64,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,22,7,11,1,0,0,0,0,128,0,-1--1--1,,1|(622,102)|
-1,23,7,12,1,0,0,0,0,128,0,-1--1--1,,1|(611,136)|
-1,24,21,13,1,0,0,0,0,128,0,-1--1--1,,1|(628,272)|
-10,25,total approval cost,942,182,58,11,8,3,0,0,0,0,0,0
-1,26,11,25,1,0,0,0,0,128,0,-1--1--1,,1|(823,96)|
-1,27,1,25,1,0,0,0,0,128,0,-1--1--1,,1|(927,128)|
-1,28,2,25,1,0,0,0,0,128,0,-1--1--1,,1|(846,158)|
-1,29,12,25,0,0,0,0,0,128,0,-1--1--1,,1|(774,187)|
-1,30,13,25,1,0,0,0,0,128,0,-1--1--1,,1|(807,254)|
-1,31,3,25,1,0,0,0,0,128,0,-1--1--1,,1|(896,250)|
-1,32,25,20,0,0,0,0,0,128,1,-1--1--1,,1|(1032,182)|
-12,33,48,1355,183,10,8,0,3,0,0,-1,0,0,0
-1,34,36,33,4,0,0,22,0,0,0,-1--1--1,,1|(1305,183)|
-1,35,36,20,100,0,0,22,0,0,0,-1--1--1,,1|(1213,183)|
-11,36,48,1259,183,6,8,34,3,0,0,1,0,0,0
-10,37,regulatory process spending,1259,210,59,19,40,3,0,0,-1,0,0,0
-10,38,feedstock approval maximum time,450,444,61,19,8,3,0,0,0,0,0,0
-10,39,feedstock approval minimum time,456,498,61,19,8,3,0,0,0,0,0,0
-10,40,pathway approval maximum time,458,575,57,19,8,3,0,0,0,0,0,0
-10,41,pathway approval minimum time,457,619,57,19,8,3,0,0,0,0,0,0
-10,42,product approval maximum time,463,689,55,19,8,3,0,0,0,0,0,0
-10,43,product approval minimum time,462,735,55,19,8,3,0,0,0,0,0,0
-10,44,feedstock approval time,648,458,44,19,8,3,0,0,0,0,0,0
-10,45,pathway approval time,645,595,44,19,8,3,0,0,0,0,0,0
-10,46,product approval time,646,702,55,19,8,3,0,0,0,0,0,0
-10,47,total approval time,853,576,58,11,8,3,0,0,0,0,0,0
-10,48,feedstock approval required,772,438,66,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-10,49,pathway approval required,707,525,62,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-10,50,product approval required,806,715,60,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,51,38,44,0,0,0,0,0,128,0,-1--1--1,,1|(550,450)|
-1,52,39,44,0,0,0,0,0,128,0,-1--1--1,,1|(553,477)|
-1,53,40,45,0,0,0,0,0,128,0,-1--1--1,,1|(551,584)|
-1,54,41,45,0,0,0,0,0,128,0,-1--1--1,,1|(550,606)|
-1,55,42,46,0,0,0,0,0,128,0,-1--1--1,,1|(547,694)|
-1,56,43,46,0,0,0,0,0,128,0,-1--1--1,,1|(547,719)|
-1,57,44,47,1,0,0,0,0,128,0,-1--1--1,,1|(798,503)|
-1,58,48,47,1,0,0,0,0,128,0,-1--1--1,,1|(840,484)|
-1,59,49,47,1,0,0,0,0,128,0,-1--1--1,,1|(787,555)|
-1,60,45,47,0,0,0,0,0,128,0,-1--1--1,,1|(735,586)|
-1,61,46,47,1,0,0,0,0,128,0,-1--1--1,,1|(769,644)|
-1,62,50,47,1,0,0,0,0,128,0,-1--1--1,,1|(853,639)|
-10,63,regulatory process starting point,567,531,64,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-10,64,regulatory process starting point,564,650,64,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,65,63,44,0,0,0,0,0,128,0,-1--1--1,,1|(601,499)|
-1,66,63,45,0,0,0,0,0,128,0,-1--1--1,,1|(600,558)|
-1,67,64,46,0,0,0,0,0,128,0,-1--1--1,,1|(598,672)|
-10,68,TIME STEP,1361,263,50,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-10,69,regulatory process begins,1271,82,64,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,70,69,37,1,0,0,0,0,64,0,-1--1--1,,1|(1287,134)|
-10,71,regulatory process spending damper,1295,325,64,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,72,71,37,1,0,0,0,0,64,0,-1--1--1,,1|(1309,263)|
+10,1,feedstock approval required,796,121,61,19,8,3,0,0,0,0,0,0
+10,2,pathway approval required,749,216,57,19,8,3,0,0,0,0,0,0
+10,3,product approval required,802,387,55,19,8,3,0,0,0,0,0,0
+10,4,feedstock approval minimum cost,448,139,61,19,8,3,0,0,0,0,0,0
+10,5,pathway approval minimum cost,449,276,57,19,8,3,0,0,0,0,0,0
+10,6,product approval minimum cost,452,412,55,19,8,3,0,0,0,0,0,0
+10,7,regulatory process starting point,560,192,61,18,8,131,0,0,0,0,0,0
+10,8,feedstock approval maximum cost,455,93,61,19,8,3,0,0,0,0,0,0
+10,9,pathway approval maximum cost,452,234,57,19,8,3,0,0,0,0,0,0
+10,10,product approval maximum cost,457,363,55,19,8,3,0,0,0,0,0,0
+10,11,feedstock approval cost,655,121,44,19,8,3,0,0,0,0,0,0
+10,12,pathway approval cost,645,260,44,19,8,3,0,0,0,0,0,0
+10,13,product approval cost,664,387,55,19,8,3,0,0,0,0,0,0
+1,14,8,11,0,0,0,0,0,128,0,-1--1--1,,1|(556,106)|
+1,15,4,11,0,0,0,0,0,128,0,-1--1--1,,1|(552,129)|
+1,16,9,12,0,0,0,0,0,128,0,-1--1--1,,1|(548,246)|
+1,17,5,12,0,0,0,0,0,128,0,-1--1--1,,1|(546,268)|
+1,18,10,13,0,0,0,0,0,128,0,-1--1--1,,1|(553,373)|
+1,19,6,13,0,0,0,0,0,128,0,-1--1--1,,1|(551,400)|
+10,20,Regulatory Costs,1136,251,48,27,3,131,0,0,0,0,0,0
+10,21,regulatory process starting point,554,322,64,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,22,7,11,1,0,0,0,0,128,0,-1--1--1,,1|(632,170)|
+1,23,7,12,1,0,0,0,0,128,0,-1--1--1,,1|(621,204)|
+1,24,21,13,1,0,0,0,0,128,0,-1--1--1,,1|(638,340)|
+10,25,total approval cost,952,250,58,11,8,3,0,0,0,0,0,0
+1,26,11,25,1,0,0,0,0,128,0,-1--1--1,,1|(833,164)|
+1,27,1,25,1,0,0,0,0,128,0,-1--1--1,,1|(937,196)|
+1,28,2,25,1,0,0,0,0,128,0,-1--1--1,,1|(856,226)|
+1,29,12,25,0,0,0,0,0,128,0,-1--1--1,,1|(784,255)|
+1,30,13,25,1,0,0,0,0,128,0,-1--1--1,,1|(817,322)|
+1,31,3,25,1,0,0,0,0,128,0,-1--1--1,,1|(906,318)|
+1,32,25,20,0,0,0,0,0,128,1,-1--1--1,,1|(1042,250)|
+12,33,48,1365,251,10,8,0,3,0,0,-1,0,0,0
+1,34,36,33,4,0,0,22,0,0,0,-1--1--1,,1|(1315,251)|
+1,35,36,20,100,0,0,22,0,0,0,-1--1--1,,1|(1223,251)|
+11,36,48,1269,251,6,8,34,3,0,0,1,0,0,0
+10,37,regulatory process spending,1269,278,59,19,40,3,0,0,-1,0,0,0
+10,38,feedstock approval maximum time,460,512,61,19,8,3,0,0,0,0,0,0
+10,39,feedstock approval minimum time,466,566,61,19,8,3,0,0,0,0,0,0
+10,40,pathway approval maximum time,468,643,57,19,8,3,0,0,0,0,0,0
+10,41,pathway approval minimum time,467,687,57,19,8,3,0,0,0,0,0,0
+10,42,product approval maximum time,473,757,55,19,8,3,0,0,0,0,0,0
+10,43,product approval minimum time,472,803,55,19,8,3,0,0,0,0,0,0
+10,44,feedstock approval time,658,526,44,19,8,3,0,0,0,0,0,0
+10,45,pathway approval time,655,663,44,19,8,3,0,0,0,0,0,0
+10,46,product approval time,656,770,55,19,8,3,0,0,0,0,0,0
+10,47,total approval time,863,644,58,11,8,3,0,0,0,0,0,0
+10,48,feedstock approval required,782,506,66,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,49,pathway approval required,717,593,62,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,50,product approval required,816,783,60,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,51,38,44,0,0,0,0,0,128,0,-1--1--1,,1|(560,518)|
+1,52,39,44,0,0,0,0,0,128,0,-1--1--1,,1|(563,545)|
+1,53,40,45,0,0,0,0,0,128,0,-1--1--1,,1|(561,652)|
+1,54,41,45,0,0,0,0,0,128,0,-1--1--1,,1|(560,674)|
+1,55,42,46,0,0,0,0,0,128,0,-1--1--1,,1|(557,762)|
+1,56,43,46,0,0,0,0,0,128,0,-1--1--1,,1|(557,787)|
+1,57,44,47,1,0,0,0,0,128,0,-1--1--1,,1|(808,571)|
+1,58,48,47,1,0,0,0,0,128,0,-1--1--1,,1|(850,552)|
+1,59,49,47,1,0,0,0,0,128,0,-1--1--1,,1|(797,623)|
+1,60,45,47,0,0,0,0,0,128,0,-1--1--1,,1|(745,654)|
+1,61,46,47,1,0,0,0,0,128,0,-1--1--1,,1|(779,712)|
+1,62,50,47,1,0,0,0,0,128,0,-1--1--1,,1|(863,707)|
+10,63,regulatory process starting point,577,599,64,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,64,regulatory process starting point,574,718,64,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,65,63,44,0,0,0,0,0,128,0,-1--1--1,,1|(611,567)|
+1,66,63,45,0,0,0,0,0,128,0,-1--1--1,,1|(610,626)|
+1,67,64,46,0,0,0,0,0,128,0,-1--1--1,,1|(608,740)|
+10,68,regulatory process begins,1164,386,64,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,69,68,37,1,0,0,0,0,64,0,-1--1--1,,1|(1183,321)|
+10,70,regulatory process spending damper,1347,368,64,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,71,70,37,1,0,0,0,0,64,0,-1--1--1,,1|(1326,320)|
 \\\---/// Sketch information - do not modify anything except names
 V300  Do not put anything below this section - it will be ignored
 *Commercial Costs
 $192-192-192,0,Times New Roman|12||0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|96,96,5,0
-10,1,Commercial Fixed Operating Cost Scaled,858,279,42,37,8,131,0,0,0,0,0,0
-10,2,Commercial Variable Operating Cost Scaled,861,470,42,37,8,131,0,0,0,0,0,0
-10,3,Commercial Capital Cost Scaled,857,175,45,26,8,131,0,0,0,0,0,0
-10,4,commercial capital cost unscaled,967,229,59,19,8,3,0,0,0,0,0,0
-10,5,commercial fixed operating cost unscaled,887,353,74,19,8,3,0,0,0,0,0,0
-10,6,commercial variable operating cost unscaled,753,394,74,19,8,3,0,0,0,0,0,0
-10,7,Process Yield,856,553,44,11,8,3,0,0,0,0,0,0
-10,8,commercial process yield,1015,578,42,19,8,3,0,0,0,0,0,0
-1,9,4,3,0,0,0,0,0,128,0,-1--1--1,,1|(921,206)|
-1,10,5,1,0,0,0,0,0,128,0,-1--1--1,,1|(878,331)|
-1,11,6,2,1,0,0,0,0,128,0,-1--1--1,,1|(813,423)|
-1,12,8,7,0,0,0,0,0,128,0,-1--1--1,,1|(943,566)|
-10,13,commercial plant capacity scaled,522,578,54,19,8,3,0,0,0,0,0,0
-10,14,Commercial Feedstock Cost Scaled,860,681,42,25,8,131,0,0,0,0,0,0
-10,15,Feedstock Price,711,714,39,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,16,15,14,0,0,0,0,0,128,0,-1--1--1,,1|(777,699)|
-1,17,7,14,1,0,0,0,0,128,0,-1--1--1,,1|(839,605)|
-10,18,one TRL,1268,376,38,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,19,13,2,1,0,0,0,0,64,0,-1--1--1,,1|(684,496)|
-1,20,13,14,1,0,0,0,0,64,0,-1--1--1,,1|(679,652)|
-10,21,commercial total operating cost,1151,410,53,19,8,3,0,0,0,0,0,0
-1,22,1,21,0,0,0,0,0,128,0,-1--1--1,,1|(997,341)|
-1,23,2,21,0,0,0,0,0,128,0,-1--1--1,,1|(993,442)|
-1,24,14,21,1,0,0,0,0,128,0,-1--1--1,,1|(1098,591)|
-1,25,13,1,1,0,0,0,0,128,0,-1--1--1,,1|(600,402)|
-1,26,13,3,1,0,0,0,0,128,0,-1--1--1,,1|(611,296)|
-10,27,commercial plant capacity unscaled,510,284,56,19,8,3,0,0,0,0,0,0
-1,28,27,3,1,0,0,0,0,128,0,-1--1--1,,1|(685,168)|
-1,29,27,1,1,0,0,0,0,128,0,-1--1--1,,1|(726,261)|
+10,1,Commercial Fixed Operating Cost Scaled,910,286,42,37,8,131,0,0,0,0,0,0
+10,2,Commercial Variable Operating Cost Scaled,913,477,42,37,8,131,0,0,0,0,0,0
+10,3,Commercial Capital Cost Scaled,909,182,45,26,8,131,0,0,0,0,0,0
+10,4,commercial capital cost unscaled,1019,236,59,19,8,3,0,0,0,0,0,0
+10,5,commercial fixed operating cost unscaled,939,360,74,19,8,3,0,0,0,0,0,0
+10,6,commercial variable operating cost unscaled,805,401,74,19,8,3,0,0,0,0,0,0
+10,7,commercial process yield,977,570,42,19,8,3,0,0,0,0,0,0
+1,8,4,3,0,0,0,0,0,128,0,-1--1--1,,1|(973,213)|
+1,9,5,1,0,0,0,0,0,128,0,-1--1--1,,1|(930,338)|
+1,10,6,2,1,0,0,0,0,128,0,-1--1--1,,1|(865,430)|
+10,11,commercial plant capacity scaled,574,585,54,19,8,3,0,0,0,0,0,0
+10,12,Commercial Feedstock Cost Scaled,912,688,42,25,8,131,0,0,0,0,0,0
+10,13,Feedstock Price,763,721,39,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,14,13,12,0,0,0,0,0,128,0,-1--1--1,,1|(829,706)|
+1,15,11,2,1,0,0,0,0,64,0,-1--1--1,,1|(736,503)|
+1,16,11,12,1,0,0,0,0,64,0,-1--1--1,,1|(731,659)|
+10,17,commercial total operating cost,1203,417,53,19,8,3,0,0,0,0,0,0
+1,18,1,17,0,0,0,0,0,128,0,-1--1--1,,1|(1049,348)|
+1,19,2,17,0,0,0,0,0,128,0,-1--1--1,,1|(1045,449)|
+1,20,12,17,1,0,0,0,0,128,0,-1--1--1,,1|(1150,598)|
+1,21,11,1,1,0,0,0,0,128,0,-1--1--1,,1|(652,409)|
+1,22,11,3,1,0,0,0,0,128,0,-1--1--1,,1|(663,303)|
+10,23,commercial plant capacity unscaled,562,291,56,19,8,3,0,0,0,0,0,0
+1,24,23,3,1,0,0,0,0,128,0,-1--1--1,,1|(737,175)|
+1,25,23,1,1,0,0,0,0,128,0,-1--1--1,,1|(778,268)|
+1,26,7,12,0,0,0,0,0,64,0,-1--1--1,,1|(949,619)|
 \\\---/// Sketch information - do not modify anything except names
 V300  Do not put anything below this section - it will be ignored
 *Commercial Process
 $192-192-192,0,Times New Roman|12||0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|96,96,5,0
-10,1,Cumulative Production,1041,282,40,20,3,3,0,0,0,0,0,0
-12,2,48,907,280,10,8,0,3,0,0,-1,0,0,0
-1,3,5,1,4,0,0,22,0,0,0,-1--1--1,,1|(983,280)|
-1,4,5,2,100,0,0,22,0,0,0,-1--1--1,,1|(935,280)|
-11,5,48,959,280,6,8,34,3,0,0,1,0,0,0
-10,6,production,959,299,35,11,40,3,0,0,-1,0,0,0
-10,7,commercial plant capacity scaled,803,255,49,24,8,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,8,7,6,1,0,0,0,0,128,0,-1--1--1,,1|(870,286)|
-10,9,"account for demo plant production?",980,32,56,19,8,3,0,0,0,0,0,0
-10,10,cumulative gross revenue from product sales,1240,301,84,27,8,131,0,0,0,0,0,0
-10,11,Cumulative Feedstock Consumption,1066,430,47,28,3,131,0,0,0,0,0,0
-12,12,48,926,431,10,8,0,3,0,0,-1,0,0,0
-1,13,15,11,4,0,0,22,0,0,0,-1--1--1,,1|(1001,431)|
-1,14,15,12,100,0,0,22,0,0,0,-1--1--1,,1|(953,431)|
-11,15,48,977,431,6,8,34,3,0,0,1,0,0,0
-10,16,feedstock consumption,977,458,41,19,40,3,0,0,-1,0,0,0
-1,17,6,15,1,0,0,0,0,128,0,-1--1--1,,1|(950,331)|
-10,18,Process Yield,834,487,53,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,19,18,16,1,0,0,0,0,64,0,-1--1--1,,1|(919,497)|
-1,20,1,10,1,0,0,0,0,128,0,-1--1--1,,1|(1138,266)|
-10,21,Selling Price,1266,396,48,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,22,21,10,1,0,0,0,0,128,0,-1--1--1,,1|(1190,354)|
-10,23,piloting production,986,533,58,11,8,3,0,0,0,0,0,0
-10,24,piloting,889,610,33,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-10,25,hours per year,1124,550,55,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,26,24,23,0,0,0,0,0,128,0,-1--1--1,,1|(931,575)|
-1,27,25,23,0,0,0,0,0,128,0,-1--1--1,,1|(1063,543)|
-1,28,23,16,0,0,0,0,0,128,0,-1--1--1,,1|(982,506)|
-10,29,Cumulative Demoing Production,1252,156,53,28,3,131,0,0,0,0,0,0
-12,30,48,1006,161,10,8,0,3,0,0,-1,0,0,0
-1,31,33,29,4,0,0,22,0,0,0,-1--1--1,,1|(1156,161)|
-1,32,33,30,100,0,0,22,0,0,0,-1--1--1,,1|(1058,161)|
-11,33,48,1107,161,6,8,34,3,0,0,1,0,0,0
-10,34,demoing production,1107,188,35,19,40,3,0,0,-1,0,0,0
-1,35,9,34,0,0,0,0,0,64,0,-1--1--1,,1|(1038,104)|
-10,36,demoing,918,91,37,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,37,36,34,0,0,0,0,0,64,0,-1--1--1,,1|(999,132)|
-10,38,hours per year,1105,11,55,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,39,38,34,0,1,0,0,0,64,0,-1--1--1,,1|(1105,88)|
-1,40,34,5,1,0,0,0,0,128,0,-1--1--1,,1|(985,230)|
-10,41,Commercial Capital Expense,703,4,75,32,3,131,0,0,0,0,0,0
-12,42,48,395,2,10,8,0,3,0,0,-1,0,0,0
-1,43,45,42,4,0,0,22,0,0,0,-1--1--1,,1|(446,2)|
-1,44,45,41,100,0,0,22,0,0,0,-1--1--1,,1|(566,2)|
-11,45,48,496,2,8,11,34,3,0,0,1,0,0,0
-10,46,commercial capital expenditure,496,32,59,19,40,3,0,0,-1,0,0,0
-10,47,Commercial Capital Cost Scaled,676,-86,58,26,8,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,48,47,41,0,0,0,0,0,64,1,-1--1--1,,1|(685,-51)|
-10,49,commercial construction time,353,-63,54,19,8,3,0,0,0,0,0,0
-1,50,41,6,0,0,0,0,0,64,0,-1--1--1,,1|(834,156)|
-10,51,pilot capacity,996,606,51,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,52,51,23,0,0,0,0,0,64,0,-1--1--1,,1|(992,576)|
-10,53,demo capacity,1231,244,55,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,54,53,34,0,0,0,0,0,64,0,-1--1--1,,1|(1180,220)|
-10,55,profitable,959,329,40,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,56,55,6,0,0,0,0,0,64,0,-1--1--1,,1|(959,321)|
-10,57,commercial plant construction,547,119,59,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,58,57,46,0,0,0,0,0,64,0,-1--1--1,,1|(525,81)|
-10,59,commercial capital expenditure damper,398,107,68,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,60,59,46,0,0,0,0,0,64,0,-1--1--1,,1|(440,73)|
+10,1,Cumulative Production,1110,475,40,20,3,3,0,0,0,0,0,0
+12,2,48,976,473,10,8,0,3,0,0,-1,0,0,0
+1,3,5,1,4,0,0,22,0,0,0,-1--1--1,,1|(1052,473)|
+1,4,5,2,100,0,0,22,0,0,0,-1--1--1,,1|(1004,473)|
+11,5,48,1028,473,6,8,34,3,0,0,1,0,0,0
+10,6,production,1028,492,35,11,40,3,0,0,-1,0,0,0
+10,7,commercial plant capacity scaled,872,448,49,24,8,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,8,7,6,1,0,0,0,0,128,0,-1--1--1,,1|(939,479)|
+10,9,"account for demo plant production?",1049,225,56,19,8,3,0,0,0,0,0,0
+10,10,cumulative gross revenue from product sales,1309,494,84,27,8,131,0,0,0,0,0,0
+10,11,Cumulative Feedstock Consumption,1135,623,47,28,3,131,0,0,0,0,0,0
+12,12,48,995,624,10,8,0,3,0,0,-1,0,0,0
+1,13,15,11,4,0,0,22,0,0,0,-1--1--1,,1|(1070,624)|
+1,14,15,12,100,0,0,22,0,0,0,-1--1--1,,1|(1022,624)|
+11,15,48,1046,624,6,8,34,3,0,0,1,0,0,0
+10,16,feedstock consumption,1046,651,41,19,40,3,0,0,-1,0,0,0
+1,17,6,15,1,0,0,0,0,128,0,-1--1--1,,1|(1019,524)|
+1,18,1,10,1,0,0,0,0,128,0,-1--1--1,,1|(1207,459)|
+10,19,Selling Price,1335,589,48,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,20,19,10,1,0,0,0,0,128,0,-1--1--1,,1|(1259,547)|
+10,21,piloting production,1055,726,58,11,8,3,0,0,0,0,0,0
+10,22,piloting,958,803,33,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,23,hours per year,1193,743,55,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,24,22,21,0,0,0,0,0,128,0,-1--1--1,,1|(1000,768)|
+1,25,23,21,0,0,0,0,0,128,0,-1--1--1,,1|(1132,736)|
+1,26,21,16,0,0,0,0,0,128,0,-1--1--1,,1|(1051,699)|
+10,27,Cumulative Demoing Production,1321,349,53,28,3,131,0,0,0,0,0,0
+12,28,48,1075,354,10,8,0,3,0,0,-1,0,0,0
+1,29,31,27,4,0,0,22,0,0,0,-1--1--1,,1|(1225,354)|
+1,30,31,28,100,0,0,22,0,0,0,-1--1--1,,1|(1127,354)|
+11,31,48,1176,354,6,8,34,3,0,0,1,0,0,0
+10,32,demoing production,1176,381,35,19,40,3,0,0,-1,0,0,0
+1,33,9,32,0,0,0,0,0,64,0,-1--1--1,,1|(1107,297)|
+10,34,demoing,987,284,37,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,35,34,32,0,0,0,0,0,64,0,-1--1--1,,1|(1068,325)|
+10,36,hours per year,1174,204,55,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,37,36,32,0,1,0,0,0,64,0,-1--1--1,,1|(1174,281)|
+1,38,32,5,1,0,0,0,0,128,0,-1--1--1,,1|(1054,423)|
+10,39,Commercial Capital Expense,772,197,75,32,3,131,0,0,0,0,0,0
+12,40,48,464,195,10,8,0,3,0,0,-1,0,0,0
+1,41,43,40,4,0,0,22,0,0,0,-1--1--1,,1|(515,195)|
+1,42,43,39,100,0,0,22,0,0,0,-1--1--1,,1|(635,195)|
+11,43,48,565,195,8,11,34,3,0,0,1,0,0,0
+10,44,commercial capital expenditure,565,225,59,19,40,3,0,0,-1,0,0,0
+10,45,Commercial Capital Cost Scaled,745,107,58,26,8,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,46,45,39,0,0,0,0,0,64,1,-1--1--1,,1|(754,141)|
+10,47,commercial construction time,422,130,54,19,8,3,0,0,0,0,0,0
+10,48,pilot capacity,1065,799,51,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,49,48,21,0,0,0,0,0,64,0,-1--1--1,,1|(1061,769)|
+10,50,demo capacity,1300,437,55,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,51,50,32,0,0,0,0,0,64,0,-1--1--1,,1|(1249,413)|
+10,52,profitable,1141,552,40,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,53,52,6,0,0,0,0,0,64,0,-1--1--1,,1|(1090,525)|
+10,54,commercial process yield,829,654,47,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,55,54,16,0,0,0,0,0,64,0,-1--1--1,,1|(933,652)|
+10,56,commercial plant startup period,776,536,54,19,8,3,0,0,0,0,0,0
+1,57,56,6,1,0,0,0,0,128,0,-1--1--1,,1|(931,532)|
+10,58,commercial plant construction,661,285,59,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,59,58,44,0,0,0,0,0,64,0,-1--1--1,,1|(618,258)|
+10,60,commercial plant is built,806,493,59,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,61,60,6,1,0,0,0,0,64,0,-1--1--1,,1|(919,503)|
+10,62,commercial capital expenditure damper,455,277,68,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,63,62,44,0,0,0,0,0,64,0,-1--1--1,,1|(503,254)|
 \\\---/// Sketch information - do not modify anything except names
 V300  Do not put anything below this section - it will be ignored
 *Market Share
@@ -4000,13 +4110,12 @@ $192-192-192,0,Times New Roman|12||0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|96,96,8
 10,26,required return,296,619,56,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
 1,27,26,18,1,0,0,0,0,64,0,-1--1--1,,1|(270,587)|
 10,28,green premium,333,262,56,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-10,29,green premium,374,79,56,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-10,30,selling price without green premium,262,150,62,19,8,3,0,0,-1,0,0,0
-1,31,30,9,0,0,0,0,0,64,0,-1--1--1,,1|(374,196)|
-1,32,3,30,0,0,0,0,0,128,0,-1--1--1,,1|(207,205)|
-1,33,28,30,0,0,0,0,0,128,0,-1--1--1,,1|(304,215)|
-1,34,30,4,0,0,0,0,0,64,0,-1--1--1,,1|(179,92)|
-1,35,30,7,0,0,0,0,0,64,0,-1--1--1,,1|(307,104)|
+10,29,selling price without green premium,262,150,62,19,8,3,0,0,-1,0,0,0
+1,30,29,9,0,0,0,0,0,64,0,-1--1--1,,1|(374,196)|
+1,31,3,29,0,0,0,0,0,128,0,-1--1--1,,1|(207,205)|
+1,32,28,29,0,0,0,0,0,128,0,-1--1--1,,1|(304,215)|
+1,33,29,4,0,0,0,0,0,64,0,-1--1--1,,1|(179,92)|
+1,34,29,7,0,0,0,0,0,64,0,-1--1--1,,1|(307,104)|
 \\\---/// Sketch information - do not modify anything except names
 V300  Do not put anything below this section - it will be ignored
 *Income Statement
@@ -4044,66 +4153,67 @@ $192-192-192,0,Times New Roman|12||0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|96,96,8
 1,31,29,2,1,0,0,0,0,128,0,-1--1--1,,1|(242,182)|
 10,32,Commercial Fixed Operating Cost Scaled,119,281,62,24,8,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
 10,33,Commercial Variable Operating Cost Scaled,125,348,69,27,8,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-10,34,Process Yield,118,559,53,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,35,25,7,1,0,0,0,0,128,0,-1--1--1,,1|(28,309)|
-1,36,34,7,1,0,0,0,0,128,0,-1--1--1,,1|(308,515)|
-1,37,33,7,1,0,0,0,0,128,0,-1--1--1,,1|(227,372)|
-10,38,Feedstock Price,122,489,39,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,39,38,7,1,0,0,0,0,128,0,-1--1--1,,1|(272,474)|
-1,40,32,8,1,0,0,0,0,128,0,-1--1--1,,1|(224,242)|
-1,41,15,23,1,0,0,0,0,128,0,-1--1--1,,1|(1007,402)|
-1,42,18,22,1,0,0,0,0,128,0,-1--1--1,,1|(1095,235)|
-10,43,IS Tax Loss Carry Forward,1022,103,45,23,3,131,0,0,0,0,0,0
-12,44,48,793,95,10,8,0,3,0,0,-1,0,0,0
-1,45,47,43,4,0,0,22,0,0,0,-1--1--1,,1|(936,95)|
-1,46,47,44,100,0,0,22,0,0,0,-1--1--1,,1|(843,95)|
-11,47,48,890,95,6,8,34,3,0,0,1,0,0,0
-10,48,IS tax loss current,890,114,57,11,40,3,0,0,-1,0,0,0
-12,49,48,1234,98,10,8,0,3,0,0,-1,0,0,0
-1,50,52,49,4,0,0,22,0,0,0,-1--1--1,,1|(1185,98)|
-1,51,52,43,100,0,0,22,0,0,0,-1--1--1,,1|(1100,98)|
-11,52,48,1140,98,6,8,34,3,0,0,1,0,0,0
-10,53,IS tax loss used,1140,125,50,11,40,3,0,0,-1,0,0,0
-1,54,18,48,1,0,0,0,0,128,0,-1--1--1,,1|(964,156)|
-1,55,52,22,1,0,0,0,0,128,0,-1--1--1,,1|(1230,167)|
-1,56,43,52,1,0,0,0,0,128,0,-1--1--1,,1|(1074,41)|
-10,57,one Year,1123,199,39,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,58,57,53,0,1,0,0,0,64,0,-1--1--1,,1|(1129,168)|
-12,59,0,795,24,99,24,8,135,0,24,-1,0,0,0,-1--1--1,0-0-0,|16|BU|0-0-0
+1,34,25,7,1,0,0,0,0,128,0,-1--1--1,,1|(28,309)|
+1,35,33,7,1,0,0,0,0,128,0,-1--1--1,,1|(227,372)|
+10,36,Feedstock Price,92,463,39,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,37,36,7,1,0,0,0,0,128,0,-1--1--1,,1|(245,471)|
+1,38,32,8,1,0,0,0,0,128,0,-1--1--1,,1|(224,242)|
+1,39,15,23,1,0,0,0,0,128,0,-1--1--1,,1|(1007,402)|
+1,40,18,22,1,0,0,0,0,128,0,-1--1--1,,1|(1095,235)|
+10,41,IS Tax Loss Carry Forward,1022,103,45,23,3,131,0,0,0,0,0,0
+12,42,48,793,95,10,8,0,3,0,0,-1,0,0,0
+1,43,45,41,4,0,0,22,0,0,0,-1--1--1,,1|(936,95)|
+1,44,45,42,100,0,0,22,0,0,0,-1--1--1,,1|(843,95)|
+11,45,48,890,95,6,8,34,3,0,0,1,0,0,0
+10,46,IS tax loss current,890,114,57,11,40,3,0,0,-1,0,0,0
+12,47,48,1234,98,10,8,0,3,0,0,-1,0,0,0
+1,48,50,47,4,0,0,22,0,0,0,-1--1--1,,1|(1185,98)|
+1,49,50,41,100,0,0,22,0,0,0,-1--1--1,,1|(1100,98)|
+11,50,48,1140,98,6,8,34,3,0,0,1,0,0,0
+10,51,IS tax loss used,1140,125,50,11,40,3,0,0,-1,0,0,0
+1,52,18,46,1,0,0,0,0,128,0,-1--1--1,,1|(964,156)|
+1,53,50,22,1,0,0,0,0,128,0,-1--1--1,,1|(1230,167)|
+1,54,41,50,1,0,0,0,0,128,0,-1--1--1,,1|(1074,41)|
+10,55,one Year,1123,199,39,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,56,55,51,0,1,0,0,0,64,0,-1--1--1,,1|(1129,168)|
+12,57,0,795,24,99,24,8,135,0,24,-1,0,0,0,-1--1--1,0-0-0,|16|BU|0-0-0
 Income Statement
-10,60,IS Equipment Useful Value,642,622,46,23,3,131,0,0,0,0,0,0
-12,61,48,426,611,10,8,0,3,0,0,-1,0,0,0
-1,62,64,60,4,0,0,22,0,0,0,-1--1--1,,1|(558,617)|
-1,63,64,61,100,0,0,22,0,0,0,-1--1--1,,1|(472,617)|
-11,64,48,514,617,6,8,34,3,0,0,1,0,0,0
-10,65,IS purchasing equipment,514,644,44,19,40,3,0,0,-1,0,0,0
-12,66,48,888,621,10,8,0,3,0,0,-1,0,0,0
-1,67,69,66,4,0,0,22,0,0,0,-1--1--1,,1|(826,620)|
-1,68,69,60,100,0,0,22,0,0,0,-1--1--1,,1|(725,620)|
-11,69,48,769,620,6,8,34,3,0,0,1,0,0,0
-10,70,IS equipment depreciation,769,639,43,19,40,3,0,0,-1,0,0,0
-1,71,60,70,1,0,0,0,0,128,0,-1--1--1,,1|(686,560)|
-10,72,IS equipment useful lifetime,627,726,43,19,8,3,0,0,0,0,0,0
-1,73,72,70,1,0,0,0,0,128,0,-1--1--1,,1|(719,691)|
-1,74,70,15,1,0,0,0,0,128,0,-1--1--1,,1|(814,471)|
-10,75,researching,410,460,45,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-10,76,piloting spending,479,505,33,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-10,77,demoing spending,550,458,33,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,78,75,6,0,0,0,0,0,128,0,-1--1--1,,1|(448,392)|
-1,79,76,6,0,0,0,0,0,128,0,-1--1--1,,1|(488,411)|
-1,80,77,6,0,0,0,0,0,128,0,-1--1--1,,1|(527,388)|
-10,81,pilot capital expenditure,301,615,42,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-10,82,demo capital expenditure,284,671,46,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,83,81,65,1,0,0,0,0,128,0,-1--1--1,,1|(394,635)|
-1,84,82,65,1,0,0,0,0,128,0,-1--1--1,,1|(388,667)|
-10,85,FM gross margin,661,107,54,11,8,3,0,0,0,0,0,0
-1,86,3,85,1,0,0,0,0,128,0,-1--1--1,,1|(569,86)|
-1,87,15,85,1,0,0,0,0,128,0,-1--1--1,,1|(767,190)|
-10,88,commercial capital expenditure,282,725,64,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,89,88,65,1,0,0,0,0,128,0,-1--1--1,,1|(404,702)|
-10,90,commercial plant operation,282,311,59,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,91,90,8,0,0,0,0,0,128,0,-1--1--1,,1|(303,285)|
-1,92,90,7,0,0,0,0,0,128,0,-1--1--1,,1|(305,335)|
+10,58,IS Equipment Useful Value,642,622,46,23,3,131,0,0,0,0,0,0
+12,59,48,426,611,10,8,0,3,0,0,-1,0,0,0
+1,60,62,58,4,0,0,22,0,0,0,-1--1--1,,1|(558,617)|
+1,61,62,59,100,0,0,22,0,0,0,-1--1--1,,1|(472,617)|
+11,62,48,514,617,6,8,34,3,0,0,1,0,0,0
+10,63,IS purchasing equipment,514,644,44,19,40,3,0,0,-1,0,0,0
+12,64,48,888,621,10,8,0,3,0,0,-1,0,0,0
+1,65,67,64,4,0,0,22,0,0,0,-1--1--1,,1|(826,620)|
+1,66,67,58,100,0,0,22,0,0,0,-1--1--1,,1|(725,620)|
+11,67,48,769,620,6,8,34,3,0,0,1,0,0,0
+10,68,IS equipment depreciation,769,639,43,19,40,3,0,0,-1,0,0,0
+1,69,58,68,1,0,0,0,0,128,0,-1--1--1,,1|(686,560)|
+10,70,IS equipment useful lifetime,627,726,43,19,8,3,0,0,0,0,0,0
+1,71,70,68,1,0,0,0,0,128,0,-1--1--1,,1|(719,691)|
+1,72,68,15,1,0,0,0,0,128,0,-1--1--1,,1|(814,471)|
+10,73,researching,410,460,45,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,74,piloting spending,479,505,33,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,75,demoing spending,550,458,33,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,76,73,6,0,0,0,0,0,128,0,-1--1--1,,1|(448,392)|
+1,77,74,6,0,0,0,0,0,128,0,-1--1--1,,1|(488,411)|
+1,78,75,6,0,0,0,0,0,128,0,-1--1--1,,1|(527,388)|
+10,79,pilot capital expenditure,301,615,42,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,80,demo capital expenditure,284,671,46,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,81,79,63,1,0,0,0,0,128,0,-1--1--1,,1|(394,635)|
+1,82,80,63,1,0,0,0,0,128,0,-1--1--1,,1|(388,667)|
+10,83,FM gross margin,661,107,54,11,8,3,0,0,0,0,0,0
+1,84,3,83,1,0,0,0,0,128,0,-1--1--1,,1|(569,86)|
+1,85,15,83,1,0,0,0,0,128,0,-1--1--1,,1|(767,190)|
+10,86,commercial capital expenditure,282,725,64,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,87,86,63,1,0,0,0,0,128,0,-1--1--1,,1|(404,702)|
+10,88,commercial process yield,273,538,47,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,89,88,7,1,0,0,0,0,64,0,-1--1--1,,1|(351,447)|
+10,90,commercial plant operation,160,524,59,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,91,90,7,1,0,0,0,0,64,0,-1--1--1,,1|(317,451)|
+10,92,commercial plant operation,263,320,59,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,93,92,8,0,0,0,0,0,64,0,-1--1--1,,1|(294,289)|
 \\\---/// Sketch information - do not modify anything except names
 V300  Do not put anything below this section - it will be ignored
 *Cash Flow Statement & Balance Sheet
@@ -4196,29 +4306,28 @@ Cash Flow Statement
 10,84,IS purchasing equipment,438,333,48,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
 1,85,84,28,1,0,0,0,0,128,0,-1--1--1,,1|(517,326)|
 10,86,FM last positive cash flow,975,90,52,19,8,3,0,0,0,0,0,0
-10,87,Time,495,89,26,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-10,88,TIME STEP,1127,93,50,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,89,88,86,0,1,0,0,0,64,0,-1--1--1,,1|(1058,92)|
-10,90,FM earliest positive cash flow,793,88,63,19,8,3,0,0,0,0,0,0
-1,91,86,90,1,0,0,0,0,128,0,-1--1--1,,1|(893,76)|
-1,92,90,86,1,0,0,0,0,64,0,-1--1--1,,1|(880,110)|
-10,93,FM return on total equity,818,454,59,19,8,3,0,0,0,0,0,0
-1,94,1,93,1,0,0,0,0,128,0,-1--1--1,,1|(549,479)|
-1,95,50,93,1,0,0,0,0,128,0,-1--1--1,,1|(1002,540)|
-10,96,FM return on investor equity,812,499,46,19,8,3,0,0,0,0,0,0
-1,97,1,96,1,0,0,0,0,128,0,-1--1--1,,1|(544,515)|
-1,98,10,96,1,0,0,0,0,128,0,-1--1--1,,1|(932,571)|
-10,99,FM positive cash flow,606,93,60,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,100,99,90,0,0,0,0,0,64,0,-1--1--1,,1|(691,90)|
-10,101,commercial capital granting,463,790,64,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,102,101,39,0,0,0,0,0,64,0,-1--1--1,,1|(541,775)|
-10,103,demo capital granting,401,749,46,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,104,103,39,0,0,0,0,0,64,0,-1--1--1,,1|(501,753)|
-10,105,pilot capital granting,419,708,42,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,106,105,39,0,0,0,0,0,64,0,-1--1--1,,1|(508,729)|
-1,107,105,72,1,0,0,0,0,128,0,-1--1--1,,1|(369,656)|
-1,108,103,72,1,0,0,0,0,128,0,-1--1--1,,1|(334,660)|
-1,109,101,72,1,0,0,0,0,128,0,-1--1--1,,1|(308,730)|
+10,87,TIME STEP,1127,93,50,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,88,87,86,0,1,0,0,0,64,0,-1--1--1,,1|(1058,92)|
+10,89,FM earliest positive cash flow,793,88,63,19,8,3,0,0,0,0,0,0
+1,90,86,89,1,0,0,0,0,128,0,-1--1--1,,1|(893,76)|
+1,91,89,86,1,0,0,0,0,64,0,-1--1--1,,1|(880,110)|
+10,92,FM return on total equity,818,454,59,19,8,3,0,0,0,0,0,0
+1,93,1,92,1,0,0,0,0,128,0,-1--1--1,,1|(549,479)|
+1,94,50,92,1,0,0,0,0,128,0,-1--1--1,,1|(1002,540)|
+10,95,FM return on investor equity,812,499,46,19,8,3,0,0,0,0,0,0
+1,96,1,95,1,0,0,0,0,128,0,-1--1--1,,1|(544,515)|
+1,97,10,95,1,0,0,0,0,128,0,-1--1--1,,1|(932,571)|
+10,98,FM positive cash flow,606,93,60,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,99,98,89,0,0,0,0,0,64,0,-1--1--1,,1|(691,90)|
+10,100,commercial capital granting,463,790,64,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,101,100,39,0,0,0,0,0,64,0,-1--1--1,,1|(541,775)|
+10,102,demo capital granting,401,749,46,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,103,102,39,0,0,0,0,0,64,0,-1--1--1,,1|(501,753)|
+10,104,pilot capital granting,419,708,42,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,105,104,39,0,0,0,0,0,64,0,-1--1--1,,1|(508,729)|
+1,106,104,72,1,0,0,0,0,128,0,-1--1--1,,1|(369,656)|
+1,107,102,72,1,0,0,0,0,128,0,-1--1--1,,1|(334,660)|
+1,108,100,72,1,0,0,0,0,128,0,-1--1--1,,1|(308,730)|
 \\\---/// Sketch information - do not modify anything except names
 V300  Do not put anything below this section - it will be ignored
 *Timeline
@@ -4242,16 +4351,16 @@ $192-192-192,0,Times New Roman|12||0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|96,96,1
 1,17,12,16,1,0,0,0,0,64,0,-1--1--1,,1|(307,369)|
 10,18,commercial construction time,251,554,59,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
 1,19,18,16,0,0,0,0,0,64,0,-1--1--1,,1|(263,520)|
-12,20,2624948,789,285,300,274,3,188,0,0,1,0,0,0
+12,20,0,789,285,300,274,3,188,0,0,1,0,0,0
 Timeline
 12,21,0,194,9,40,13,8,135,0,24,-1,0,0,0,-1--1--1,0-0-0,|16|BU|0-0-0
 Timeline
-10,22,pilot plant is built,95,266,43,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,23,22,2,1,0,0,0,0,64,0,-1--1--1,,1|(175,261)|
-10,24,demo plant is built,106,482,47,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,25,24,8,1,0,0,0,0,64,0,-1--1--1,,1|(182,457)|
-10,26,commercial plant is built,393,544,59,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,27,26,16,0,0,0,0,0,64,0,-1--1--1,,1|(343,512)|
+10,22,pilot plant is built,107,257,43,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,23,22,2,0,0,0,0,0,64,0,-1--1--1,,1|(162,238)|
+10,24,commercial plant is built,116,526,59,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,25,24,16,0,0,0,0,0,64,0,-1--1--1,,1|(191,502)|
+10,26,demo plant is built,94,470,47,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,27,26,8,1,0,0,0,0,64,0,-1--1--1,,1|(182,452)|
 \\\---/// Sketch information - do not modify anything except names
 V300  Do not put anything below this section - it will be ignored
 *Idealized Forecast
@@ -4259,7 +4368,7 @@ $192-192-192,0,Times New Roman|12||0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|96,96,1
 10,1,researching,1083,374,45,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
 10,2,idealized operating expenses,1261,536,59,19,8,3,0,0,0,0,0,0
 1,3,1,2,1,0,0,0,0,64,0,-1--1--1,,1|(1185,422)|
-10,4,years ahead,855,527,38,11,8,3,1,0,-1,0,0,0
+10,4,years ahead,805,359,38,11,8,3,1,0,-1,0,0,0
 12,5,0,1553,430,224,126,3,188,0,0,1,0,0,0
 Idealized_Operating
 10,6,idealized pilot capital expenses,1028,80,52,19,8,3,0,0,0,0,0,0
@@ -4289,16 +4398,16 @@ Idealized_Revenue
 1,28,27,24,1,0,0,0,0,64,0,-1--1--1,,1|(535,250)|
 10,29,idealized capital expenses,595,104,55,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
 10,30,idealized operating expenses,725,106,49,26,8,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-10,31,idealized revenue,752,263,33,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,31,idealized revenue,757,252,33,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
 1,32,29,24,1,0,0,0,0,128,0,-1--1--1,,1|(555,143)|
-1,33,31,24,1,0,0,0,0,128,0,-1--1--1,,1|(673,199)|
+1,33,31,24,1,0,0,0,0,128,0,-1--1--1,,1|(674,193)|
 1,34,30,24,1,0,0,0,0,128,0,-1--1--1,,1|(644,130)|
 12,35,0,262,195,235,172,3,188,0,0,1,0,0,0
 Idealized_NPV
 10,36,value of intellectual property,708,323,65,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
 1,37,36,24,1,0,0,0,0,64,0,-1--1--1,,1|(668,228)|
 10,38,idealized commercial construction time,372,796,71,19,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,39,4,24,0,1,0,0,0,64,0,-1--1--1,,1|(717,359)|
+1,39,4,24,1,1,0,0,0,64,0,-1--1--1,,1|(720,272)|
 12,40,0,629,49,101,20,8,135,0,24,-1,0,0,0,-1--1--1,0-0-0,|16|BU|0-0-0
 Idealized Forecast
 10,41,demo capacity,263,510,55,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
@@ -4378,87 +4487,50 @@ Idealized Forecast
 10,115,idealized research expenses,1207,713,57,19,8,3,0,0,0,0,0,0
 10,116,idealized research expenses,719,172,61,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
 1,117,116,24,1,0,0,0,0,128,0,-1--1--1,,1|(635,161)|
-10,118,research rate,1184,792,50,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,119,118,115,1,0,0,0,0,128,0,-1--1--1,,1|(1221,738)|
-10,120,demo construction time,958,123,59,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,121,120,71,0,0,0,0,0,64,0,-1--1--1,,1|(993,145)|
-10,122,commercial construction time,1072,304,59,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,123,122,65,0,0,0,0,0,64,0,-1--1--1,,1|(1052,281)|
-10,124,pilot construction time,1176,66,59,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,125,124,6,0,0,0,0,0,64,0,-1--1--1,,1|(1105,72)|
-10,126,Time,980,21,26,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,127,126,6,0,1,0,0,0,64,0,-1--1--1,,1|(995,41)|
-1,128,4,6,0,1,0,0,0,64,0,-1--1--1,,1|(936,314)|
-1,129,7,6,0,1,0,0,0,64,0,-1--1--1,,1|(939,45)|
-1,130,7,71,0,1,0,0,0,64,0,-1--1--1,,1|(954,91)|
-1,131,7,65,0,1,0,0,0,64,0,-1--1--1,,1|(947,126)|
-10,132,INITIAL TIME,1005,23,60,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,133,132,6,0,1,0,0,0,64,0,-1--1--1,,1|(1011,41)|
+10,118,demo construction time,958,123,59,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,119,118,71,0,0,0,0,0,64,0,-1--1--1,,1|(993,145)|
+10,120,commercial construction time,1072,304,59,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,121,120,65,0,0,0,0,0,64,0,-1--1--1,,1|(1052,281)|
+10,122,pilot construction time,1176,66,59,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,123,122,6,0,0,0,0,0,64,0,-1--1--1,,1|(1105,72)|
+10,124,Time,980,21,26,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,125,124,6,0,1,0,0,0,64,0,-1--1--1,,1|(995,41)|
+1,126,4,6,0,1,0,0,0,64,0,-1--1--1,,1|(908,228)|
+1,127,7,6,0,1,0,0,0,64,0,-1--1--1,,1|(939,45)|
+1,128,7,71,0,1,0,0,0,64,0,-1--1--1,,1|(954,91)|
+1,129,7,65,0,1,0,0,0,64,0,-1--1--1,,1|(947,126)|
+10,130,INITIAL TIME,1091,30,60,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,131,130,6,0,1,0,0,0,64,0,-1--1--1,,1|(1070,46)|
+10,132,researching,1238,762,45,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,133,132,115,0,0,0,0,0,64,0,-1--1--1,,1|(1229,747)|
 \\\---/// Sketch information - do not modify anything except names
 V300  Do not put anything below this section - it will be ignored
 *Shared Learning
 $192-192-192,0,Times New Roman|12||0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|96,96,5,0
-10,1,shared learning rates,1197,225,48,19,8,131,0,0,0,0,0,0
-10,2,biological upgrading of lignocellulosic feedstock to biofuel unit operations,548,170,85,28,8,3,0,0,0,0,0,0
-10,3,catalytic upgrading of lignocellulosic feedstock to biofuel unit operations,552,288,85,28,8,3,0,0,0,0,0,0
-10,4,lignocellulosic feedstock to ethanol unit operations,545,407,80,19,8,3,0,0,0,0,0,0
-12,5,0,166,45,120,19,8,135,0,8,-1,0,0,0,-1--1--1,0-0-0,|16||0-0-0
-Available Unit Operations
-12,6,0,153,76,133,11,8,135,0,0,-1,0,0,0
-Onsite lignocellulosic biomass processing
-10,7,bioproduct unit operations,631,555,85,13,8,131,0,0,0,0,0,0
-12,8,0,392,280,43,23,8,7,0,8,-1,0,0,0,-1--1--1,0-0-0,|16||0-0-0
-Biofuel Processes
-10,9,shared learning for biological upgrading of lignocellulosic feedstock to biofuel,929,176,91,28,8,3,0,0,0,0,0,0
-10,10,shared learning for catalytic upgrading of lignocellulosic feedstock to biofuel,938,294,90,30,8,131,0,0,0,0,0,0
-10,11,shared learning for lignocellulosic feedstock to ethanol,944,410,103,24,8,131,0,0,0,0,0,0
-1,12,7,9,1,0,0,0,0,128,0,-1--1--1,,1|(716,343)|
-1,13,7,10,1,0,0,0,0,128,0,-1--1--1,,1|(730,442)|
-1,14,7,11,1,0,0,0,0,128,0,-1--1--1,,1|(835,482)|
-1,15,2,9,0,0,0,0,0,128,0,-1--1--1,,1|(728,172)|
-1,16,3,10,0,0,0,0,0,128,0,-1--1--1,,1|(735,290)|
-1,17,4,11,0,0,0,0,0,128,0,-1--1--1,,1|(726,407)|
-1,18,1,9,1,0,0,0,0,128,0,-1--1--1,,1|(1071,172)|
-1,19,1,10,1,0,0,0,0,128,0,-1--1--1,,1|(1091,308)|
-1,20,1,11,1,0,0,0,0,128,0,-1--1--1,,1|(1053,418)|
-12,21,0,129,106,103,13,8,135,0,0,-1,0,0,0
-Onsite starch biomass processing
-12,22,0,156,131,143,14,8,135,0,0,-1,0,0,0
-Lignocellulosic pretreatment and conditioning
-12,23,0,105,158,91,12,8,135,0,0,-1,0,0,0
-Starch biomass fermentation
-12,24,0,72,184,59,11,8,7,0,0,-1,0,0,0
-Sugar fermentation
-12,25,0,62,212,56,11,8,7,0,0,-1,0,0,0
-Fixed bed reactor
-12,26,0,125,233,70,15,8,135,0,0,-1,0,0,0
-Enzymatic hydrolysis
-12,27,0,96,258,33,11,8,7,0,0,-1,0,0,0
-Flash tank
-12,28,0,150,285,81,12,8,135,0,0,-1,0,0,0
-Solids liquids separation
-12,29,0,100,311,33,11,8,7,0,0,-1,0,0,0
-Distillation
-12,30,0,139,338,77,12,8,135,0,0,-1,0,0,0
-Hydrolysate condensate
-12,31,0,159,366,94,14,8,135,0,0,-1,0,0,0
-Agitated pressurized reactor
-12,32,0,136,388,71,11,8,135,0,0,-1,0,0,0
-Biological conversion
-12,33,0,97,409,36,11,8,7,0,0,-1,0,0,0
-Crystallizer
-12,34,0,119,432,66,15,8,135,0,0,-1,0,0,0
-Catalytic conversion
-12,35,0,76,454,33,11,8,7,0,0,-1,0,0,0
-Centrifuge
-12,36,0,116,479,125,16,8,135,0,0,-1,0,0,0
- Extraction, purification and fuel finishing
-12,37,0,112,505,137,14,8,135,0,0,-1,0,0,0
-Extraction, purification and product finishing
-10,38,shared learning from bioproduct production,672,51,76,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,39,38,9,1,0,0,0,0,128,0,-1--1--1,,1|(776,120)|
-1,40,38,10,1,0,0,0,0,128,0,-1--1--1,,1|(744,204)|
-1,41,38,11,1,0,0,0,0,128,0,-1--1--1,,1|(777,323)|
+10,1,shared learning rates for unit operations,1045,297,65,19,8,131,0,0,0,0,0,0
+10,2,bioproduct technology unit operations,610,374,71,19,8,131,0,0,0,0,0,0
+10,3,shared learning for bioproduct to biofuel technology,831,298,67,28,8,3,0,0,0,0,0,0
+1,4,1,3,1,0,0,0,0,128,0,-1--1--1,,1|(940,279)|
+10,5,shared learning from bioproduct production,580,223,76,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,6,5,3,1,0,0,0,0,128,0,-1--1--1,,1|(713,250)|
+10,7,biofuel technology unit operations,578,317,58,19,8,3,0,0,0,0,0,0
+1,8,7,3,1,0,0,0,0,128,0,-1--1--1,,1|(662,291)|
+1,9,2,3,0,0,0,0,0,128,0,-1--1--1,,1|(707,340)|
+10,10,shared learning for feedstock logistics,877,592,59,19,8,3,0,0,0,0,0,0
+10,11,shared learning threshold for bioproduct production,388,220,82,19,8,3,0,0,0,0,0,0
+10,12,shared learning threshold for feedstock logistics,415,555,79,19,8,3,0,0,0,0,0,0
+10,13,biofuel feedstock,651,633,54,11,8,3,0,0,0,0,0,0
+1,14,13,10,0,0,0,0,0,128,0,-1--1--1,,1|(754,614)|
+10,15,shared learning from feedstock logistics,593,553,69,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,16,15,10,1,0,0,0,0,128,0,-1--1--1,,1|(749,566)|
+10,17,feedstock selector array,642,691,48,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,18,17,10,0,0,0,0,0,128,0,-1--1--1,,1|(752,644)|
+10,19,shared learning rates for feedstock logistics,1108,585,76,19,8,3,0,0,0,0,0,0
+1,20,19,10,0,0,0,0,0,128,0,-1--1--1,,1|(990,588)|
+12,21,0,811,174,89,28,3,135,0,8,-1,0,0,0,-1--1--1,0-0-0,|16||0-0-0
+Shared Learning for Unit Operations
+12,22,0,857,479,95,33,3,135,0,8,-1,0,0,0,-1--1--1,0-0-0,|16||0-0-0
+Shared Learning for Feedstock Logistics
 \\\---/// Sketch information - do not modify anything except names
 V300  Do not put anything below this section - it will be ignored
 *Technology Readiness Level
@@ -4773,7 +4845,7 @@ See the "Indicator Variables" view for the Selling Price variable.
 1,265,179,261,0,0,0,0,0,128,0,-1--1--1,,1|(1261,102)|
 1,266,180,261,0,0,0,0,0,128,0,-1--1--1,,1|(1258,130)|
 1,267,181,261,0,0,0,0,0,128,0,-1--1--1,,1|(1192,104)|
-10,268,feedstock price selector array,733,195,49,19,8,3,0,0,0,0,0,0
+10,268,feedstock selector array,733,195,58,19,8,3,0,0,0,0,0,0
 1,269,261,1,0,0,0,0,0,128,0,-1--1--1,,1|(1022,112)|
 1,270,268,1,0,0,0,0,0,128,0,-1--1--1,,1|(826,155)|
 12,271,0,316,609,123,22,8,135,0,0,-1,0,0,0
@@ -4830,356 +4902,367 @@ Custom Feedstock Price Model
 V300  Do not put anything below this section - it will be ignored
 *Indicator Variables
 $192-192-192,0,Times New Roman|12||0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|96,96,100,0
-10,1,"pre-piloting",119,-519,37,11,8,3,0,0,0,0,0,0
-10,2,pilot plant construction,249,-515,39,19,8,3,0,0,0,0,0,0
-10,3,piloting ongoing,491,-510,49,11,8,3,0,0,0,0,0,0
-10,4,"pre-demoing",746,-513,41,11,8,3,0,0,0,0,0,0
-10,5,demo plant construction,859,-510,39,19,8,3,0,0,0,0,0,0
-10,6,demoing ongoing,103,-256,53,11,8,3,0,0,0,0,0,0
-10,7,regulatory delay,396,-252,50,11,8,3,0,0,0,0,0,0
-10,8,commercial plant operation,943,-245,54,19,8,3,0,0,0,0,0,0
-10,9,"pre-commercial",527,-251,50,11,8,3,0,0,0,0,0,0
-12,10,0,211,-574,111,20,8,135,0,24,-1,0,0,0,-1--1--1,0-0-0,|18|BU|0-0-0
-Development Stages
-10,11,Pilot Capital Cost,187,-470,44,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,12,11,1,1,0,0,0,0,64,0,-1--1--1,,1|(148,-469)|
-10,13,pilot plant is built,357,-514,53,11,8,3,0,0,0,0,0,0
-12,14,0,1261,-579,108,24,8,135,0,24,-1,0,0,0,-1--1--1,0-0-0,|18|BU|0-0-0
-Indicator Variables
-10,15,piloting complete,618,-513,53,11,8,3,0,0,0,0,0,0
-10,16,demo plant is built,390,-340,57,11,8,3,0,0,0,0,0,0
-10,17,demoing complete,251,-250,57,11,8,3,0,0,0,0,0,0
-10,18,Demo Capital Cost,749,-429,49,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,19,18,4,1,0,0,0,0,64,0,-1--1--1,,1|(718,-476)|
-10,20,Demo Capital Expense,755,-387,53,24,3,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,21,20,4,1,0,0,0,0,64,0,-1--1--1,,1|(681,-451)|
-10,22,Commercial Capital Expense,834,-169,46,25,3,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-10,23,Commercial Capital Expense,610,-146,47,23,3,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,24,23,9,1,0,0,0,0,64,0,-1--1--1,,1|(541,-209)|
-10,25,Commercial Capital Cost Scaled,618,-92,68,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,26,25,9,1,0,0,0,0,64,0,-1--1--1,,1|(530,-172)|
-10,27,in business,1073,-452,34,11,8,3,0,0,0,0,0,0
-10,28,BS equity,1036,-413,41,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,29,28,27,0,0,0,0,0,64,0,-1--1--1,,1|(1049,-427)|
-10,30,BS equity threshold,1102,-375,36,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,31,30,27,0,0,0,0,0,64,0,-1--1--1,,1|(1088,-410)|
-12,32,0,214,-1,87,22,8,135,0,24,-1,0,0,0,-1--1--1,0-0-0,|18|BU|0-0-0
-Flow Dampers
-10,33,profitable,1204,-451,31,11,8,3,0,0,0,0,0,0
-10,34,hypothetical net margin,1212,-395,55,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,35,34,33,0,0,0,0,0,64,0,-1--1--1,,1|(1208,-420)|
-10,36,piloting capital expenditure damper,256,72,64,19,8,3,0,0,0,0,0,0
-10,37,Pilot Capital Cost,137,170,44,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,38,37,36,0,0,0,0,0,64,0,-1--1--1,,1|(190,125)|
-10,39,Pilot Capital Expense,119,113,46,25,3,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,40,39,36,0,0,0,0,0,64,0,-1--1--1,,1|(171,97)|
-10,41,pilot construction time,293,214,59,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,42,41,36,1,0,0,0,0,64,0,-1--1--1,,1|(298,145)|
-10,43,TIME STEP,238,156,50,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,44,43,36,0,0,0,0,0,64,0,-1--1--1,,1|(244,124)|
-10,45,demoing capital expenditure damper,582,83,64,19,8,3,0,0,0,0,0,0
-10,46,Demo Capital Cost,522,165,49,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,47,46,45,0,0,0,0,0,64,0,-1--1--1,,1|(547,129)|
-10,48,Demo Capital Expense,442,122,51,21,3,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,49,48,45,0,0,0,0,0,64,0,-1--1--1,,1|(498,106)|
-10,50,demo construction time,685,159,59,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,51,50,45,0,0,0,0,0,64,0,-1--1--1,,1|(639,125)|
-10,52,TIME STEP,608,191,50,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,53,52,45,0,0,0,0,0,64,0,-1--1--1,,1|(597,147)|
-10,54,pilot and demo spending control indicator,1524,-465,82,22,8,131,0,0,0,0,0,0
-10,55,actual spending,1548,-555,40,22,8,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,56,55,54,1,0,0,0,0,64,0,-1--1--1,,1|(1535,-508)|
-10,57,allowable spending,1662,-557,35,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,58,57,54,1,0,0,0,0,64,0,-1--1--1,,1|(1594,-521)|
-10,59,conserve spending,1460,-539,34,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,60,59,54,1,0,0,0,0,64,0,-1--1--1,,1|(1497,-506)|
-10,61,pilot and demo runway response,1540,-383,59,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,62,61,54,1,0,0,0,0,64,0,-1--1--1,,1|(1517,-398)|
-10,63,startup piloting damper,560,277,47,19,8,3,0,0,0,0,0,0
-10,64,one Year,668,319,39,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,65,64,63,0,0,0,0,0,64,0,-1--1--1,,1|(630,304)|
-10,66,Startup Piloting Hours,500,335,53,21,3,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,67,66,63,1,0,0,0,0,64,0,-1--1--1,,1|(503,294)|
-10,68,startup piloting rate,551,373,52,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,69,68,63,1,0,0,0,0,64,0,-1--1--1,,1|(566,330)|
-10,70,TIME STEP,640,345,50,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,71,70,63,0,0,0,0,0,64,0,-1--1--1,,1|(610,319)|
-10,72,Working Capital,179,-392,33,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,73,72,1,1,0,0,0,0,64,0,-1--1--1,,1|(98,-440)|
-10,74,pilot construction time,368,-410,59,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,75,74,2,1,0,0,0,0,64,0,-1--1--1,,1|(317,-470)|
-10,76,TIME STEP,289,-372,50,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,77,76,2,1,0,0,0,0,64,0,-1--1--1,,1|(300,-434)|
-10,78,Pilot Capital Expense,185,-432,40,20,3,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,79,78,1,1,0,0,0,0,64,0,-1--1--1,,1|(122,-469)|
-1,80,1,2,0,0,0,0,0,64,0,-1--1--1,,1|(176,-517)|
-1,81,13,3,0,0,0,0,0,128,0,-1--1--1,,1|(419,-512)|
-10,82,Continuous Piloting Hours,557,-438,51,25,3,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,83,82,3,0,0,0,0,0,64,0,-1--1--1,,1|(522,-475)|
-1,84,82,15,0,0,0,0,0,128,0,-1--1--1,,1|(588,-477)|
-1,85,15,4,0,0,0,0,0,128,0,-1--1--1,,1|(681,-513)|
-10,86,Pilot Capital Expense,392,-450,40,20,3,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,87,86,13,1,0,0,0,0,64,0,-1--1--1,,1|(353,-486)|
-1,88,11,2,1,0,0,0,0,128,0,-1--1--1,,1|(242,-482)|
-1,89,78,2,1,0,0,0,0,128,0,-1--1--1,,1|(252,-441)|
-1,90,72,2,1,0,0,0,0,128,0,-1--1--1,,1|(266,-426)|
-10,91,Working Capital,789,-463,33,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,92,91,4,1,0,0,0,0,64,0,-1--1--1,,1|(742,-484)|
-10,93,demo construction time,950,-563,59,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,94,93,5,0,0,0,0,0,64,0,-1--1--1,,1|(910,-539)|
-1,95,4,5,0,0,0,0,0,64,0,-1--1--1,,1|(796,-511)|
-10,96,TIME STEP,813,-563,50,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,97,96,5,0,0,0,0,0,64,0,-1--1--1,,1|(827,-545)|
-1,98,91,5,1,0,0,0,0,128,0,-1--1--1,,1|(823,-470)|
-1,99,18,5,1,0,0,0,0,128,0,-1--1--1,,1|(827,-441)|
-1,100,20,5,1,0,0,0,0,128,0,-1--1--1,,1|(832,-407)|
-1,101,20,16,1,0,0,0,0,128,0,-1--1--1,,1|(609,-352)|
-1,102,16,6,1,0,0,0,0,128,0,-1--1--1,,1|(243,-324)|
-10,103,Continuous Demoing Hours,176,-193,48,25,3,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,104,103,6,1,0,0,0,0,64,0,-1--1--1,,1|(103,-212)|
-1,105,103,17,1,0,0,0,0,128,0,-1--1--1,,1|(188,-224)|
-1,106,17,7,0,0,0,0,0,128,0,-1--1--1,,1|(320,-250)|
-10,107,Regulatory Costs,448,-200,40,20,3,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,108,107,7,1,0,0,0,0,64,0,-1--1--1,,1|(396,-227)|
-1,109,107,9,1,0,0,0,0,128,0,-1--1--1,,1|(495,-214)|
-10,110,Working Capital,606,-190,33,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,111,110,9,1,0,0,0,0,64,0,-1--1--1,,1|(558,-216)|
-10,112,commercial plant is built,790,-245,54,19,8,3,0,0,0,0,0,0
-1,113,22,112,1,0,0,0,0,128,0,-1--1--1,,1|(780,-208)|
-1,114,112,8,0,0,0,0,0,128,0,-1--1--1,,1|(859,-245)|
-10,115,profitable,955,-184,40,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,116,115,8,0,0,0,0,0,128,0,-1--1--1,,1|(951,-203)|
-10,117,commercial plant construction,666,-249,59,16,8,131,0,0,0,0,0,0
-1,118,110,117,1,0,0,0,0,128,0,-1--1--1,,1|(652,-210)|
-1,119,23,117,1,0,0,0,0,128,0,-1--1--1,,1|(658,-176)|
-1,120,25,117,1,0,0,0,0,128,0,-1--1--1,,1|(692,-151)|
-10,121,TIME STEP,595,-301,50,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-10,122,commercial construction time,728,-303,59,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,123,121,117,0,0,0,0,0,128,0,-1--1--1,,1|(621,-281)|
-1,124,122,117,0,0,0,0,0,128,0,-1--1--1,,1|(700,-278)|
-1,125,9,117,1,0,0,0,0,64,0,-1--1--1,,1|(586,-233)|
-10,126,commercial capital expenditure damper,906,81,64,19,8,3,0,0,0,0,0,0
-10,127,Commercial Capital Cost Scaled,847,196,68,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,128,127,126,0,0,0,0,0,64,0,-1--1--1,,1|(872,144)|
-10,129,Commercial Capital Expense,805,136,50,25,3,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,130,129,126,0,0,0,0,0,64,0,-1--1--1,,1|(854,108)|
-10,131,commercial construction time,998,141,59,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,132,131,126,0,0,0,0,0,64,0,-1--1--1,,1|(957,114)|
-10,133,TIME STEP,983,194,50,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,134,133,126,1,0,0,0,0,64,0,-1--1--1,,1|(916,149)|
-10,135,startup piloting complete,619,-550,80,15,8,131,0,0,0,0,0,0
-10,136,Startup Piloting Hours,456,-551,40,20,3,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,137,136,135,0,0,0,0,0,64,0,-1--1--1,,1|(510,-550)|
-10,138,startup demoing completed,311,-300,51,19,8,3,0,0,0,0,0,0
-10,139,Startup Demoing Hours,467,-303,56,22,3,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,140,139,138,0,0,0,0,0,64,0,-1--1--1,,1|(393,-301)|
-10,141,idealized demo revenue indicator,1214,-333,55,19,8,3,0,0,0,0,0,0
-10,142,idealized demo completion time,1148,-263,55,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,143,142,141,0,0,0,0,0,64,0,-1--1--1,,1|(1175,-292)|
-10,144,idealized demo construction time,1336,-285,59,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,145,144,141,0,0,0,0,0,64,0,-1--1--1,,1|(1281,-306)|
-10,146,years ahead,1396,-231,47,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,147,146,141,1,0,0,0,0,64,0,-1--1--1,,1|(1282,-258)|
-10,148,idealized commercial revenue indicator,1578,-309,66,19,8,3,0,0,0,0,0,0
-10,149,idealized commercial construction time,1676,-236,71,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,150,149,148,0,0,0,0,0,64,0,-1--1--1,,1|(1632,-268)|
-1,151,15,5,1,0,0,0,0,64,0,-1--1--1,,1|(741,-535)|
-1,152,146,148,1,0,0,0,0,128,0,-1--1--1,,1|(1522,-247)|
-10,153,idealized commercial capital expenses indicator,1229,-175,81,19,8,3,0,0,-1,0,0,0
-10,154,idealized demo completion time,1116,-119,55,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,155,154,153,0,0,0,0,0,64,0,-1--1--1,,1|(1165,-143)|
-1,156,146,153,1,0,0,0,0,128,0,-1--1--1,,1|(1286,-209)|
-10,157,idealized demo capital expenses indicator,1578,-152,70,19,8,3,0,0,0,0,0,0
-10,158,idealized pilot completion time,1673,-96,55,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,159,158,157,0,0,0,0,0,64,0,-1--1--1,,1|(1631,-120)|
-1,160,146,157,1,0,0,0,0,128,0,-1--1--1,,1|(1486,-202)|
-10,161,idealized commercial operating expenses indicator,1214,-58,66,28,8,131,0,0,0,0,0,0
-10,162,idealized commercial construction time,1131,-2,71,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,163,162,161,1,0,0,0,0,64,0,-1--1--1,,1|(1211,-8)|
-1,164,146,161,1,0,0,0,0,128,0,-1--1--1,,1|(1299,-115)|
-10,165,idealized demo operating expenses indicator,1480,-52,79,19,8,3,0,0,0,0,0,0
-10,166,idealized demo completion time,1503,36,55,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,167,166,165,0,0,0,0,0,64,0,-1--1--1,,1|(1493,-1)|
-10,168,idealized demo construction time,1611,-1,59,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,169,168,165,0,0,0,0,0,64,0,-1--1--1,,1|(1552,-24)|
-1,170,146,165,1,0,0,0,0,128,0,-1--1--1,,1|(1480,-148)|
-10,171,idealized pilot operating expenses indicator,1621,113,75,19,8,3,0,0,0,0,0,0
-10,172,idealized pilot completion time,1602,234,55,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,173,172,171,0,0,0,0,0,64,0,-1--1--1,,1|(1609,180)|
-10,174,idealized pilot construction time,1702,174,59,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,175,174,171,0,0,0,0,0,64,0,-1--1--1,,1|(1667,147)|
-1,176,146,171,1,0,0,0,0,128,0,-1--1--1,,1|(1424,33)|
-10,177,management spending control indicator,1708,-469,70,19,8,3,0,0,0,0,0,0
-10,178,management runway response,1711,-392,59,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,179,178,177,1,0,0,0,0,64,0,-1--1--1,,1|(1724,-430)|
-1,180,57,177,1,0,0,0,0,128,0,-1--1--1,,1|(1671,-520)|
-1,181,55,177,1,0,0,0,0,128,0,-1--1--1,,1|(1635,-505)|
-1,182,59,177,1,0,0,0,0,128,0,-1--1--1,,1|(1571,-499)|
-10,183,research spending control indicator,1348,-472,57,19,8,3,0,0,0,0,0,0
-1,184,57,183,1,0,0,0,0,128,0,-1--1--1,,1|(1522,-519)|
-1,185,55,183,1,0,0,0,0,128,0,-1--1--1,,1|(1413,-518)|
-1,186,59,183,1,0,0,0,0,128,0,-1--1--1,,1|(1382,-527)|
-10,187,research runway response,1246,-525,53,19,8,3,0,0,-1,0,0,0
-1,188,187,183,0,0,0,0,0,128,0,-1--1--1,,1|(1290,-501)|
-1,189,59,187,0,0,0,0,0,128,0,-1--1--1,,1|(1369,-532)|
-1,190,55,187,0,0,0,0,0,128,0,-1--1--1,,1|(1410,-541)|
-10,191,regulatory process begins,325,-185,59,19,8,3,0,0,-1,0,0,0
-10,192,regulatory process starting point,404,-128,64,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,193,192,191,0,0,0,0,0,64,0,-1--1--1,,1|(370,-152)|
-10,194,target demo hours,261,-125,43,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,195,194,191,0,0,0,0,0,64,0,-1--1--1,,1|(287,-150)|
-1,196,103,191,1,0,0,0,0,128,0,-1--1--1,,1|(246,-215)|
-10,197,actual net income indicator,1335,-415,55,19,8,3,0,0,-1,0,0,0
-10,198,Commercial Capital Expense,1376,-341,40,20,3,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,199,198,197,0,0,0,0,0,64,0,-1--1--1,,1|(1358,-372)|
-10,200,government operating grant amount indicator,1469,158,71,19,8,3,0,0,-1,0,0,0
-10,201,Time,1417,223,26,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,202,201,200,0,0,0,0,0,64,0,-1--1--1,,1|(1434,199)|
-10,203,TIME STEP,1340,200,50,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,204,203,200,0,0,0,0,0,64,0,-1--1--1,,1|(1384,185)|
-10,205,FM positive cash flow,1351,295,55,19,8,3,0,0,-1,0,0,0
-10,206,Time,1222,268,26,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,207,206,205,0,0,0,0,0,0,0,-1--1--1,,1|(1265,276)|
-10,208,CFS net change of cash and cash equivalents,1165,319,81,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,209,208,205,0,0,0,0,0,64,0,-1--1--1,,1|(1264,306)|
-10,210,shared learning from bioproduct production,1708,297,71,19,8,3,0,0,-1,0,0,0
-10,211,Cumulative Production,1553,300,40,20,3,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,212,211,210,0,0,0,0,0,64,0,-1--1--1,,1|(1608,299)|
-10,213,demoing spending indicator,1342,374,57,19,8,3,0,0,-1,0,0,0
-10,214,demoing,1174,409,37,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,215,214,213,0,0,0,0,0,64,0,-1--1--1,,1|(1241,395)|
-10,216,startup demoing,1191,365,59,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,217,216,213,0,0,0,0,0,64,0,-1--1--1,,1|(1260,368)|
-10,218,redemoing indicator,1683,368,34,19,8,3,0,0,0,0,0,0
-10,219,Continuous Demoing Hours,1581,424,57,24,3,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,220,219,218,0,0,0,0,0,64,0,-1--1--1,,1|(1630,396)|
-10,221,demoing,1472,388,37,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,222,221,218,0,0,0,0,0,64,0,-1--1--1,,1|(1572,378)|
-10,223,demoing acceptable rate,1534,353,54,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,224,223,218,0,0,0,0,0,64,0,-1--1--1,,1|(1611,360)|
-10,225,piloting spending indicator,1346,439,53,19,8,3,0,0,0,0,0,0
-10,226,piloting,1194,440,33,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,227,226,225,0,0,0,0,0,64,0,-1--1--1,,1|(1253,439)|
-10,228,startup piloting,1209,469,55,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,229,228,225,0,0,0,0,0,64,0,-1--1--1,,1|(1269,455)|
-10,230,repiloting indicator,1720,459,58,11,8,3,0,0,0,0,0,0
-10,231,Continuous Piloting Hours,1509,515,51,26,3,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,232,231,230,1,0,0,0,0,64,0,-1--1--1,,1|(1614,502)|
-10,233,piloting,1566,486,33,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,234,233,230,0,0,0,0,0,64,0,-1--1--1,,1|(1623,476)|
-10,235,piloting acceptable rate,1493,459,54,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,236,235,230,0,0,0,0,0,64,0,-1--1--1,,1|(1597,459)|
-10,237,Selling Price,1353,507,39,11,8,3,0,0,-1,0,0,0
-10,238,Custom Selling Price,1198,559,48,21,3,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,239,238,237,0,0,0,0,0,64,0,-1--1--1,,1|(1276,532)|
-10,240,Default Selling Price,1137,520,74,16,3,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,241,240,237,0,0,0,0,0,64,0,-1--1--1,,1|(1255,512)|
-10,242,selling price selector,1163,494,74,13,8,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,243,242,237,0,0,0,0,0,64,0,-1--1--1,,1|(1268,501)|
-10,244,feedstock selection check,1694,594,49,19,8,3,0,0,-1,0,0,0
-10,245,perennial monthly change in price indicator,1245,615,77,19,8,3,0,0,0,0,0,0
-10,246,Time,1103,597,26,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,247,246,245,0,0,0,0,0,64,0,-1--1--1,,1|(1141,601)|
-10,248,investment decision,1304,677,34,19,8,3,0,0,-1,0,0,0
-10,249,random stream,1121,722,56,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,250,249,248,0,0,0,0,0,0,0,-1--1--1,,1|(1210,699)|
-10,251,probability of successful investor ask,1107,654,77,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,252,251,248,0,0,0,0,0,64,0,-1--1--1,,1|(1220,666)|
-10,253,lower bound on probability,1669,693,50,19,8,3,0,0,-1,0,0,0
-10,254,upper bound on probability,1671,760,51,19,8,3,0,0,-1,0,0,0
-10,255,NPV at required return,1465,713,58,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,256,255,253,0,0,0,0,0,64,0,-1--1--1,,1|(1564,703)|
-10,257,payback period,1488,809,59,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,258,257,253,0,0,0,0,0,64,0,-1--1--1,,1|(1566,758)|
-10,259,required payback period,1426,755,61,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,260,259,253,0,0,0,0,0,64,0,-1--1--1,,1|(1546,724)|
-10,261,strategic value,1503,692,54,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,262,261,253,0,0,0,0,0,64,0,-1--1--1,,1|(1581,692)|
-1,263,261,254,0,0,0,0,0,128,0,-1--1--1,,1|(1570,719)|
-1,264,255,254,0,0,0,0,0,128,0,-1--1--1,,1|(1564,735)|
-1,265,259,254,0,0,0,0,0,128,0,-1--1--1,,1|(1546,756)|
-1,266,257,254,0,0,0,0,0,128,0,-1--1--1,,1|(1567,787)|
-10,267,granting decision,1282,777,52,11,8,3,0,0,-1,0,0,0
-10,268,NPV at required return,1160,832,58,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,269,268,267,0,0,0,0,0,64,0,-1--1--1,,1|(1223,803)|
-10,270,payback period,1323,827,59,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,271,270,267,0,0,0,0,0,64,0,-1--1--1,,1|(1306,807)|
-10,272,required payback period,1074,794,61,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,273,272,267,0,0,0,0,0,64,0,-1--1--1,,1|(1175,786)|
-10,274,strategic value,1079,763,54,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,275,274,267,0,0,0,0,0,64,0,-1--1--1,,1|(1174,768)|
-10,276,regulatory process spending damper,240,281,59,19,8,3,0,0,0,0,0,0
-10,277,Regulatory Costs,99,322,40,20,3,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,278,277,276,0,0,0,0,0,64,0,-1--1--1,,1|(153,306)|
-10,279,TIME STEP,261,370,50,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,280,279,276,0,0,0,0,0,64,0,-1--1--1,,1|(253,336)|
-10,281,total approval cost,165,353,49,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,282,281,276,0,0,0,0,0,64,0,-1--1--1,,1|(196,321)|
-10,283,total approval time,347,344,49,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,284,283,276,0,0,0,0,0,64,0,-1--1--1,,1|(299,316)|
-10,285,piloting damper,863,282,49,11,8,3,0,0,0,0,0,0
-10,286,Continuous Piloting Hours,785,338,53,25,3,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,287,286,285,0,0,0,0,0,64,0,-1--1--1,,1|(827,307)|
-10,288,one Year,992,319,39,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,289,288,285,0,0,0,0,0,64,0,-1--1--1,,1|(934,302)|
-10,290,TIME STEP,941,351,50,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,291,290,285,0,0,0,0,0,64,0,-1--1--1,,1|(907,321)|
-10,292,startup demoing damper,211,437,51,19,8,3,0,0,0,0,0,0
-10,293,one Year,348,461,39,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,294,293,292,0,0,0,0,0,64,0,-1--1--1,,1|(292,451)|
-10,295,Startup Demoing Hours,104,487,39,24,3,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,296,295,292,1,0,0,0,0,64,0,-1--1--1,,1|(140,449)|
-10,297,startup demoing rate,202,526,56,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,298,297,292,1,0,0,0,0,64,0,-1--1--1,,1|(212,487)|
-10,299,TIME STEP,295,493,50,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,300,299,292,0,0,0,0,0,64,0,-1--1--1,,1|(264,472)|
-10,301,demoing damper,562,441,53,11,8,3,0,0,0,0,0,0
-10,302,Continuous Demoing Hours,471,484,43,24,3,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,303,302,301,1,0,0,0,0,64,0,-1--1--1,,1|(492,448)|
-10,304,one Year,700,466,39,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,305,304,301,0,0,0,0,0,64,0,-1--1--1,,1|(644,455)|
-10,306,TIME STEP,639,512,50,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,307,306,301,0,0,0,0,0,64,0,-1--1--1,,1|(605,481)|
-10,308,actual piloting rate,861,376,57,11,8,3,0,0,0,0,0,0
-10,309,piloting acceptable rate,952,431,54,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,310,309,308,0,0,0,0,0,64,0,-1--1--1,,1|(906,403)|
-10,311,Piloting Rate,860,469,40,20,3,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,312,311,308,0,0,0,0,0,64,0,-1--1--1,,1|(860,425)|
-1,313,308,285,1,0,0,0,0,128,0,-1--1--1,,1|(852,316)|
-10,314,actual demoing rate,538,524,48,19,8,3,0,0,0,0,0,0
-1,315,314,301,1,0,0,0,0,128,0,-1--1--1,,1|(540,476)|
-10,316,demoing acceptable rate,644,575,39,31,8,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,317,316,314,0,0,0,0,0,64,0,-1--1--1,,1|(597,553)|
-10,318,Demoing Rate,529,609,40,20,3,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,319,318,314,0,0,0,0,0,64,0,-1--1--1,,1|(532,572)|
-10,320,hours per year,776,429,55,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,321,320,308,0,0,0,0,0,128,0,-1--1--1,,1|(812,406)|
-10,322,hours per year,437,565,55,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,323,322,314,0,0,0,0,0,128,0,-1--1--1,,1|(471,551)|
-10,324,investor ask,1107,-507,38,11,8,3,0,0,0,0,0,0
-10,325,investor ask rate,1104,-558,67,12,8,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,326,325,324,0,0,0,0,0,64,0,-1--1--1,,1|(1104,-538)|
-10,327,Time,1196,-483,26,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,328,327,324,0,0,0,0,0,64,0,-1--1--1,,1|(1164,-491)|
-10,329,TIME STEP,992,-482,50,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,330,329,324,0,0,0,0,0,64,0,-1--1--1,,1|(1048,-493)|
-10,331,investor ask,1236,738,47,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,332,331,248,0,0,0,0,0,128,0,-1--1--1,,1|(1259,716)|
-1,333,7,117,1,0,0,0,0,64,0,-1--1--1,,1|(533,-279)|
-1,334,17,117,1,0,0,0,0,64,0,-1--1--1,,1|(441,-268)|
-10,335,commercial construction time,1072,-199,59,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,336,335,153,0,0,0,0,0,64,0,-1--1--1,,1|(1132,-189)|
-10,337,one Year,1294,37,39,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,338,337,153,0,1,0,0,0,64,0,-1--1--1,,1|(1264,-58)|
-10,339,demo construction time,1737,-165,59,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,340,339,157,0,0,0,0,0,64,0,-1--1--1,,1|(1670,-159)|
-1,341,337,157,0,1,0,0,0,64,0,-1--1--1,,1|(1423,-49)|
-10,342,one Year,993,-519,39,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,343,342,324,0,0,0,0,0,64,0,-1--1--1,,1|(1043,-513)|
-10,344,green premium,1228,584,47,11,8,3,0,0,0,0,0,0
-1,345,344,237,1,0,0,0,0,128,0,-1--1--1,,1|(1293,558)|
-10,346,feedstock price selector array,1524,588,54,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,347,346,244,0,0,0,0,0,64,0,-1--1--1,,1|(1604,590)|
+10,1,in business,166,324,34,11,8,3,0,0,0,0,0,0
+10,2,BS equity,112,371,41,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,3,2,1,0,0,0,0,0,64,0,-1--1--1,,1|(133,353)|
+10,4,BS equity threshold,233,373,36,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,5,4,1,0,0,0,0,0,64,0,-1--1--1,,1|(200,349)|
+10,6,profitable,350,325,31,11,8,3,0,0,0,0,0,0
+10,7,hypothetical net margin,358,381,55,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,8,7,6,0,0,0,0,0,64,0,-1--1--1,,1|(354,356)|
+10,9,pilot and demo spending control indicator,748,160,82,22,8,131,0,0,0,0,0,0
+10,10,actual spending,772,70,40,22,8,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,11,10,9,1,0,0,0,0,64,0,-1--1--1,,1|(759,117)|
+10,12,allowable spending,886,68,35,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,13,12,9,1,0,0,0,0,64,0,-1--1--1,,1|(818,104)|
+10,14,conserve spending,684,86,34,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,15,14,9,1,0,0,0,0,64,0,-1--1--1,,1|(721,119)|
+10,16,pilot and demo runway response,764,242,59,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,17,16,9,1,0,0,0,0,64,0,-1--1--1,,1|(741,227)|
+10,18,idealized demo revenue indicator,1260,89,55,19,8,3,0,0,0,0,0,0
+10,19,idealized demo completion time,1140,152,55,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,20,19,18,0,0,0,0,0,64,0,-1--1--1,,1|(1193,124)|
+10,21,idealized demo construction time,1379,166,59,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,22,21,18,0,0,0,0,0,64,0,-1--1--1,,1|(1325,132)|
+10,23,years ahead,1420,276,47,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,24,23,18,1,0,0,0,0,64,0,-1--1--1,,1|(1300,204)|
+10,25,idealized commercial revenue indicator,1499,94,66,19,8,3,0,0,0,0,0,0
+10,26,idealized commercial construction time,1439,214,71,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,27,26,25,0,0,0,0,0,64,0,-1--1--1,,1|(1465,161)|
+1,28,23,25,1,0,0,0,0,128,0,-1--1--1,,1|(1547,183)|
+10,29,idealized commercial capital expenses indicator,1228,337,81,19,8,3,0,0,-1,0,0,0
+10,30,idealized demo completion time,1249,247,55,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,31,30,29,0,0,0,0,0,64,0,-1--1--1,,1|(1240,286)|
+1,32,23,29,1,0,0,0,0,128,0,-1--1--1,,1|(1293,297)|
+10,33,idealized demo capital expenses indicator,1504,351,70,19,8,3,0,0,0,0,0,0
+10,34,idealized pilot completion time,1660,333,55,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,35,34,33,0,0,0,0,0,64,0,-1--1--1,,1|(1596,341)|
+1,36,23,33,1,0,0,0,0,128,0,-1--1--1,,1|(1473,329)|
+10,37,idealized commercial operating expenses indicator,1233,441,66,28,8,131,0,0,0,0,0,0
+10,38,idealized commercial construction time,1195,525,71,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,39,38,37,1,0,0,0,0,64,0,-1--1--1,,1|(1204,478)|
+1,40,23,37,1,0,0,0,0,128,0,-1--1--1,,1|(1313,375)|
+10,41,idealized demo operating expenses indicator,1503,472,79,19,8,3,0,0,0,0,0,0
+10,42,idealized demo completion time,1613,528,55,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,43,42,41,0,0,0,0,0,64,0,-1--1--1,,1|(1564,504)|
+10,44,idealized demo construction time,1612,411,59,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,45,44,41,0,0,0,0,0,64,0,-1--1--1,,1|(1563,439)|
+1,46,23,41,1,0,0,0,0,128,0,-1--1--1,,1|(1450,400)|
+10,47,idealized pilot operating expenses indicator,1356,495,75,19,8,3,0,0,0,0,0,0
+10,48,idealized pilot completion time,1296,589,55,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,49,48,47,0,0,0,0,0,64,0,-1--1--1,,1|(1321,548)|
+10,50,idealized pilot construction time,1468,581,59,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,51,50,47,0,0,0,0,0,64,0,-1--1--1,,1|(1417,543)|
+1,52,23,47,1,0,0,0,0,128,0,-1--1--1,,1|(1369,388)|
+10,53,management spending control indicator,932,156,70,19,8,3,0,0,0,0,0,0
+10,54,management runway response,935,233,59,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,55,54,53,1,0,0,0,0,64,0,-1--1--1,,1|(948,195)|
+1,56,12,53,1,0,0,0,0,128,0,-1--1--1,,1|(895,105)|
+1,57,10,53,1,0,0,0,0,128,0,-1--1--1,,1|(859,120)|
+1,58,14,53,1,0,0,0,0,128,0,-1--1--1,,1|(795,126)|
+10,59,research spending control indicator,572,153,57,19,8,3,0,0,0,0,0,0
+1,60,12,59,1,0,0,0,0,128,0,-1--1--1,,1|(746,106)|
+1,61,10,59,1,0,0,0,0,128,0,-1--1--1,,1|(637,107)|
+1,62,14,59,1,0,0,0,0,128,0,-1--1--1,,1|(606,98)|
+10,63,research runway response,470,100,53,19,8,3,0,0,-1,0,0,0
+1,64,63,59,0,0,0,0,0,128,0,-1--1--1,,1|(514,124)|
+1,65,14,63,0,0,0,0,0,128,0,-1--1--1,,1|(593,93)|
+1,66,10,63,0,0,0,0,0,128,0,-1--1--1,,1|(634,84)|
+10,67,actual net income indicator,132,458,55,19,8,3,0,0,-1,0,0,0
+10,68,Commercial Capital Expense,286,458,52,25,3,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,69,68,67,0,0,0,0,0,64,0,-1--1--1,,1|(217,458)|
+10,70,government operating grant amount indicator,216,558,71,19,8,3,0,0,-1,0,0,0
+10,71,Time,338,518,26,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,72,71,70,0,0,0,0,0,64,0,-1--1--1,,1|(299,531)|
+10,73,TIME STEP,99,512,50,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,74,73,70,0,0,0,0,0,64,0,-1--1--1,,1|(139,529)|
+10,75,FM positive cash flow,532,748,55,19,8,3,0,0,-1,0,0,0
+10,76,Time,411,718,26,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,77,76,75,0,0,0,0,0,0,0,-1--1--1,,1|(450,727)|
+10,78,CFS net change of cash and cash equivalents,388,785,81,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,79,78,75,1,0,0,0,0,64,0,-1--1--1,,1|(497,788)|
+10,80,shared learning from bioproduct production,1206,778,56,34,8,131,0,0,-1,0,0,0
+10,81,Cumulative Production,1056,729,49,24,3,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,82,81,80,0,0,0,0,0,64,0,-1--1--1,,1|(1120,749)|
+10,83,demoing spending indicator,994,481,57,19,8,3,0,0,-1,0,0,0
+10,84,demoing,826,516,37,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,85,84,83,0,0,0,0,0,64,0,-1--1--1,,1|(893,503)|
+10,86,startup demoing,843,472,59,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,87,86,83,0,0,0,0,0,64,0,-1--1--1,,1|(912,476)|
+10,88,redemoing indicator,1027,579,34,19,8,3,0,0,0,0,0,0
+10,89,Continuous Demoing Hours,905,640,57,24,3,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,90,89,88,1,0,0,0,0,64,0,-1--1--1,,1|(980,612)|
+10,91,demoing,816,599,37,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,92,91,88,0,0,0,0,0,64,0,-1--1--1,,1|(916,589)|
+10,93,demoing acceptable rate,878,564,54,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,94,93,88,0,0,0,0,0,64,0,-1--1--1,,1|(955,572)|
+10,95,piloting spending indicator,652,488,53,19,8,3,0,0,0,0,0,0
+10,96,piloting,496,468,33,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,97,96,95,0,0,0,0,0,64,0,-1--1--1,,1|(557,477)|
+10,98,startup piloting,487,510,55,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,99,98,95,0,0,0,0,0,64,0,-1--1--1,,1|(563,501)|
+10,100,repiloting indicator,670,579,58,11,8,3,0,0,0,0,0,0
+10,101,Continuous Piloting Hours,524,661,51,26,3,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,102,101,100,1,0,0,0,0,64,0,-1--1--1,,1|(598,629)|
+10,103,piloting,494,611,33,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,104,103,100,0,0,0,0,0,64,0,-1--1--1,,1|(562,598)|
+10,105,piloting acceptable rate,485,560,54,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,106,105,100,0,0,0,0,0,64,0,-1--1--1,,1|(568,569)|
+10,107,Selling Price,934,738,39,11,8,3,0,0,-1,0,0,0
+10,108,Custom Selling Price,777,798,48,21,3,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,109,108,107,0,0,0,0,0,64,0,-1--1--1,,1|(858,767)|
+10,110,Default Selling Price,718,751,74,16,3,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,111,110,107,0,0,0,0,0,64,0,-1--1--1,,1|(836,743)|
+10,112,selling price selector,762,709,74,13,8,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,113,112,107,0,0,0,0,0,64,0,-1--1--1,,1|(858,724)|
+10,114,feedstock selection check,999,883,49,19,8,3,0,0,-1,0,0,0
+10,115,perennial monthly change in price indicator,647,870,77,19,8,3,0,0,0,0,0,0
+10,116,Time,505,852,26,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,117,116,115,0,0,0,0,0,64,0,-1--1--1,,1|(543,856)|
+10,118,investment decision,96,741,34,19,8,3,0,0,-1,0,0,0
+10,119,random stream,222,802,56,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,120,119,118,1,0,0,0,0,0,0,-1--1--1,,1|(142,786)|
+10,121,probability of successful investor ask,235,726,77,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,122,121,118,0,0,0,0,0,64,0,-1--1--1,,1|(150,734)|
+10,123,lower bound on probability,347,179,50,19,8,3,0,0,-1,0,0,0
+10,124,upper bound on probability,347,240,51,19,8,3,0,0,-1,0,0,0
+10,125,NPV at required return,152,196,85,13,8,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,126,125,123,0,0,0,0,0,64,0,-1--1--1,,1|(260,188)|
+10,127,payback period,126,252,59,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,128,127,123,0,0,0,0,0,64,0,-1--1--1,,1|(221,221)|
+10,129,required payback period,154,225,87,12,8,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,130,129,123,0,0,0,0,0,64,0,-1--1--1,,1|(243,204)|
+10,131,strategic value,121,168,54,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,132,131,123,0,0,0,0,0,64,0,-1--1--1,,1|(229,174)|
+1,133,131,124,0,0,0,0,0,128,0,-1--1--1,,1|(218,200)|
+1,134,125,124,0,0,0,0,0,128,0,-1--1--1,,1|(245,218)|
+1,135,129,124,0,0,0,0,0,128,0,-1--1--1,,1|(261,234)|
+1,136,127,124,0,0,0,0,0,128,0,-1--1--1,,1|(233,247)|
+10,137,granting decision,331,622,52,11,8,3,0,0,-1,0,0,0
+10,138,NPV at required return,209,677,58,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,139,138,137,0,0,0,0,0,64,0,-1--1--1,,1|(272,648)|
+10,140,payback period,372,672,59,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,141,140,137,0,0,0,0,0,64,0,-1--1--1,,1|(355,652)|
+10,142,required payback period,123,639,61,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,143,142,137,0,0,0,0,0,64,0,-1--1--1,,1|(224,631)|
+10,144,strategic value,128,608,54,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,145,144,137,0,0,0,0,0,64,0,-1--1--1,,1|(223,613)|
+10,146,actual piloting rate,573,319,57,11,8,3,0,0,0,0,0,0
+10,147,piloting acceptable rate,664,374,54,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,148,147,146,0,0,0,0,0,64,0,-1--1--1,,1|(618,347)|
+10,149,Piloting Rate,572,412,40,20,3,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,150,149,146,0,0,0,0,0,64,0,-1--1--1,,1|(572,368)|
+10,151,actual demoing rate,913,323,48,19,8,3,0,0,0,0,0,0
+10,152,demoing acceptable rate,1019,374,39,31,8,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,153,152,151,0,0,0,0,0,64,0,-1--1--1,,1|(972,353)|
+10,154,Demoing Rate,904,408,40,20,3,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,155,154,151,0,0,0,0,0,64,0,-1--1--1,,1|(907,372)|
+10,156,hours per year,488,372,55,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,157,156,146,0,0,0,0,0,128,0,-1--1--1,,1|(524,350)|
+10,158,hours per year,812,364,55,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,159,158,151,0,0,0,0,0,128,0,-1--1--1,,1|(846,351)|
+10,160,investor ask,207,101,38,11,8,3,0,0,0,0,0,0
+10,161,investor ask rate,204,50,67,12,8,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,162,161,160,0,0,0,0,0,64,0,-1--1--1,,1|(204,70)|
+10,163,Time,296,125,26,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,164,163,160,0,0,0,0,0,64,0,-1--1--1,,1|(264,117)|
+10,165,TIME STEP,92,126,50,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,166,165,160,0,0,0,0,0,64,0,-1--1--1,,1|(148,115)|
+10,167,investor ask,231,769,47,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,168,167,118,0,0,0,0,0,128,0,-1--1--1,,1|(163,755)|
+10,169,commercial construction time,1115,233,59,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,170,169,29,0,0,0,0,0,64,0,-1--1--1,,1|(1165,281)|
+10,171,one Year,1368,384,39,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,172,171,29,0,1,0,0,0,64,0,-1--1--1,,1|(1316,367)|
+10,173,demo construction time,1599,276,59,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,174,173,33,0,0,0,0,0,64,0,-1--1--1,,1|(1557,310)|
+1,175,171,33,0,1,0,0,0,64,0,-1--1--1,,1|(1413,374)|
+10,176,one Year,93,89,39,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,177,176,160,0,0,0,0,0,64,0,-1--1--1,,1|(143,95)|
+10,178,green premium,810,835,47,11,8,3,0,0,0,0,0,0
+1,179,178,107,1,0,0,0,0,128,0,-1--1--1,,1|(877,800)|
+10,180,feedstock selector array,829,877,54,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,181,180,114,0,0,0,0,0,64,0,-1--1--1,,1|(909,879)|
+10,182,shared learning threshold for bioproduct production,1043,820,68,41,8,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,183,182,80,0,0,0,0,0,128,0,-1--1--1,,1|(1123,799)|
+10,184,shared learning from feedstock logistics,1559,762,65,19,8,3,0,0,0,0,0,0
+10,185,shared learning threshold for feedstock logistics,1375,730,83,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,186,185,184,0,0,0,0,0,128,0,-1--1--1,,1|(1469,745)|
+10,187,Cumulative Feedstock Consumption,1384,802,50,26,3,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,188,187,184,1,0,0,0,0,128,0,-1--1--1,,1|(1478,787)|
+\\\---/// Sketch information - do not modify anything except names
+V300  Do not put anything below this section - it will be ignored
+*Development Stages
+$192-192-192,0,Times New Roman|12||0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|96,96,100,0
+10,1,"pre-piloting",221,172,37,11,8,3,0,0,0,0,0,0
+10,2,pilot plant construction,351,172,39,19,8,3,0,0,0,0,0,0
+10,3,piloting ongoing,637,172,49,11,8,3,0,0,0,0,0,0
+10,4,"pre-demoing",895,172,41,11,8,3,0,0,0,0,0,0
+10,5,demo plant construction,1006,172,39,19,8,3,0,0,0,0,0,0
+10,6,demoing ongoing,298,483,53,11,8,3,0,0,0,0,0,0
+10,7,regulatory delay,619,483,50,11,8,3,0,0,0,0,0,0
+10,8,commercial plant operation,1249,483,54,19,8,3,0,0,0,0,0,0
+10,9,"pre-commercial",771,483,50,11,8,3,0,0,0,0,0,0
+10,10,Pilot Capital Cost,295,116,49,17,8,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,11,10,1,1,0,0,0,0,64,0,-1--1--1,,1|(233,133)|
+10,12,pilot plant is built,504,172,53,11,8,3,0,0,0,0,0,0
+10,13,piloting complete,770,172,53,11,8,3,0,0,0,0,0,0
+10,14,demo plant is built,632,311,57,11,8,3,0,0,0,0,0,0
+10,15,demoing complete,460,483,57,11,8,3,0,0,0,0,0,0
+10,16,Demo Capital Cost,948,285,49,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,17,16,4,1,0,0,0,0,64,0,-1--1--1,,1|(877,228)|
+10,18,Demo Capital Expense,945,339,53,24,3,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,19,18,4,1,0,0,0,0,64,0,-1--1--1,,1|(843,259)|
+10,20,Commercial Capital Expense,1140,576,46,25,3,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,21,Commercial Capital Expense,859,691,47,23,3,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,22,21,9,1,0,0,0,0,64,0,-1--1--1,,1|(760,570)|
+10,23,Working Capital,290,233,33,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,24,23,1,1,0,0,0,0,64,0,-1--1--1,,1|(236,215)|
+10,25,pilot construction time,444,75,59,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,26,25,2,1,0,0,0,0,64,0,-1--1--1,,1|(416,126)|
+10,27,TIME STEP,305,284,50,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,28,27,2,1,0,0,0,0,64,0,-1--1--1,,1|(353,242)|
+10,29,Pilot Capital Expense,300,67,48,22,3,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,30,29,1,1,0,0,0,0,64,0,-1--1--1,,1|(200,121)|
+1,31,1,2,0,0,0,0,0,64,0,-1--1--1,,1|(278,172)|
+1,32,12,3,0,0,0,0,0,128,0,-1--1--1,,1|(565,172)|
+10,33,Continuous Piloting Hours,704,244,51,25,3,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,34,33,3,0,0,0,0,0,64,0,-1--1--1,,1|(668,206)|
+1,35,33,13,0,0,0,0,0,128,0,-1--1--1,,1|(737,206)|
+1,36,13,4,0,0,0,0,0,128,0,-1--1--1,,1|(831,172)|
+10,37,Pilot Capital Expense,548,234,49,22,3,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,38,37,12,1,0,0,0,0,64,0,-1--1--1,,1|(500,196)|
+1,39,10,2,1,0,0,0,0,128,0,-1--1--1,,1|(358,133)|
+1,40,29,2,1,0,0,0,0,128,0,-1--1--1,,1|(376,123)|
+1,41,23,2,1,0,0,0,0,128,0,-1--1--1,,1|(336,218)|
+10,42,Working Capital,942,230,33,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,43,42,4,1,0,0,0,0,64,0,-1--1--1,,1|(906,193)|
+10,44,demo construction time,1097,119,59,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,45,44,5,0,0,0,0,0,64,0,-1--1--1,,1|(1057,142)|
+1,46,4,5,0,0,0,0,0,64,0,-1--1--1,,1|(944,172)|
+10,47,TIME STEP,960,119,50,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,48,47,5,0,0,0,0,0,64,0,-1--1--1,,1|(974,136)|
+1,49,42,5,1,0,0,0,0,128,0,-1--1--1,,1|(966,206)|
+1,50,16,5,1,0,0,0,0,128,0,-1--1--1,,1|(994,239)|
+1,51,18,5,1,0,0,0,0,128,0,-1--1--1,,1|(1028,278)|
+1,52,18,14,1,0,0,0,0,128,0,-1--1--1,,1|(816,339)|
+1,53,14,6,1,0,0,0,0,128,0,-1--1--1,,1|(356,405)|
+10,54,Continuous Demoing Hours,362,547,48,25,3,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,55,54,6,1,0,0,0,0,64,0,-1--1--1,,1|(259,540)|
+1,56,54,15,1,0,0,0,0,128,0,-1--1--1,,1|(372,514)|
+1,57,15,7,0,0,0,0,0,128,0,-1--1--1,,1|(535,483)|
+10,58,Regulatory Costs,682,547,40,20,3,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,59,58,7,1,0,0,0,0,64,0,-1--1--1,,1|(629,515)|
+1,60,58,9,1,0,0,0,0,128,0,-1--1--1,,1|(725,512)|
+10,61,Working Capital,855,622,33,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,62,61,9,1,0,0,0,0,64,0,-1--1--1,,1|(790,564)|
+10,63,commercial plant is built,1087,483,54,19,8,3,0,0,0,0,0,0
+1,64,20,63,1,0,0,0,0,128,0,-1--1--1,,1|(1086,537)|
+1,65,63,8,0,0,0,0,0,128,0,-1--1--1,,1|(1161,483)|
+10,66,profitable,1261,561,40,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,67,66,8,0,0,0,0,0,128,0,-1--1--1,,1|(1256,532)|
+10,68,commercial plant construction,927,483,54,19,8,131,0,0,0,0,0,0
+1,69,61,68,1,0,0,0,0,128,0,-1--1--1,,1|(933,575)|
+1,70,21,68,1,0,0,0,0,128,0,-1--1--1,,1|(961,626)|
+10,71,TIME STEP,848,400,50,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,72,commercial construction time,991,419,59,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,73,71,68,1,0,0,0,0,128,0,-1--1--1,,1|(907,440)|
+1,74,72,68,0,0,0,0,0,128,0,-1--1--1,,1|(963,446)|
+1,75,9,68,1,0,0,0,0,64,0,-1--1--1,,1|(834,485)|
+10,76,startup piloting complete,707,122,47,19,8,131,0,0,0,0,0,0
+10,77,Startup Piloting Hours,567,112,52,23,3,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,78,77,76,0,0,0,0,0,64,0,-1--1--1,,1|(632,115)|
+10,79,startup demoing completed,229,431,51,19,8,3,0,0,0,0,0,0
+10,80,Startup Demoing Hours,89,425,56,22,3,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,81,80,79,0,0,0,0,0,64,0,-1--1--1,,1|(154,427)|
+1,82,13,5,1,0,0,0,0,64,0,-1--1--1,,1|(888,147)|
+10,83,regulatory process begins,534,546,59,19,8,3,0,0,-1,0,0,0
+10,84,regulatory process starting point,600,616,64,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,85,84,83,0,0,0,0,0,64,0,-1--1--1,,1|(571,585)|
+10,86,target demo hours,447,615,43,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,87,86,83,0,0,0,0,0,64,0,-1--1--1,,1|(484,584)|
+1,88,54,83,1,0,0,0,0,128,0,-1--1--1,,1|(441,512)|
+1,89,7,68,1,0,0,0,0,64,0,-1--1--1,,1|(774,464)|
+1,90,15,68,1,0,0,0,0,64,0,-1--1--1,,1|(687,416)|
+10,91,Commercial Capital Cost Scaled,857,559,57,29,8,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,92,91,68,0,0,0,0,0,64,0,-1--1--1,,1|(891,521)|
+1,93,91,9,0,0,0,0,0,128,0,-1--1--1,,1|(809,516)|
+\\\---/// Sketch information - do not modify anything except names
+V300  Do not put anything below this section - it will be ignored
+*Flow Dampers
+$192-192-192,0,Times New Roman|12||0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|96,96,100,0
+10,1,piloting capital expenditure damper,548,221,64,19,8,3,0,0,0,0,0,0
+10,2,Pilot Capital Cost,429,319,44,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,3,2,1,0,0,0,0,0,64,0,-1--1--1,,1|(482,274)|
+10,4,Pilot Capital Expense,411,262,46,25,3,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,5,4,1,0,0,0,0,0,64,0,-1--1--1,,1|(463,246)|
+10,6,pilot construction time,585,363,59,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,7,6,1,1,0,0,0,0,64,0,-1--1--1,,1|(590,294)|
+10,8,TIME STEP,530,305,50,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,9,8,1,0,0,0,0,0,64,0,-1--1--1,,1|(536,273)|
+10,10,demoing capital expenditure damper,874,232,64,19,8,3,0,0,0,0,0,0
+10,11,Demo Capital Cost,814,314,49,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,12,11,10,0,0,0,0,0,64,0,-1--1--1,,1|(839,278)|
+10,13,Demo Capital Expense,734,271,51,21,3,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,14,13,10,0,0,0,0,0,64,0,-1--1--1,,1|(790,255)|
+10,15,demo construction time,977,308,59,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,16,15,10,0,0,0,0,0,64,0,-1--1--1,,1|(931,274)|
+10,17,TIME STEP,900,340,50,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,18,17,10,0,0,0,0,0,64,0,-1--1--1,,1|(889,296)|
+10,19,startup piloting damper,852,426,47,19,8,3,0,0,0,0,0,0
+10,20,one Year,960,468,39,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,21,20,19,0,0,0,0,0,64,0,-1--1--1,,1|(922,453)|
+10,22,Startup Piloting Hours,792,484,53,21,3,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,23,22,19,1,0,0,0,0,64,0,-1--1--1,,1|(795,443)|
+10,24,startup piloting rate,843,522,52,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,25,24,19,1,0,0,0,0,64,0,-1--1--1,,1|(858,479)|
+10,26,TIME STEP,932,494,50,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,27,26,19,0,0,0,0,0,64,0,-1--1--1,,1|(902,468)|
+10,28,commercial capital expenditure damper,1198,230,64,19,8,3,0,0,0,0,0,0
+10,29,Commercial Capital Cost Scaled,1139,345,68,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,30,29,28,0,0,0,0,0,64,0,-1--1--1,,1|(1164,293)|
+10,31,Commercial Capital Expense,1097,285,50,25,3,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,32,31,28,0,0,0,0,0,64,0,-1--1--1,,1|(1146,257)|
+10,33,commercial construction time,1290,290,59,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,34,33,28,0,0,0,0,0,64,0,-1--1--1,,1|(1249,263)|
+10,35,TIME STEP,1275,343,50,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,36,35,28,1,0,0,0,0,64,0,-1--1--1,,1|(1208,298)|
+10,37,regulatory process spending damper,532,430,59,19,8,3,0,0,0,0,0,0
+10,38,Regulatory Costs,391,471,40,20,3,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,39,38,37,0,0,0,0,0,64,0,-1--1--1,,1|(445,455)|
+10,40,TIME STEP,553,519,50,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,41,40,37,0,0,0,0,0,64,0,-1--1--1,,1|(545,485)|
+10,42,total approval cost,457,502,49,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,43,42,37,0,0,0,0,0,64,0,-1--1--1,,1|(488,470)|
+10,44,total approval time,639,493,49,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,45,44,37,0,0,0,0,0,64,0,-1--1--1,,1|(591,465)|
+10,46,piloting damper,1155,431,49,11,8,3,0,0,0,0,0,0
+10,47,Continuous Piloting Hours,1077,487,53,25,3,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,48,47,46,0,0,0,0,0,64,0,-1--1--1,,1|(1119,456)|
+10,49,one Year,1284,468,39,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,50,49,46,0,0,0,0,0,64,0,-1--1--1,,1|(1226,451)|
+10,51,TIME STEP,1233,500,50,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,52,51,46,0,0,0,0,0,64,0,-1--1--1,,1|(1199,470)|
+10,53,startup demoing damper,503,586,51,19,8,3,0,0,0,0,0,0
+10,54,one Year,640,610,39,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,55,54,53,0,0,0,0,0,64,0,-1--1--1,,1|(584,600)|
+10,56,Startup Demoing Hours,396,636,39,24,3,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,57,56,53,1,0,0,0,0,64,0,-1--1--1,,1|(432,598)|
+10,58,startup demoing rate,494,675,56,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,59,58,53,1,0,0,0,0,64,0,-1--1--1,,1|(504,636)|
+10,60,TIME STEP,587,642,50,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,61,60,53,0,0,0,0,0,64,0,-1--1--1,,1|(556,621)|
+10,62,demoing damper,854,590,53,11,8,3,0,0,0,0,0,0
+10,63,Continuous Demoing Hours,763,633,43,24,3,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,64,63,62,1,0,0,0,0,64,0,-1--1--1,,1|(784,597)|
+10,65,one Year,992,615,39,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,66,65,62,0,0,0,0,0,64,0,-1--1--1,,1|(936,604)|
+10,67,TIME STEP,931,661,50,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,68,67,62,0,0,0,0,0,64,0,-1--1--1,,1|(897,630)|
+10,69,actual piloting rate,1166,555,48,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,70,69,46,0,0,0,0,0,128,0,-1--1--1,,1|(1160,495)|
+10,71,actual demoing rate,816,683,53,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,72,71,62,0,0,0,0,0,128,0,-1--1--1,,1|(833,638)|
 ///---\\\
 :GRAPH Capital
 :TITLE Capital
@@ -5357,8 +5440,9 @@ Flow Dampers
 :VAR idealized demo completion time
 :VAR idealized commercial construction time
 :L<%^E!@
+1:latest-commit-local.vdf
 1:latest-commit.vdf
-9:latest-commit
+9:latest-commit-local
 22:$,Dollar,Dollars,$s
 22:Hour,Hours
 22:Month,Months
@@ -5369,11 +5453,11 @@ Flow Dampers
 22:Day,Days
 23:0
 15:0,0,0,0,0,0
-19:5,0
+19:100,19
 27:0,
 34:0,
 4:Time
-5:FM return on total equity
+5:strategic value
 35:Date
 36:YYYY-MM-DD
 37:2000
