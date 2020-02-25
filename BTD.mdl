@@ -1114,7 +1114,7 @@ smoothed NPV=
 	~		|
 
 smoothed NPV deviation=
-	SQRT(smoothed NPV squared - smoothed NPV * smoothed NPV)
+	SQRT(MAX(0, smoothed NPV squared - smoothed NPV * smoothed NPV))
 	~	USD
 	~		|
 
