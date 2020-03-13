@@ -1,15 +1,9 @@
 {UTF-8}
-market existence indicator=
-	IF THEN ELSE(Market Size = 0,
-	             0.001,
-	             Market Size)
-	~	tons [0.001,?]
-	~	prevents division by zero in adoption from word of mouth parameter, where \
-		Market Size is used in the denominator
-	|
-
 Adoption from Word of Mouth=
-	(Adopters*Adoption Fraction from word of mouth*Contact Rate*Potential Adopters)/market existence indicator
+	IF THEN ELSE(Market Size = 0,
+	             0,
+	             (Adopters*Adoption Fraction from word of mouth*Contact Rate*Potential Adopters\
+		)/Market Size)
 	~	tons/Year
 	~	market existence indicator is equal to Market Size when Market Size is not \
 		zero; when Market Size is zero, the indicator is 0.001 to prevent a \
@@ -23,9 +17,10 @@ Direct Replacement Consumption= INTEG (
 	~		|
 
 Transition to Potential=
-	((Average Possible Demand for Direct Replacement/Market Size)*Market Size)/adjustment time for Transition
+	Average Possible Demand for Direct Replacement/adjustment time for Transition
 	~	
-	~		|
+	~	Market Size cancelled out and was removed
+	|
 
 Choosing Direct Replacement=
 	IF THEN ELSE(Adopters/adjustment time for sales > Direct Replacement Production,
@@ -336,9 +331,10 @@ Green Premium=
 	~		|
 
 Initial Market Size=
-	1.6e+07
-	~	tons
-	~		|
+	0
+	~	tons [0,?]
+	~	default value 1.6e+07
+	|
 
 Initial Offtake Agreement=
 	730000
@@ -564,7 +560,6 @@ $192-192-192,0,Times New Roman|12||0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|96,96,7
 10,136,Becoming Adopters,857,1089,32,19,40,3,0,0,-1,0,0,0
 10,137,Market Size,530,1168,48,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
 10,138,Average Possible Demand for Direct Replacement,270,893,76,30,8,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,139,137,132,1,0,0,0,0,128,0,-1--1--1,,1|(476,1160)|
 10,140,adjustment time for Transition,270,1137,54,11,8,3,0,0,0,0,0,0
 1,141,140,132,1,0,0,0,0,128,0,-1--1--1,,1|(348,1100)|
 10,142,Advertising Budget per Year,657,1253,61,19,8,3,0,0,0,0,0,0
@@ -582,7 +577,6 @@ $192-192-192,0,Times New Roman|12||0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|96,96,7
 1,154,149,148,1,0,0,0,0,128,0,-1--1--1,,1|(911,906)|
 1,155,148,136,1,0,0,0,0,128,0,-1--1--1,,1|(957,1043)|
 1,156,115,43,1,0,0,0,0,128,0,-1--1--1,,1|(2001,1016)|
-1,157,115,39,1,0,0,0,0,128,0,-1--1--1,,1|(2011,778)|
 10,158,Adopters,2062,666,40,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
 1,159,158,39,1,0,0,0,0,128,0,-1--1--1,,1|(2147,693)|
 1,160,39,43,1,0,0,0,0,128,0,-1--1--1,,1|(2312,860)|
@@ -651,9 +645,7 @@ $192-192-192,0,Times New Roman|12||0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|96,96,7
 1,223,181,221,1,0,0,0,0,128,0,-1--1--1,,1|(535,142)|
 1,224,35,15,1,0,0,0,0,128,1,-1--1--1,,1|(1277,615)|
 1,225,97,36,1,0,0,0,0,128,1,-1--1--1,,1|(2585,619)|
-10,226,market existence indicator,1431,823,54,19,8,3,0,0,0,0,0,0
-1,227,115,226,1,0,0,0,0,128,0,-1--1--1,,1|(1594,816)|
-1,228,226,148,1,0,0,0,0,128,0,-1--1--1,,1|(1270,853)|
+1,229,115,148,1,0,0,0,0,128,0,-1--1--1,,1|(1494,831)|
 ///---\\\
 :L<%^E!@
 1:market-2-local.vdf
@@ -664,7 +656,7 @@ $192-192-192,0,Times New Roman|12||0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|96,96,7
 27:0,
 34:0,
 4:Time
-5:Choosing Direct Replacement
+5:Direct Replacement Consumption
 35:Date
 36:YYYY-MM-DD
 37:2000
