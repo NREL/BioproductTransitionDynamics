@@ -5,8 +5,8 @@ adding to market=
 	~		|
 
 expected new market development=
-	1000 * PULSE TRAIN( 0 , TIME STEP , 6 * TIME STEP , time until market establishment \
-		)
+	1000 * PULSE TRAIN( INITIAL TIME, TIME STEP , 1 , INITIAL TIME + time until market establishment\
+		 )
 	~	tons/Year [0,?]
 	~	before a standard growth model kicks in, the first few years of a \
 		brand-new market are modeled as several pulses of new demand. after this \
@@ -20,7 +20,8 @@ time until market establishment=
 	~		|
 
 overall market growth=
-	IF THEN ELSE(Initial Market Size = 0 :AND: Time <= time until market establishment,
+	IF THEN ELSE(Initial Market Size = 0 :AND: Time <= INITIAL TIME + time until market establishment\
+		,
 	             expected new market development,
 	             Market Size*EXP(established market growth rate))
 	~	tons/Year [0,?]
@@ -353,7 +354,7 @@ Green Premium=
 	~		|
 
 Initial Market Size=
-	1.6e+07
+	0
 	~	tons [0,?]
 	~	default value 1.6e+07
 	|
@@ -667,8 +668,8 @@ $192-192-192,0,Times New Roman|12||0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|96,96,7
 1,223,97,36,1,0,0,0,0,128,1,-1--1--1,,1|(2562,595)|
 1,224,115,147,1,0,0,0,0,128,0,-1--1--1,,1|(1471,807)|
 10,225,expected new market development,1622,1076,50,22,8,131,0,0,0,0,0,0
-10,227,TIME STEP,1631,1165,50,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|0||128-128-128
-1,228,227,225,0,0,0,0,0,64,0,-1--1--1,,1|(1627,1132)|
+10,227,TIME STEP,1680,1152,50,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|0||128-128-128
+1,228,227,225,0,0,0,0,0,64,0,-1--1--1,,1|(1659,1124)|
 10,229,time until market establishment,1784,1102,53,19,8,3,0,0,0,0,0,0
 10,230,overall market growth,1634,978,46,19,8,3,0,0,0,0,0,0
 1,231,230,120,0,0,0,0,0,128,0,-1--1--1,,1|(1636,938)|
@@ -681,6 +682,10 @@ $192-192-192,0,Times New Roman|12||0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|96,96,7
 1,238,237,230,0,0,0,0,0,64,0,-1--1--1,,1|(1718,991)|
 10,239,Initial Market Size,1425,945,48,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|0||128-128-128
 1,240,239,230,0,0,0,0,0,128,0,-1--1--1,,1|(1523,959)|
+10,241,INITIAL TIME,1553,1146,60,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|0||128-128-128
+1,242,241,225,0,0,0,0,0,64,0,-1--1--1,,1|(1576,1121)|
+10,243,INITIAL TIME,1468,1000,60,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|0||128-128-128
+1,244,243,230,0,0,0,0,0,64,0,-1--1--1,,1|(1551,989)|
 ///---\\\
 :L<%^E!@
 1:market-local.vdf
@@ -690,7 +695,7 @@ $192-192-192,0,Times New Roman|12||0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|96,96,7
 27:0,
 34:0,
 4:Time
-5:overall market growth
+5:Total Sales per Year
 35:Date
 36:YYYY-MM-DD
 37:2000
