@@ -430,12 +430,12 @@ INITIAL TIME  = 2015
 	|
 
 SAVEPER  = 
-        TIME STEP
+        TIME STEP 
 	~	Year [0,?]
 	~	The frequency with which output is stored.
 	|
 
-TIME STEP  = 1
+TIME STEP  = 0.03125
 	~	Year [0,?]
 	~	The time step for the simulation.
 	|
