@@ -1,0 +1,160 @@
+{UTF-8}
+fossil price response=
+	fossil price response magnitude * Current Fossil Price
+	~	USD/tonFeedstock [0,?]
+	~		|
+
+changing fossil price=
+	fossil monthly change in price
+	~	USD/tonFeedstock/year
+	~		|
+
+fossil maximum fluctuation=
+	0.05
+	~	Dmnl
+	~		|
+
+Current Fossil Price= INTEG (
+	changing fossil price,
+		fossil starting price)
+	~	USD/tonFeedstock [0,?]
+	~		|
+
+fossil starting price=
+	1600
+	~	USD/tonFeedstock
+	~		|
+
+fossil price response magnitude=
+	0.2
+	~	Dmnl [0,1,0.05]
+	~		|
+
+fossil price trend=
+	fossil starting price +
+	( fossil long term price change*fossil starting price / (FINAL TIME - INITIAL TIME) \
+		) * (Time - INITIAL TIME)
+	- fossil price response
+	~	USD/tonFeedstock
+	~		|
+
+fossil reversion time=
+	0.1
+	~	year
+	~		|
+
+fossil monthly change in price=
+	( fossil price trend - Current Fossil Price ) / fossil reversion time
+	+ fossil price trend
+	* RANDOM NORMAL(-fossil maximum fluctuation,
+	                fossil maximum fluctuation,
+	                0,
+	                fossil maximum fluctuation,
+	                random stream)/TIME STEP
+	~	USD/tonFeedstock/year
+	~		|
+
+fossil long term price change=
+	0.0625
+	~	Dmnl
+	~		|
+
+random stream=
+	0
+	~	Dmnl [0,?,1]
+	~		|
+
+********************************************************
+	.Control
+********************************************************~
+		Simulation Control Parameters
+	|
+
+FINAL TIME  = 2050
+	~	year
+	~	The final time for the simulation.
+	|
+
+INITIAL TIME  = 2015
+	~	year
+	~	The initial time for the simulation.
+	|
+
+SAVEPER  = 
+        TIME STEP
+	~	year [0,?]
+	~	The frequency with which output is stored.
+	|
+
+TIME STEP  = 0.03125
+	~	year [0,?]
+	~	The time step for the simulation.
+	|
+
+\\\---/// Sketch information - do not modify anything except names
+V300  Do not put anything below this section - it will be ignored
+*View 1
+$192-192-192,0,Times New Roman|12||0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|96,96,100,0
+12,1,48,1197,1614,10,8,0,3,0,0,-1,0,0,0
+1,2,3,1,100,0,0,22,0,0,0,-1--1--1,,1|(1247,1613)|
+11,3,48,1294,1613,6,8,34,3,0,0,1,0,0,0
+12,4,0,979,1389,87,17,3,135,0,8,-1,0,0,0,-1--1--1,0-0-0,|18||0-0-0
+Generic Fossil
+10,5,random stream,1174,1574,56,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+12,6,0,973,1426,87,17,8,135,0,0,-1,0,0,0
+(calibrated on maleic anhydride data)
+10,7,fossil long term price change,770,168,48,19,8,3,0,0,0,0,0,0
+10,8,fossil starting price,769,234,58,11,8,3,0,0,0,0,0,0
+10,9,fossil price trend,537,230,52,11,8,3,0,0,0,0,0,0
+10,10,fossil reversion time,285,275,47,19,8,3,0,0,0,0,0,0
+10,11,fossil maximum fluctuation,255,320,48,19,8,3,0,0,0,0,0,0
+10,12,fossil monthly change in price,498,338,48,19,8,3,0,0,0,0,0,0
+10,13,Current Fossil Price,768,415,57,33,3,131,0,0,0,0,0,0
+12,14,48,461,417,10,8,0,3,0,0,-1,0,0,0
+1,15,17,13,4,0,0,22,0,0,0,-1--1--1,,1|(654,417)|
+1,16,17,14,100,0,0,22,0,0,0,-1--1--1,,1|(528,417)|
+11,17,48,591,417,6,8,34,3,0,0,1,0,0,0
+10,18,changing fossil price,591,444,46,19,40,3,0,0,-1,0,0,0
+10,19,random stream,250,359,56,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,20,7,9,0,0,0,0,0,128,0,-1--1--1,,1|(656,197)|
+1,21,8,9,0,0,0,0,0,128,0,-1--1--1,,1|(656,231)|
+1,22,9,12,0,0,0,0,0,128,0,-1--1--1,,1|(521,273)|
+1,23,10,12,0,0,0,0,0,128,0,-1--1--1,,1|(384,303)|
+1,24,11,12,0,0,0,0,0,128,0,-1--1--1,,1|(369,327)|
+1,25,19,12,0,0,0,0,0,128,0,-1--1--1,,1|(371,349)|
+1,26,12,17,0,0,0,0,0,128,0,-1--1--1,,1|(547,380)|
+1,27,13,12,1,0,0,0,0,128,0,-1--1--1,,1|(663,344)|
+1,28,8,13,1,0,0,0,0,128,1,-1--1--1,,1|(805,311)|
+10,29,fossil price response,627,287,34,19,8,3,0,0,0,0,0,0
+10,30,FINAL TIME,611,155,55,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,31,30,9,0,0,0,0,0,64,0,-1--1--1,,1|(578,187)|
+10,32,INITIAL TIME,522,127,60,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,33,32,9,0,0,0,0,0,64,0,-1--1--1,,1|(527,171)|
+10,34,Time,443,156,26,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,35,34,9,0,0,0,0,0,64,0,-1--1--1,,1|(483,188)|
+10,36,TIME STEP,255,400,50,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,37,36,12,0,0,0,0,0,64,0,-1--1--1,,1|(367,371)|
+1,38,13,29,1,0,0,0,0,128,0,-1--1--1,,1|(684,320)|
+1,39,29,12,0,1,0,0,0,64,0,-1--1--1,,1|(575,306)|
+1,40,29,9,1,0,0,0,0,128,0,-1--1--1,,1|(564,263)|
+10,41,fossil price response magnitude,734,283,41,27,8,131,0,0,0,0,0,0
+1,42,41,29,0,0,0,0,0,128,0,-1--1--1,,1|(683,284)|
+///---\\\
+:L<%^E!@
+9:Current
+15:0,0,0,0,0,0
+19:100,0
+27:0,
+34:0,
+5:fossil monthly change in price
+35:Date
+36:YYYY-MM-DD
+37:2000
+38:1
+39:1
+40:0
+41:0
+42:1
+24:0
+25:0
+26:0
