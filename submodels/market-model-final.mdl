@@ -1,0 +1,731 @@
+{UTF-8}
+Transition to Potential Adoption for Fossil=
+	MIN((Current Demand for Product B/AT for transitioning demand to PA),(Market Size/AT for transitioning demand to PA\
+		))
+	~	tonProduct/Year
+	~		|
+
+Supply of Fossil=
+	Sales of Fossil
+	~	tonProduct
+	~		|
+
+Transition from Demand to Potential Adoption=
+	MIN((Current Demand for Product A/AT for transitioning demand to PA),(Market Size/AT for transitioning demand to PA\
+		))
+	~	tonProduct/Year
+	~		|
+
+Sales of DR=
+	IF THEN ELSE((Adoption from Advertising+Adoption from WOM or Dispersion)>(Supply/one year\
+		),(Supply/one year)
+	,(Adoption from Advertising+Adoption from WOM or Dispersion))
+	~	tonProduct/Year
+	~		|
+
+Adoption Fraction from WOM or Dispersion=
+	Normal Effectiveness of WoM*Propensity to Pay Green Premium
+	~	Dmnl
+	~		|
+
+Adoption from Advertising=
+	Advertising Budget of A*Advertising Effectiveness
+	~	tonProduct/Year
+	~		|
+
+Market Share of DR=
+	Sales of DR/Total Sales in Market
+	~	Dmnl [0,1]
+	~		|
+
+Market Share of Fossil=
+	Sales of Fossil/Total Sales in Market
+	~	Dmnl [0,1]
+	~		|
+
+Advertising Effectiveness=
+	Normal Advertising Effectiveness*Propensity to Pay Green Premium
+	~	tonProduct/USD
+	~		|
+
+Potential Adoption for Fossil= INTEG (
+	Sales of Fossil+Transition to Potential Adoption for Fossil,
+		initial market size)
+	~	tonProduct
+	~		|
+
+Dynamic Markup= WITH LOOKUP (
+	Market Share of DR,
+		([(0,0)-(10,10)],(0,0.25),(0.5,0.5),(1,0.8) ))
+	~	Dmnl [0,1]
+	~		|
+
+Net Change in Demand for Fossil=
+	(Current Demand for Product B-Demand for Fossil Product)/Adjustment Time for Change in Demand
+	~	tonProduct/Year
+	~		|
+
+Current Demand for Product A=
+	(Demand for Direct Replacement*Gains to Demand from Sales for DR)+(Demand for Direct Replacement\
+		*Propensity to Pay Green Premium
+	)
+	~	tonProduct
+	~		|
+
+Current Demand for Product B=
+	Demand for Fossil Product*Gains to Demand from Sales for Fossil*Propensity to Pay for Fossil
+	~	tonProduct
+	~		|
+
+Normal Effectiveness of WoM=
+	0.25
+	~	Dmnl
+	~		|
+
+Normal Markup Factor=
+	0.4
+	~	Dmnl
+	~		|
+
+one year=
+	1
+	~	Year
+	~		|
+
+Ratio of Supply to Demand=
+	Supply/Current Demand for Product A
+	~	Dmnl
+	~		|
+
+Net Change in Demand for Product A=
+	(Current Demand for Product A-Demand for Direct Replacement)/Adjustment Time for Change in Demand
+	~	tonProduct/Year
+	~		|
+
+Total Consumption of DR= INTEG (
+	Sales of DR,
+		Initial Offtake Agreement for DR)
+	~	tonProduct
+	~		|
+
+Propensity to Pay for Fossil= WITH LOOKUP (
+	Ratio of Fossil Price to DR,
+		([(0,0)-(10,10)],(0,0.99),(0.5,0.99),(1,0.95),(1.2,0.56),(2,0.08) ))
+	~	Dmnl
+	~		|
+
+Total Sales in Market=
+	Sales of DR+Sales of Fossil
+	~	tonProduct/Year
+	~		|
+
+Total Consumption of Fossil= INTEG (
+	Sales of Fossil,
+		Initial Consumption of Fossil)
+	~	tonProduct
+	~		|
+
+Normal Advertising Effectiveness=
+	0.2
+	~	tonProduct/USD
+	~		|
+
+Marginal Cost of DR=
+	2200
+	~	USD/tonProduct
+	~		|
+
+Market Size= INTEG (
+	Growth of Market-Total Sales in Market,
+		initial market size)
+	~	tonProduct
+	~		|
+
+Markup Factor=
+	IF THEN ELSE(Dynamic Markup enter 1=1, Dynamic Markup,Normal Markup Factor)
+	~	Dmnl
+	~		|
+
+Average Price of Direct Replacement= INTEG (
+	Net Change in Average Price of Product A,
+		Initial Price of DR)
+	~	USD/tonProduct
+	~		|
+
+Initial Consumption of Fossil=
+	initial market size-Initial Offtake Agreement for DR
+	~	tonProduct
+	~		|
+
+Current Price of Product A=
+	(Marginal Cost of DR+(Marginal Cost of DR*Markup Factor*Effect of Supply and Demand ratio on Price\
+		))
+	~	USD/tonProduct
+	~		|
+
+Demand for Fossil Product= INTEG (
+	Net Change in Demand for Fossil,
+		Initial Demand for Product B)
+	~	tonProduct
+	~		|
+
+Demand for Direct Replacement= INTEG (
+	Net Change in Demand for Product A,
+		Initial Offtake Agreement for DR)
+	~	tonProduct
+	~		|
+
+Logistic Effect of Market Share on Demand for DR=
+	L/(1+EXP(-k*(Market Share of DR-xo)))
+	~	Dmnl [0,1]
+	~		|
+
+Supply= INTEG (
+	Production Flow-Sales Flow,
+		Yearly Production of DR)
+	~	tonProduct
+	~		|
+
+Dynamic Markup enter 1=
+	0
+	~	Dmnl [0,1]
+	~		|
+
+Effect of Supply and Demand ratio on Price= WITH LOOKUP (
+	Ratio of Supply to Demand,
+		([(0,0)-(2,5)],(0,1.5),(0.5,1.2),(1,1),(1.5,0.8),(2,0.8) ))
+	~	Dmnl
+	~		|
+
+Ratio of Fossil Price to DR=
+	1/Ratio of Average Price of DR to Fossil
+	~	Dmnl
+	~		|
+
+Production Flow=
+	Yearly Production of DR
+	~	tonProduct/Year
+	~		|
+
+Sales Flow=
+	Sales of DR
+	~	tonProduct/Year
+	~		|
+
+Ratio of Supply to Demand for Fossil=
+	ZIDZ(Supply of Fossil,Demand for Fossil Product)
+	~	Dmnl
+	~		|
+
+Gains to Demand from Sales for DR=
+	IF THEN ELSE(Logistic Effects on enter 1 Linear Effects enter other=1,Logistic Effect of Market Share on Demand for DR
+	,1)
+	~	Dmnl
+	~		|
+
+Gains to Demand from Sales for Fossil=
+	IF THEN ELSE(Logistic Effects on enter 1 Linear Effects enter other=1,Logistic Effect of Market Share on Demand for Fossil
+	,1)
+	~	Dmnl
+	~		|
+
+initial market size=
+	5.6e+06
+	~	tonProduct
+	~		|
+
+Potential Adoption= INTEG (
+	Transition from Demand to Potential Adoption-Sales of DR,
+		Initial Offtake Agreement for DR)
+	~	tonProduct
+	~		|
+
+Adoption from WOM or Dispersion=
+	(Potential Adoption*Total Consumption of DR*Contact Rate*Adoption Fraction from WOM or Dispersion\
+		)/Market Size
+	~	tonProduct/Year
+	~		|
+
+Advertising Budget of A=
+	500000
+	~	USD/Year
+	~		|
+
+Ratio of Market Share of Fossil to Desired=
+	Market Share of Fossil/Desired Market Share of Fossil
+	~	Dmnl
+	~		|
+
+Growth of Market=
+	Market Size*EXP(Growth Rate)
+	~	tonProduct/Year
+	~		|
+
+Growth Rate=
+	0.01
+	~	Dmnl [0,0.2]
+	~		|
+
+Contact Rate=
+	0.1
+	~	Dmnl/Year
+	~		|
+
+Propensity to Pay Green Premium= WITH LOOKUP (
+	Ratio of Average Price of DR to Fossil,
+		([(0,0)-(10,10)],(0,0.99),(0.5,0.8),(1,0.6),(1.2,0.05),(1.4,0.01) ))
+	~	Dmnl
+	~		|
+
+Sales of Fossil=
+	Market Size-Sales of DR
+	~	tonProduct/Year
+	~		|
+
+AT for transitioning demand to PA=
+	1
+	~	Year
+	~		|
+
+Initial Demand for Product B=
+	Market Size-Initial Offtake Agreement for DR
+	~	tonProduct [500000,2e+06]
+	~		|
+
+Adjustment Time for Change in Average Price=
+	0.25
+	~	Year [0.25,20]
+	~		|
+
+Adjustment Time for Change in Demand=
+	1
+	~	Year
+	~		|
+
+Average Price of Fossil Product= INTEG (
+	Net Change in Average Price of Product B,
+		Initial Price of Fossil)
+	~	USD/tonProduct
+	~		|
+
+Current Price of fossil=
+	"Effect of Supply/Demand for Fossil on Price"*Effects of Price Response Switch*Initial Price of Fossil
+	~	USD/tonProduct
+	~		|
+
+Desired Market Share of Fossil=
+	0.9
+	~	Dmnl [0.5,1]
+	~	An assumption that
+	|
+
+"Effect of Supply/Demand for Fossil on Price"= WITH LOOKUP (
+	Ratio of Supply to Demand for Fossil,
+		([(0,0)-(2,5)],(0,5),(0.2,4),(0.4,3),(0.6,2),(0.8,1.5),(1,1),(1.2,0.8),(1.4,0.7),(1.6\
+		,0.6),(1.8,0.5),(2,0.5) ))
+	~	Dmnl
+	~		|
+
+Effect of the Ratio of Market Share of Fossil to Desired= WITH LOOKUP (
+	Ratio of Market Share of Fossil to Desired,
+		([(0,0)-(10,1)],(0,0.5),(0.2,0.57),(0.4,0.68),(0.6,0.85),(0.8,0.95),(0.9,1),(1,1) )\
+		)
+	~	Dmnl
+	~		|
+
+Effects of Price Response Switch=
+	IF THEN ELSE((STEP(Price Response Effects on enter 1 =1, 10)), Effect of the Ratio of Market Share of Fossil to Desired\
+		,1)
+	~	Dmnl
+	~		|
+
+Initial Offtake Agreement for DR=
+	100000
+	~	tonProduct [0.1,2.5e+06]
+	~	Demand for the products is constant initially.  Need a more sophisciated \
+		approach that will capture market demand.
+	|
+
+Initial Price of DR=
+	4500
+	~	USD/tonProduct
+	~		|
+
+Initial Price of Fossil=
+	4500
+	~	USD/tonProduct
+	~		|
+
+k=
+	1
+	~	Dmnl [0,?]
+	~		|
+
+L=
+	2
+	~	Dmnl [1,5]
+	~		|
+
+Logistic Effect of Market Share on Demand for Fossil=
+	L/(1+EXP(-k*(Market Share of Fossil-xo)))
+	~	Dmnl
+	~		|
+
+Logistic Effects on enter 1 Linear Effects enter other=
+	0
+	~	Dmnl [0,1]
+	~		|
+
+Net Change in Average Price of Product A=
+	(Current Price of Product A-Average Price of Direct Replacement)/Adjustment Time for Change in Average Price
+	~	USD/tonProduct/Year
+	~		|
+
+Net Change in Average Price of Product B=
+	((Current Price of fossil-Average Price of Fossil Product)/Adjustment Time for Change in Average Price\
+		)
+	~	USD/(tonProduct*Year)
+	~		|
+
+Price Response Effects on enter 1=
+	0
+	~	Dmnl [0,1]
+	~		|
+
+Ratio of Average Price of DR to Fossil=
+	ZIDZ( Average Price of Direct Replacement , Average Price of Fossil Product )
+	~	Dmnl
+	~		|
+
+Yearly Production of DR=
+	730000
+	~	tonProduct/Year [730000,2.5e+06]
+	~	Supply is a constant for now.  This should be a function of production \
+		capital allocated to making product A.
+	|
+
+xo=
+	0.5
+	~	Dmnl [0,?]
+	~		|
+
+********************************************************
+	.Control
+********************************************************~
+		Simulation Control Parameters
+	|
+
+FINAL TIME  = 2050
+	~	Year
+	~	The final time for the simulation.
+	|
+
+INITIAL TIME  = 2015
+	~	Year
+	~	The initial time for the simulation.
+	|
+
+SAVEPER  = 
+        TIME STEP
+	~	Year [0,?]
+	~	The frequency with which output is stored.
+	|
+
+TIME STEP  = 0.03125
+	~	Year [0,?]
+	~	The time step for the simulation.
+	|
+
+\\\---/// Sketch information - do not modify anything except names
+V300  Do not put anything below this section - it will be ignored
+*View 1
+$192-192-192,0,Times New Roman|12||0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|96,96,75,0
+10,1,Yearly Production of DR,-278,-54,48,35,8,131,0,0,0,0,0,0,0,0,0,0,0,0
+10,2,Initial Offtake Agreement for DR,799,-139,70,34,8,131,0,0,0,0,0,0,0,0,0,0,0,0
+10,3,Effect of Supply and Demand ratio on Price,606,-344,74,19,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+10,4,Current Price of Product A,883,-416,52,19,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,5,3,4,1,0,43,0,2,128,0,-1--1--1,|18||0-0-0,1|(713,-401)|
+10,6,Average Price of Direct Replacement,1670,-302,107,85,3,131,0,0,0,0,0,0,0,0,0,0,0,0
+12,7,48,1217,-295,10,8,0,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,8,10,6,4,0,43,22,2,0,0,-1--1--1,|18||0-0-0,1|(1479,-290)|
+1,9,10,7,68,0,0,22,2,0,0,-1--1--1,|18||0-0-0,1|(1303,-290)|
+11,10,48,1387,-290,8,11,34,3,0,0,1,0,0,0,0,0,0,0,0,0
+10,11,Net Change in Average Price of Product A,1387,-260,75,19,40,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,12,Adjustment Time for Change in Average Price,1151,-217,79,19,8,131,0,0,0,0,0,0,0,0,0,0,0,0
+1,13,12,11,1,0,45,0,2,128,0,-1--1--1,|18||0-0-0,1|(1280,-223)|
+1,14,4,11,1,0,43,0,2,128,0,-1--1--1,|18||0-0-0,1|(1141,-389)|
+1,15,6,10,1,0,45,0,2,128,0,-1--1--1,|12||0-0-0,1|(1508,-339)|
+10,16,Demand for Direct Replacement,749,36,113,70,3,131,0,0,0,0,0,0,0,0,0,0,0,0
+1,17,2,16,1,0,43,0,2,64,1,-1--1--1,|18||0-0-0,1|(811,-76)|
+10,18,Current Demand for Product A,719,323,65,19,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+10,19,Adjustment Time for Change in Demand,1116,151,66,19,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+10,20,Ratio of Average Price of DR to Fossil,1964,-53,73,19,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,21,6,20,1,0,43,0,2,128,0,-1--1--1,|18||0-0-0,1|(1813,-229)|
+10,22,Average Price of Fossil Product,2336,-300,109,85,3,131,0,0,0,0,0,0,0,0,0,0,0,0
+12,23,48,2801,-295,10,8,0,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,24,26,22,4,0,43,22,2,0,0,-1--1--1,|18||0-0-0,1|(2537,-302)|
+1,25,26,23,68,0,0,22,2,0,0,-1--1--1,|18||0-0-0,1|(2716,-302)|
+11,26,48,2636,-302,6,8,34,3,0,0,1,0,0,0,0,0,0,0,0,0
+10,27,Net Change in Average Price of Product B,2636,-275,75,19,40,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,28,Current Price of fossil,3007,-310,52,19,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,29,22,27,1,0,45,0,2,128,0,-1--1--1,|12||0-0-0,1|(2510,-366)|
+1,30,28,27,1,0,43,0,2,128,0,-1--1--1,|18||0-0-0,1|(2732,-260)|
+1,31,22,20,1,0,45,0,2,64,0,-1--1--1,|18||0-0-0,1|(2051,-184)|
+10,32,Current Demand for Product B,2540,364,65,19,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+10,33,Ratio of Supply to Demand for Fossil,3495,-98,58,19,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+10,34,Supply of Fossil,3692,-158,45,21,8,131,0,0,0,0,0,0,0,0,0,0,0,0
+1,35,34,33,1,0,43,0,2,128,0,-1--1--1,|12||0-0-0,1|(3601,-169)|
+10,36,"Effect of Supply/Demand for Fossil on Price",3257,-200,70,28,8,131,0,0,0,0,0,0,0,0,0,0,0,0
+1,37,33,36,1,0,45,0,2,128,0,-1--1--1,|18||0-0-0,1|(3406,-184)|
+1,38,36,28,1,0,43,0,2,128,0,-1--1--1,|18||0-0-0,1|(3174,-218)|
+10,39,Adjustment Time for Change in Average Price,2836,-219,84,19,8,130,0,3,-1,0,0,0,128-128-128,0-0-0,|18||128-128-128,0,0,0,0,0,0
+1,40,39,27,1,0,0,0,0,128,0,-1--1--1,,1|(2702,-203)|
+10,41,Initial Price of Fossil,2771,-413,61,20,8,131,0,0,0,0,0,0,0,0,0,0,0,0
+1,42,41,22,1,0,0,0,0,128,1,-1--1--1,,1|(2527,-422)|
+10,43,Initial Demand for Product B,3162,282,57,19,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+10,44,Initial Price of DR,1728,-479,75,19,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+10,45,Total Consumption of DR,913,811,116,87,3,131,0,0,0,0,0,0,0,0,0,0,0,0
+10,46,Logistic Effect of Market Share on Demand for DR,1754,525,80,25,8,131,0,0,0,0,0,0,0,0,0,0,0,0
+10,47,Total Consumption of Fossil,2669,815,116,93,3,131,0,0,0,0,0,0,0,0,0,0,0,0
+10,48,Logistic Effect of Market Share on Demand for Fossil,2094,535,86,28,8,131,0,0,0,0,0,0,0,0,0,0,0,0
+10,49,Initial Consumption of Fossil,2468,836,55,29,8,131,0,0,0,0,0,0,0,0,0,0,0,0
+1,50,49,47,1,0,0,0,0,128,1,-1--1--1,,1|(2553,798)|
+10,51,Yearly Production of DR,3808,-241,45,25,8,130,0,3,-1,0,0,0,128-128-128,0-0-0,|18||128-128-128,0,0,0,0,0,0
+10,52,Initial Offtake Agreement for DR,3222,388,65,30,8,130,0,3,-1,0,0,0,128-128-128,0-0-0,|18||128-128-128,0,0,0,0,0,0
+1,53,52,43,1,0,45,0,2,128,0,-1--1--1,|12||0-0-0,1|(3207,340)|
+10,54,Market Share of DR,1403,682,68,21,8,131,0,0,0,0,0,0,0,0,0,0,0,0
+10,55,Market Share of Fossil,2237,718,67,25,8,131,0,0,0,0,0,0,0,0,0,0,0,0
+10,56,Gains to Demand from Sales for Fossil,2245,417,65,37,8,131,0,0,0,0,0,0,0,0,0,0,0,0
+10,57,Gains to Demand from Sales for DR,1505,402,95,50,8,131,0,0,0,0,0,0,0,0,0,0,0,0
+1,58,48,56,1,0,43,0,2,128,0,-1--1--1,|18||0-0-0,1|(2202,486)|
+1,59,46,57,1,0,43,0,2,128,0,-1--1--1,|18||0-0-0,1|(1623,508)|
+10,60,Logistic Effects on enter 1 Linear Effects enter other,1894,346,83,19,8,131,0,0,0,0,0,0,0,0,0,0,0,0
+1,61,60,57,1,0,0,0,0,128,0,-1--1--1,,1|(1673,400)|
+1,62,60,56,1,0,0,0,0,128,0,-1--1--1,,1|(2089,345)|
+10,63,Desired Market Share of Fossil,3426,-583,51,19,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+10,64,Ratio of Market Share of Fossil to Desired,3564,-495,72,19,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,65,63,64,1,0,45,0,2,128,0,-1--1--1,|12||0-0-0,1|(3451,-542)|
+10,66,Effect of the Ratio of Market Share of Fossil to Desired,3548,-380,69,28,8,131,0,0,0,0,0,0,0,0,0,0,0,0
+1,67,64,66,1,0,43,0,2,128,0,-1--1--1,|12||0-0-0,1|(3543,-384)|
+10,68,Effects of Price Response Switch,3350,-311,55,19,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,69,66,68,1,0,43,0,2,128,0,-1--1--1,|12||0-0-0,1|(3510,-331)|
+10,70,Price Response Effects on enter 1,3262,-470,56,19,8,131,0,0,0,0,0,0,0,0,0,0,0,0
+1,71,70,68,1,0,43,0,2,128,0,-1--1--1,|12||0-0-0,1|(3359,-407)|
+10,72,k,1901,422,6,11,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,73,72,48,1,0,0,0,2,64,0,-1--1--1,|12||0-0-0,1|(2010,439)|
+10,74,L,1954,584,1,9,8,131,0,0,-1,0,0,0,0,0,0,0,0,0
+1,75,74,48,1,0,43,0,2,64,0,-1--1--1,|12||0-0-0,1|(2010,570)|
+10,76,xo,1917,481,10,11,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,77,76,48,1,0,0,0,2,64,0,-1--1--1,|12||0-0-0,1|(1974,478)|
+1,78,74,46,1,0,43,0,2,128,0,-1--1--1,|12||0-0-0,1|(1897,584)|
+1,79,72,46,1,0,0,0,2,128,0,-1--1--1,|12||0-0-0,1|(1810,464)|
+1,80,76,46,1,0,0,0,2,128,0,-1--1--1,|12||0-0-0,1|(1833,516)|
+1,81,55,48,1,0,43,0,2,128,0,-1--1--1,|12||0-0-0,1|(2134,636)|
+1,82,54,46,1,0,43,0,2,128,0,-1--1--1,|12||0-0-0,1|(1599,617)|
+1,83,68,28,1,0,43,0,2,128,0,-1--1--1,|12||0-0-0,1|(3108,-297)|
+10,84,Adjustment Time for Change in Demand,2431,227,70,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128,0,0,0,0,0,0
+1,85,41,28,1,0,43,0,2,128,0,-1--1--1,|12||0-0-0,1|(2899,-452)|
+1,86,57,18,1,0,43,0,2,128,0,-1--1--1,|12||0-0-0,1|(1164,475)|
+1,87,56,32,1,0,0,0,0,128,0,-1--1--1,,1|(2371,446)|
+10,88,Potential Adoption,310,816,107,83,3,131,0,0,0,0,0,0,0,0,0,0,0,0
+10,89,Current Demand for Product A,2464,-537,69,19,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128,0,0,0,0,0,0
+12,90,48,-170,812,10,8,0,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,91,93,88,4,0,0,22,0,0,0,-1--1--1,,1|(109,811)|
+1,92,93,90,100,0,0,22,0,0,0,-1--1--1,,1|(-78,811)|
+11,93,48,9,811,6,8,34,3,0,0,1,0,0,0,0,0,0,0,0,0
+10,94,Transition from Demand to Potential Adoption,9,838,77,19,40,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,95,18,94,1,0,43,0,2,128,0,-1--1--1,|12||0-0-0,1|(112,666)|
+1,96,98,45,4,0,43,22,2,0,0,-1--1--1,|12||0-0-0,1|(695,810)|
+1,97,98,88,100,0,0,22,2,0,0,-1--1--1,|12||0-0-0,1|(499,810)|
+11,98,640,586,810,6,8,34,3,0,0,1,0,0,0,0,0,0,0,0,0
+10,99,Sales of DR,586,833,58,15,40,131,0,0,-1,0,0,0,0,0,0,0,0,0
+10,100,AT for transitioning demand to PA,58,1053,61,19,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,101,100,94,1,0,45,0,2,128,0,-1--1--1,|12||0-0-0,1|(-12,954)|
+10,102,Market Size,1919,1090,108,74,3,131,0,0,0,0,0,0,0,0,0,0,0,0
+12,103,48,1442,1107,10,8,0,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,104,106,102,4,0,0,22,0,0,0,-1--1--1,,1|(1723,1104)|
+1,105,106,103,100,0,0,22,0,0,0,-1--1--1,,1|(1537,1104)|
+11,106,48,1629,1104,6,8,34,3,0,0,1,0,0,0,0,0,0,0,0,0
+10,107,Growth of Market,1629,1123,58,11,40,3,0,0,-1,0,0,0,0,0,0,0,0,0
+12,108,48,2296,1101,10,8,0,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,109,111,108,4,0,0,22,0,0,0,-1--1--1,,1|(2217,1099)|
+1,110,111,102,100,0,0,22,0,0,0,-1--1--1,,1|(2081,1099)|
+11,111,48,2142,1099,6,8,34,3,0,0,1,0,0,0,0,0,0,0,0,0
+10,112,Total Sales in Market,2142,1126,43,19,40,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,113,Market Size,3346,363,48,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128,0,0,0,0,0,0
+1,114,113,43,1,0,0,0,0,128,0,-1--1--1,,1|(3276,264)|
+10,115,Market Size,1225,640,48,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128,0,0,0,0,0,0
+10,116,Adoption from Advertising,516,690,47,19,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+10,117,Advertising Budget of A,398,583,57,22,8,131,0,0,0,0,0,0,0,0,0,0,0,0
+10,118,Advertising Effectiveness,637,601,42,19,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+10,119,Propensity to Pay Green Premium,1619,119,57,19,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,120,117,116,1,0,43,0,2,128,0,-1--1--1,|12||0-0-0,1|(490,632)|
+1,121,116,99,1,0,43,0,2,128,0,-1--1--1,|12||0-0-0,1|(501,766)|
+10,122,Adoption from WOM or Dispersion,617,962,71,19,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+10,123,Contact Rate,503,1102,42,11,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+10,124,Adoption Fraction from WOM or Dispersion,749,1053,75,19,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+10,125,Propensity to Pay Green Premium,925,1162,61,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128,0,0,0,0,0,0
+1,126,125,124,1,0,43,0,2,128,0,-1--1--1,|12||0-0-0,1|(866,1101)|
+1,127,124,122,1,0,43,0,2,128,0,-1--1--1,|12||0-0-0,1|(652,1014)|
+1,128,123,122,1,0,43,0,2,128,0,-1--1--1,|12||0-0-0,1|(515,1039)|
+1,129,122,99,1,0,43,0,2,128,0,-1--1--1,|12||0-0-0,1|(641,900)|
+1,130,88,122,1,0,43,0,2,128,0,-1--1--1,|12||0-0-0,1|(433,929)|
+1,131,45,122,1,0,43,0,2,128,0,-1--1--1,|12||0-0-0,1|(729,927)|
+1,132,102,122,1,0,45,0,2,128,0,-1--1--1,|12||0-0-0,1|(1257,1024)|
+1,133,118,116,1,0,43,0,2,128,0,-1--1--1,|12||0-0-0,1|(596,645)|
+10,134,Growth Rate,1416,1163,41,11,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,135,134,107,1,0,0,0,0,128,0,-1--1--1,,1|(1469,1122)|
+1,136,102,107,1,0,0,0,0,128,0,-1--1--1,,1|(1713,1137)|
+10,137,Propensity to Pay Green Premium,795,531,61,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128,0,0,0,0,0,0
+1,138,20,119,1,0,45,0,2,128,0,-1--1--1,|12||0-0-0,1|(1743,31)|
+10,139,Market Share of Fossil,3617,-578,49,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128,0,0,0,0,0,0
+1,140,139,64,1,0,0,0,0,128,0,-1--1--1,,1|(3583,-514)|
+10,141,Potential Adoption for Fossil,3195,818,116,99,3,131,0,0,0,0,0,0,0,0,0,0,0,0
+12,142,48,3681,806,10,8,0,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,143,145,141,4,0,43,22,2,0,0,-1--1--1,|12||0-0-0,1|(3398,806)|
+1,144,145,142,100,0,0,22,0,0,0,-1--1--1,,1|(3584,806)|
+11,145,48,3491,806,6,8,34,3,0,0,1,0,0,0,0,0,0,0,0,0
+10,146,Transition to Potential Adoption for Fossil,3491,833,69,19,40,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,147,149,47,4,0,43,22,2,0,0,-1--1--1,|12||0-0-0,1|(2864,810)|
+1,148,149,141,100,0,0,22,2,0,0,-1--1--1,|12||0-0-0,1|(3017,810)|
+11,149,728,2949,810,6,8,34,3,0,0,1,0,0,0,0,0,0,0,0,0
+10,150,Sales of Fossil,2949,838,44,20,40,131,0,0,-1,0,0,0,0,0,0,0,0,0
+1,151,32,146,1,0,43,0,2,128,0,-1--1--1,|12||0-0-0,1|(3252,561)|
+10,152,Market Size,2293,657,48,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128,0,0,0,0,0,0
+10,153,initial market size,1860,1246,53,11,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,154,153,102,1,0,0,0,0,128,1,-1--1--1,,1|(1896,1174)|
+10,155,AT for transitioning demand to PA,3553,981,66,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128,0,0,0,0,0,0
+1,156,155,146,1,0,45,0,2,128,0,-1--1--1,|12||0-0-0,1|(3556,922)|
+10,157,Contact Rate,2394,-621,51,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128,0,0,0,0,0,0
+10,158,initial market size,2428,705,45,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128,0,0,0,0,0,0
+1,159,158,49,1,0,0,0,0,128,0,-1--1--1,,1|(2408,757)|
+10,160,Sales of DR,2350,1047,52,21,8,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128,0,0,0,0,0,0
+10,161,Sales of Fossil,2289,1180,47,17,8,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128,0,0,0,0,0,0
+1,162,160,112,1,0,0,0,0,128,0,-1--1--1,,1|(2220,1049)|
+1,163,161,112,1,0,0,0,0,128,0,-1--1--1,,1|(2227,1171)|
+10,164,Initial Offtake Agreement for DR,272,655,74,30,8,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128,0,0,0,0,0,0
+1,165,164,88,1,0,0,0,0,128,1,-1--1--1,,1|(202,681)|
+10,166,Market Size,3838,-86,48,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128,0,0,0,0,0,0
+10,167,initial market size,3089,617,45,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128,0,0,0,0,0,0
+1,168,167,141,1,0,0,0,0,128,1,-1--1--1,,1|(3235,692)|
+10,169,Total Sales in Market,2685,-603,48,19,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128,0,0,0,0,0,0
+10,170,Market Size,3105,955,48,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128,0,0,0,0,0,0
+1,171,170,150,1,0,43,0,2,128,0,-1--1--1,|12||0-0-0,1|(2999,886)|
+1,172,160,150,1,0,45,0,2,128,0,-1--1--1,|12||0-0-0,1|(2746,970)|
+10,173,Yearly Production of DR,2617,-667,45,30,8,130,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128,0,0,0,0,0,0
+10,174,Demand for Fossil Product,3087,140,92,69,3,131,0,0,0,0,0,0,0,0,0,0,0,0
+1,175,43,174,1,0,0,0,0,128,1,-1--1--1,,1|(3104,218)|
+10,176,Supply,106,74,109,63,3,131,0,0,0,0,0,0,0,0,0,0,0,0
+10,177,Marginal Cost of DR,740,-514,54,19,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+10,178,Market Share of DR,1214,-720,49,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128,0,0,0,0,0,0
+1,179,177,4,1,0,43,0,2,128,0,-1--1--1,|12||0-0-0,1|(826,-481)|
+10,180,Markup Factor,983,-549,58,19,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,181,180,4,1,0,0,0,0,64,0,-1--1--1,,1|(914,-494)|
+1,182,16,18,1,0,43,0,2,128,0,-1--1--1,|12||0-0-0,1|(699,247)|
+10,183,initial market size,2370,-684,45,19,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128,0,0,0,0,0,0
+12,184,48,1115,30,10,8,0,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,185,187,16,4,0,0,22,0,0,0,-1--1--1,,1|(920,30)|
+1,186,187,184,68,0,0,22,2,0,0,-1--1--1,|12||0-0-0,1|(1047,30)|
+11,187,48,983,30,6,8,34,3,0,0,1,0,0,0,0,0,0,0,0,0
+10,188,Net Change in Demand for Product A,983,57,73,19,40,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,189,16,188,1,0,45,0,2,128,0,-1--1--1,|12||0-0-0,1|(869,97)|
+12,190,48,2457,138,10,8,0,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,191,193,174,4,0,43,22,2,0,0,-1--1--1,|12||0-0-0,1|(2850,136)|
+1,192,193,190,68,0,0,22,2,0,0,-1--1--1,|12||0-0-0,1|(2580,136)|
+11,193,48,2700,136,6,8,34,3,0,0,1,0,0,0,0,0,0,0,0,0
+10,194,Net Change in Demand for Fossil,2700,163,59,19,40,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,195,174,194,1,0,45,0,2,128,0,-1--1--1,|12||0-0-0,1|(2807,43)|
+1,196,174,32,1,0,0,0,0,128,0,-1--1--1,,1|(2807,212)|
+1,197,174,33,1,0,45,0,2,128,0,-1--1--1,|12||0-0-0,1|(3407,86)|
+1,198,84,194,1,0,0,0,0,128,0,-1--1--1,,1|(2500,145)|
+1,199,19,188,1,0,45,0,2,128,0,-1--1--1,|12||0-0-0,1|(1045,115)|
+1,200,44,6,1,0,0,0,0,128,1,-1--1--1,,1|(1678,-426)|
+12,201,48,-321,73,10,8,0,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,202,204,176,4,0,43,22,2,0,0,-1--1--1,|12||0-0-0,1|(-77,73)|
+1,203,204,201,100,0,0,22,0,0,0,-1--1--1,,1|(-237,73)|
+11,204,48,-157,73,6,8,34,3,0,0,1,0,0,0,0,0,0,0,0,0
+10,205,Production Flow,-157,92,53,11,40,3,0,0,-1,0,0,0,0,0,0,0,0,0
+12,206,48,455,64,10,8,0,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,207,209,206,4,0,0,22,0,0,0,-1--1--1,,1|(391,64)|
+1,208,209,176,100,0,45,22,2,0,0,-1--1--1,|12||0-0-0,1|(270,64)|
+11,209,48,331,64,6,8,34,3,0,0,1,0,0,0,0,0,0,0,0,0
+10,210,Sales Flow,331,83,36,11,40,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,211,1,205,1,0,43,0,2,128,0,-1--1--1,|12||0-0-0,1|(-262,22)|
+10,212,Sales of DR,377,232,48,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128,0,0,0,0,0,0
+1,213,212,209,1,0,43,0,2,128,0,-1--1--1,|12||0-0-0,1|(402,197)|
+10,214,Ratio of Supply to Demand,478,-132,58,19,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,215,176,214,1,0,43,0,2,128,0,-1--1--1,|12||0-0-0,1|(234,-67)|
+1,216,18,214,1,0,45,0,2,128,0,-1--1--1,|12||0-0-0,1|(517,92)|
+1,217,1,176,1,0,43,0,2,128,1,-1--1--1,|12||0-0-0,1|(-129,-83)|
+1,218,214,3,1,0,45,0,2,128,0,-1--1--1,|12||0-0-0,1|(526,-273)|
+10,219,Normal Markup Factor,886,-638,53,19,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+10,220,Dynamic Markup,1071,-633,55,11,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+10,221,Supply,573,741,32,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128,0,0,0,0,0,0
+1,222,221,99,1,0,0,0,0,128,0,-1--1--1,,1|(567,772)|
+10,223,Dynamic Markup enter 1,1200,-568,56,19,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,224,178,220,1,0,43,0,2,128,0,-1--1--1,|12||0-0-0,1|(1109,-682)|
+1,225,220,180,1,0,43,0,2,128,0,-1--1--1,|12||0-0-0,1|(1072,-610)|
+1,226,223,180,1,0,0,0,0,128,0,-1--1--1,,1|(1075,-530)|
+1,227,219,180,1,0,43,0,2,128,0,-1--1--1,|12||0-0-0,1|(887,-591)|
+10,228,Initial Offtake Agreement for DR,1167,937,64,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128,0,0,0,0,0,0
+1,229,228,45,1,0,0,0,0,128,1,-1--1--1,,1|(1016,931)|
+10,230,Initial Offtake Agreement for DR,2336,914,64,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128,0,0,0,0,0,0
+1,231,230,49,1,0,45,0,2,128,0,-1--1--1,|12||0-0-0,1|(2480,893)|
+10,232,Ratio of Fossil Price to DR,1966,110,46,19,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,233,20,232,1,0,45,0,2,128,0,-1--1--1,|12||0-0-0,1|(1948,-2)|
+1,234,18,188,1,0,43,0,2,128,0,-1--1--1,|12||0-0-0,1|(826,268)|
+10,235,Propensity to Pay for Fossil,2186,214,57,19,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,236,232,235,1,0,45,0,2,128,0,-1--1--1,|12||0-0-0,1|(2045,125)|
+1,237,235,32,1,0,43,0,2,128,0,-1--1--1,|12||0-0-0,1|(2326,314)|
+1,238,119,18,1,0,43,0,2,128,0,-1--1--1,|12||0-0-0,1|(1212,277)|
+1,239,32,194,1,0,43,0,2,128,0,-1--1--1,|12||0-0-0,1|(2549,299)|
+10,240,Normal Advertising Effectiveness,563,491,62,19,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,241,137,118,1,0,43,0,2,128,0,-1--1--1,|12||0-0-0,1|(677,524)|
+1,242,240,118,1,0,43,0,2,128,0,-1--1--1,|12||0-0-0,1|(560,561)|
+10,243,Normal Effectiveness of WoM,761,1161,71,19,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,244,243,124,1,0,43,0,2,128,0,-1--1--1,|12||0-0-0,1|(693,1124)|
+10,245,one year,492,882,28,11,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,246,245,99,1,0,45,0,2,128,0,-1--1--1,|12||0-0-0,1|(505,844)|
+1,247,150,55,1,0,43,0,2,128,0,-1--1--1,|12||0-0-0,1|(2703,651)|
+1,248,99,54,1,0,43,0,2,128,0,-1--1--1,|12||0-0-0,1|(1026,630)|
+1,249,112,54,1,0,45,0,2,128,0,-1--1--1,|12||0-0-0,1|(1840,846)|
+1,250,112,55,1,0,45,0,2,128,0,-1--1--1,|12||0-0-0,1|(2112,880)|
+12,251,0,987,541,31,31,5,135,0,0,-1,0,0,0,0,0,0,0,0,0
+R
+12,252,0,2829,521,32,32,4,135,0,0,-1,0,0,0,0,0,0,0,0,0
+R
+12,253,0,2446,-57,35,35,5,135,0,0,-1,0,0,0,0,0,0,0,0,0
+B
+12,254,0,1377,-45,39,39,4,135,0,0,-1,0,0,0,0,0,0,0,0,0
+B
+1,255,170,146,1,0,0,0,0,128,0,-1--1--1,,1|(3337,984)|
+10,256,Market Size,211,960,48,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|0||128-128-128,0,0,0,0,0,0
+1,257,256,94,1,0,0,0,0,128,0,-1--1--1,,1|(96,910)|
+10,258,Sales of Fossil,3706,-58,55,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|0||128-128-128,0,0,0,0,0,0
+1,259,258,34,1,0,0,0,0,128,0,-1--1--1,,1|(3655,-88)|
+///---\\\
+:L<%^E!@
+1:Current.vdfx
+1:Current.vdfx
+9:Current
+15:0,0,0,0,0,0
+19:75,0
+27:0,
+34:0,
+4:Time
+5:Demand for Fossil Product
+35:Date
+36:YYYY-MM-DD
+37:2000
+38:1
+39:1
+40:0
+41:0
+42:1
+72:0
+73:0
+24:2015
+25:2050
+26:2050
+75:
+43:
