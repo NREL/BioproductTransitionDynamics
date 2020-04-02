@@ -1,0 +1,205 @@
+{UTF-8}
+capital recovery factor=
+	required rate of return * Remaining Work
+	/
+	(1 - EXP(- required rate of return * Remaining Work))
+	~	Dmnl [1,?]
+	~		|
+
+required rate of return=
+	0.08
+	~	1/Year [0,?]
+	~		|
+
+probability of eventual success=
+	1 - Remaining Risk
+	~	Dmnl [0,1]
+	~		|
+
+working=
+	IF THEN ELSE(Remaining Work > 0.1, rate of work, 0)
+	~	Year/Year [0,?]
+	~		|
+
+investing=
+	IF THEN ELSE(Remaining Investment > 1, investment received , 0 )
+	~	USD/Year [0,?]
+	~		|
+
+value threshhold=
+	Remaining Investment * capital recovery factor / probability of eventual success
+	~	USD
+	~		|
+
+initial remaining investment=
+	1000
+	~	USD [0,?]
+	~		|
+
+initial remaining risk=
+	0.85
+	~	Dmnl [0,1]
+	~		|
+
+initial remaining work=
+	10
+	~	Year
+	~		|
+
+investment received=
+	100
+	~	USD/Year [0,?]
+	~		|
+
+rate of risk reduction=
+	0.1
+	~	1/Year [0,?]
+	~		|
+
+rate of work=
+	0.9
+	~	Year/Year [0,?]
+	~		|
+
+reducing risk=
+	rate of risk reduction * Remaining Risk
+	~	1/Year [0,?]
+	~		|
+
+Remaining Investment= INTEG (
+	-investing,
+		initial remaining investment)
+	~	USD [0,?]
+	~		|
+
+Remaining Risk= INTEG (
+	-reducing risk,
+		initial remaining risk)
+	~	Dmnl [0,1]
+	~		|
+
+Remaining Work= INTEG (
+	-working,
+		initial remaining work)
+	~	Year [0,?]
+	~		|
+
+********************************************************
+	.Control
+********************************************************~
+		Simulation Control Parameters
+	|
+
+FINAL TIME  = 2050
+	~	Year
+	~	The final time for the simulation.
+	|
+
+INITIAL TIME  = 2020
+	~	Year
+	~	The initial time for the simulation.
+	|
+
+SAVEPER  = 
+        TIME STEP
+	~	Year [0,?]
+	~	The frequency with which output is stored.
+	|
+
+TIME STEP  = 0.03125
+	~	Year [0,?]
+	~	The time step for the simulation.
+	|
+
+\\\---/// Sketch information - do not modify anything except names
+V300  Do not put anything below this section - it will be ignored
+*View 1
+$192-192-192,0,Times New Roman|12||0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|96,96,100,0
+10,1,Remaining Investment,281,106,40,20,3,3,0,0,0,0,0,0
+12,2,48,455,105,10,8,0,3,0,0,-1,0,0,0
+1,3,5,2,4,0,0,22,0,0,0,-1--1--1,,1|(415,104)|
+1,4,5,1,100,0,0,22,0,0,0,-1--1--1,,1|(347,104)|
+11,5,48,379,104,6,8,34,3,0,0,1,0,0,0
+10,6,investing,379,123,28,11,40,3,0,0,-1,0,0,0
+10,7,Remaining Risk,267,387,40,20,3,3,0,0,0,0,0,0
+12,8,48,472,389,10,8,0,3,0,0,-1,0,0,0
+1,9,11,8,4,0,0,22,0,0,0,-1--1--1,,1|(420,387)|
+1,10,11,7,100,0,0,22,0,0,0,-1--1--1,,1|(337,387)|
+11,11,48,373,387,6,8,34,3,0,0,1,0,0,0
+10,12,reducing risk,373,406,41,11,40,3,0,0,-1,0,0,0
+10,13,value threshhold,76,242,51,11,8,3,0,0,0,0,0,0
+1,15,1,13,1,0,0,0,0,128,0,-1--1--1,,1|(150,99)|
+10,16,initial remaining investment,377,29,48,19,8,3,0,0,0,0,0,0
+1,17,16,1,1,0,0,0,0,128,1,-1--1--1,,1|(300,48)|
+10,18,Remaining Work,269,247,40,20,3,3,0,0,0,0,0,0
+12,19,48,453,245,10,8,0,3,0,0,-1,0,0,0
+1,20,22,19,4,0,0,22,0,0,0,-1--1--1,,1|(412,245)|
+1,21,22,18,100,0,0,22,0,0,0,-1--1--1,,1|(339,245)|
+11,22,48,376,245,6,8,34,3,0,0,1,0,0,0
+10,23,working,376,264,27,11,40,3,0,0,-1,0,0,0
+10,24,rate of work,579,246,40,11,8,3,0,0,0,0,0,0
+1,25,24,22,1,0,0,0,0,128,0,-1--1--1,,1|(464,276)|
+10,26,investment received,564,113,34,19,8,3,0,0,0,0,0,0
+1,27,26,6,1,0,0,0,0,128,0,-1--1--1,,1|(484,63)|
+10,28,initial remaining work,371,179,48,19,8,3,0,0,0,0,0,0
+1,29,28,18,1,0,0,0,0,128,1,-1--1--1,,1|(294,192)|
+10,30,rate of risk reduction,567,392,35,19,8,3,0,0,0,0,0,0
+1,31,30,12,1,0,0,0,0,128,0,-1--1--1,,1|(478,434)|
+1,32,7,12,1,0,0,0,0,128,0,-1--1--1,,1|(306,435)|
+10,33,initial remaining risk,368,327,48,19,8,3,0,0,0,0,0,0
+1,34,33,7,1,0,0,0,0,128,1,-1--1--1,,1|(291,334)|
+1,35,1,5,1,0,0,0,0,128,0,-1--1--1,,1|(343,66)|
+10,36,required rate of return,170,181,49,19,8,3,0,0,0,0,0,0
+10,37,capital recovery factor,181,293,51,19,8,3,0,0,0,0,0,0
+1,38,36,37,1,0,0,0,0,128,0,-1--1--1,,1|(186,231)|
+1,39,18,37,1,0,0,0,0,128,0,-1--1--1,,1|(239,288)|
+1,40,18,23,1,0,0,0,0,128,0,-1--1--1,,1|(327,214)|
+1,41,37,13,1,0,0,0,0,128,0,-1--1--1,,1|(138,247)|
+10,42,probability of eventual success,79,364,53,19,8,3,0,0,0,0,0,0
+1,43,7,42,1,0,0,0,0,128,0,-1--1--1,,1|(183,390)|
+1,44,42,13,1,0,0,0,0,128,0,-1--1--1,,1|(65,302)|
+12,45,0,795,215,171,204,3,188,0,0,1,0,0,0
+GRAPH
+12,46,0,1144,215,167,205,3,188,0,0,1,0,0,0
+GRAPH_0
+///---\\\
+:GRAPH GRAPH
+:TITLE  
+:X-AXIS Time
+:X-MIN 2020
+:X-MAX 2035
+:SCALE
+:VAR value threshhold
+:Y-MIN 0
+:Y-MAX 10000
+:VAR Remaining Investment
+
+:GRAPH GRAPH_0
+:TITLE  
+:X-AXIS Time
+:X-MIN 2020
+:X-MAX 2035
+:SCALE
+:VAR probability of eventual success
+:Y-MIN 0
+:Y-MAX 1
+:L<%^E!@
+1:Current.vdf
+9:Current
+15:0,0,0,0,0,0
+19:100,0
+27:0,
+34:0,
+4:Time
+5:value threshhold
+35:Date
+36:YYYY-MM-DD
+37:2000
+38:1
+39:1
+40:0
+41:0
+42:1
+24:2020
+25:2050
+26:2050
