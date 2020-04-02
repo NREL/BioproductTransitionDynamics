@@ -1,6 +1,6 @@
 {UTF-8}
 fossil price response=
-	fossil price response magnitude * Current Fossil Price
+	fossil price response magnitude * PULSE(2025, 5) * Current Fossil Price
 	~	USD/tonFeedstock [0,?]
 	~		|
 
@@ -141,12 +141,14 @@ Generic Fossil
 1,42,41,29,0,0,0,0,0,128,0,-1--1--1,,1|(683,284)|
 ///---\\\
 :L<%^E!@
-9:Current
+1:fossil-price-response-local.vdf
+9:fossil-price-response-local
 15:0,0,0,0,0,0
 19:100,0
 27:0,
 34:0,
-5:fossil monthly change in price
+4:Time
+5:Current Fossil Price
 35:Date
 36:YYYY-MM-DD
 37:2000
@@ -155,6 +157,6 @@ Generic Fossil
 40:0
 41:0
 42:1
-24:0
-25:0
-26:0
+24:2015
+25:2050
+26:2050
