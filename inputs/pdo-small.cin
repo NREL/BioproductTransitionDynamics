@@ -1,52 +1,41 @@
-select commodity sugar feedstock = 0
-select corn feedstock = 1
-select corn stover feedstock = 0
-select maleic anhydride feedstock = 0
-select perennial feedstock = 0
-select soybean feedstock = 0
+:C FEEDSTOCK SELECTION
 
-long term selling price = 1652
-
-design plant capacity = 132000
-
-design capital cost = 536650000
-capital cost scaling factor = 0.6
-
-design fixed operating cost = 25555200
-fixed operating cost scaling factor = 0.8
-
-design variable operating cost = 36458400
-variable operating cost scaling factor = 1
-
-design process yield = 0.184
+feedstock selector array[corn] =              1
+feedstock selector array[corn stover] =       0
+feedstock selector array[soybean] =           0
+feedstock selector array[commodity sugar] =   0
+feedstock selector array[generic perennial] = 0
+feedstock selector array[generic fossil] =    0
+feedstock selector array[custom] =            0
 
 
-researching target TRL = 5
+:C BIOPRODUCT PRICE
+
+bioproduct long term selling price = 1652
 
 
-"Use target pilot capacity?" = 0
-target pilot capacity = 1320
+:C TECHNO-ECONOMIC DATA
 
+commercial plant capacity = 132000
+commercial capital cost input = 536650000
+commercial fixed operating cost input = 25555200
+commercial variable operating cost input = 36458400
+commercial process yield = 0.184
+
+
+:C PILOT PLANT PARAMETERS
+
+pilot capacity = 1320
 target pilot hours = 1500
-target pilot TRL = 6
-
-pilot scaling factor = 0.05
 pilot capital cost scaling factor = 0.3
 pilot fixed operating cost scaling factor = 1
-pilot variable operating cost scaling factor = 1
-
 pilot construction time = 1.5
 
 
-"Use target demo capacity?" = 0
-target demo capacity = 79200
+:C DEMO PLANT PARAMETERS
 
+demo capacity = 79200
 target demo hours = 10000
-target demo TRL = 7
-
-demo scaling factor = 0.3
 demo capital cost scaling factor = 0.5
 demo fixed operating cost scaling factor = 0.55
-demo variable operating cost scaling factor = 1
-
 demo construction time = 2
