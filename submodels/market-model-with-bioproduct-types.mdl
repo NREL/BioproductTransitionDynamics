@@ -1,4 +1,5 @@
 {UTF-8}
+
 adding to market=
 	overall market growth
 	~	tons/Year [0,?]
@@ -94,6 +95,7 @@ Current Price of bioproduct=
 	~		|
 
 adjustment time for change in demand=
+
 	1.25
 	~	Year
 	~		|
@@ -114,8 +116,7 @@ Average Possible Demand for Direct Replacement= INTEG (
 	~	tons [0,?]
 	~		|
 
-Markup Factor= WITH LOOKUP (
-	Market Share of bioproduct,
+Markup Factor= WITH LOOKUP (Market Share of bioproduct,
 		([(0,0)-(10,10)],(0,0.05),(0.05,0.1),(0.1,0.15),(0.2,0.2),(0.3,0.25) ))
 	~	Dmnl [0,1]
 	~		|
@@ -150,7 +151,7 @@ Current Price of Fossil=
 
 Net Change in Average Possible Demand=
 	(Current Possible Demand including perceived price-Average Possible Demand for Direct Replacement\
-		)/adjustment time for change in demand
+  )/adjustment time for change in demand
 	~	tons/Year
 	~		|
 
@@ -214,6 +215,11 @@ Adopters= INTEG (
 	~	tons
 	~		|
 
+Adoption from Word of Mouth=
+	(Adopters*Adoption Fraction from WOM*Contact Rate*Potential Adopters)/Market Size
+	~	tons/Year
+	~		|
+
 Advertising Budget per Year=
 	200000
 	~	USD/Year
@@ -243,6 +249,7 @@ Becoming Adopters=
 established market growth rate=
 	0.01
 	~	Dmnl [0,?]
+
 	~		|
 
 Advertising Elasticity=
@@ -258,6 +265,7 @@ adjustment time for Change in Average Price=
 Average Price of Direct Replacement= INTEG (
 	Net Change in Average Price of Direct Replacement,
 		Initial Price of bioproduct)
+
 	~	USD/tons
 	~		|
 
@@ -358,6 +366,7 @@ Initial Market Size=
 	~	tons [0,?]
 	~	default value 1.6e+07
 	|
+
 
 Initial Offtake Agreement=
 	730000
