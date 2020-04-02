@@ -535,7 +535,7 @@ idealized research expenses[forecast year]=
 
 idealized demo revenue[forecast year]=
 	idealized demo revenue indicator[forecast year] *
-	"account for demo plant production?" * 
+	include demo in cumulative production * 
 	demo capacity * 
 	(bioproduct selling price with green premium + government production incentive * expected continuity of government policy\
 		)
@@ -973,6 +973,24 @@ product approval required=
 ********************************************************
 	.market share
 ********************************************************~
+	|
+
+bioproduct effectiveness=
+	0.01
+	~	Dmnl [0,?,0.01]
+	~	This variable defines the performance advantage (if any) of the bioproduct relative \
+		to its incumbent fossil competitor.
+		The lower limit is zero, indicating that performance dis-advantaged bioproducts \
+		cannot be modeled. There is no upper limit.
+		This variable is set to zero when modeling direct replacement bioproducts \
+		or bioproducts with brand-new markets.
+	|
+
+bioproduct perceived selling price=
+	bioproduct selling price with green premium / bioproduct effectiveness
+	~	USD/tonProduct [0,?]
+	~	This is the price perceived by the purchaser and used by the purchaser in \
+		price-based (economically rational) decision making.
 	|
 
 selling price without green premium=
@@ -2723,6 +2741,16 @@ bioproduct selling price reversion time=
 ********************************************************~
 	|
 
+bioproduct supply reliability=
+	marginal bioproduct supply reliability gain * Cumulative Production
+	~	Dmnl
+	~		|
+
+marginal bioproduct supply reliability gain=
+	0
+	~	1/tonProduct [0,?]
+	~		|
+
 commercial capital expenditure=
 	commercial plant construction * commercial capital expenditure damper
 	~	USD/year [0,?]
@@ -2763,7 +2791,7 @@ piloting production=
 	~		|
 
 demoing production=
-	"account for demo plant production?" * 
+	include demo in cumulative production * 
 	demo capacity * 
 	demoing * ( 1 / hours per year )
 	~	tonProduct/year [0,?]
@@ -2808,7 +2836,7 @@ feedstock consumption=
 	~	tonFeedstock/year [0,?]
 	~		|
 
-"account for demo plant production?"=
+include demo in cumulative production=
 	1
 	~	Dmnl [0,1,1]
 	~		|
@@ -4443,7 +4471,7 @@ Idealized_NPV
 Idealized Forecast
 10,41,demo capacity,263,510,55,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
 10,42,idealized demo revenue,318,433,48,19,8,3,0,0,0,0,0,0
-10,43,"account for demo plant production?",484,404,61,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,43,include demo in cumulative production,484,404,61,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
 1,44,43,42,0,0,0,0,0,64,0,-1--1--1,,1|(401,417)|
 10,45,expected continuity of government policy,511,490,74,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
 1,46,42,13,1,0,0,0,0,64,0,-1--1--1,,1|(185,475)|
