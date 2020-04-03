@@ -3028,7 +3028,7 @@ initial project duration= INITIAL(
 	|
 
 completing stages=
-	PULSE TRAIN( internal project start time,
+	PULSE TRAIN( internal project start time + stagegate length,
 	             TIME STEP,
 	             stagegate length,
 	             final stagegate time ) / TIME STEP
@@ -3043,7 +3043,7 @@ internal project cancelled indicator=
 	~		|
 
 final stagegate time=
-	INITIAL TIME + initial project duration + project lag - stagegate length
+	INITIAL TIME + initial project duration + project lag
 	~	year [0,?]
 	~	Calculates time of last ask for more investments, which is also the time \
 		the last stagegate was completed.
@@ -3292,7 +3292,7 @@ INITIAL TIME  = 2015
 	|
 
 SAVEPER  = 
-        TIME STEP 
+        TIME STEP
 	~	year [0,?]
 	~	The frequency with which output is stored.
 	|
@@ -3609,7 +3609,7 @@ Internal Investor Decisions
 10,82,stagegate length,1724,573,56,14,8,131,0,0,0,0,0,0
 1,83,85,81,4,0,0,22,0,0,0,-1--1--1,,1|(1745,731)|
 1,84,85,80,100,0,0,22,0,0,0,-1--1--1,,1|(1655,731)|
-11,85,8588,1700,731,6,8,34,3,0,0,1,0,0,0
+11,85,8556,1700,731,6,8,34,3,0,0,1,0,0,0
 10,86,completing stages,1700,750,55,11,40,3,0,0,-1,0,0,0
 1,87,82,85,1,0,0,0,0,128,0,-1--1--1,,1|(1736,644)|
 10,88,number of stages to complete,1490,538,62,19,8,3,0,0,0,0,0,0
@@ -5746,7 +5746,6 @@ $192-192-192,0,Times New Roman|12||0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|96,96,1
 :VAR idealized commercial construction time
 :L<%^E!@
 1:latest-commit-local.vdf
-1:latest-commit.vdf
 9:latest-commit-local
 22:$,Dollar,Dollars,$s
 22:Hour,Hours
@@ -5762,7 +5761,7 @@ $192-192-192,0,Times New Roman|12||0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|96,96,1
 27:0,
 34:0,
 4:Time
-5:number of stages to complete
+5:Stages Remaining
 35:Date
 36:YYYY-MM-DD
 37:2000
