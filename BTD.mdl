@@ -13,6 +13,12 @@ HoursDamper = IF THEN ELSE(Stock >= stock drain rate * TIME STEP,stock drain rat
 	~		|
 
 :END OF MACRO:
+:MACRO: Round(Input)
+Round = INTEGER(Input) + IF THEN ELSE(Input - INTEGER(Input) >= 0.5, 1, 0)
+	~	Input
+	~		|
+
+:END OF MACRO:
 ********************************************************
 	.dampers
 ********************************************************~
@@ -3007,6 +3013,13 @@ researching management overhead=
 ********************************************************~
 	|
 
+project lag=
+	Stagegates Missed * 1/one stage * stagegate length
+	~	year [0,?]
+	~	Calculates how many years the project is behind, if any, based on the \
+		Stagegates Missed stock.
+	|
+
 initial project duration= INITIAL(
 	remaining project duration)
 	~	year [0,?]
@@ -3018,7 +3031,7 @@ completing stages=
 	PULSE TRAIN( internal project start time,
 	             TIME STEP,
 	             stagegate length,
-	             latest ask time ) / TIME STEP
+	             final stagegate time ) / TIME STEP
 	~	stages/year [0,?]
 	~		|
 
@@ -3029,14 +3042,7 @@ internal project cancelled indicator=
 	~	Dmnl [0,1]
 	~		|
 
-project lag=
-	1 * 1 * stagegate length
-	~	year [0,?]
-	~	Calculates how many years the project is behind, if any, based on the \
-		Stagegates Missed stock.
-	|
-
-latest ask time=
+final stagegate time=
 	INITIAL TIME + initial project duration + project lag - stagegate length
 	~	year [0,?]
 	~	Calculates time of last ask for more investments, which is also the time \
@@ -3068,7 +3074,7 @@ number of missed stagegates allowed=
 	|
 
 number of stages to complete= INITIAL(
-	initial project duration / stagegate length)
+	Round(initial project duration / stagegate length))
 	~	stages [0,?]
 	~	Expected number of stagegates before the project reaches completion. \
 		Calculated at the beginning of the model run and not updated thereafter.
@@ -3286,7 +3292,7 @@ INITIAL TIME  = 2015
 	|
 
 SAVEPER  = 
-        TIME STEP
+        TIME STEP 
 	~	year [0,?]
 	~	The frequency with which output is stored.
 	|
@@ -3603,7 +3609,7 @@ Internal Investor Decisions
 10,82,stagegate length,1724,573,56,14,8,131,0,0,0,0,0,0
 1,83,85,81,4,0,0,22,0,0,0,-1--1--1,,1|(1745,731)|
 1,84,85,80,100,0,0,22,0,0,0,-1--1--1,,1|(1655,731)|
-11,85,8572,1700,731,6,8,34,3,0,0,1,0,0,0
+11,85,8588,1700,731,6,8,34,3,0,0,1,0,0,0
 10,86,completing stages,1700,750,55,11,40,3,0,0,-1,0,0,0
 1,87,82,85,1,0,0,0,0,128,0,-1--1--1,,1|(1736,644)|
 10,88,number of stages to complete,1490,538,62,19,8,3,0,0,0,0,0,0
@@ -3611,14 +3617,14 @@ Internal Investor Decisions
 1,90,82,88,1,0,0,0,0,128,1,-1--1--1,,1|(1607,561)|
 1,91,88,80,1,0,0,0,0,128,1,-1--1--1,,1|(1490,629)|
 10,92,project lag,1740,470,34,11,8,3,0,0,0,0,0,0
-10,93,latest ask time,1564,455,51,17,8,131,0,0,0,0,0,0
+10,93,final stagegate time,1564,455,59,11,8,131,0,0,0,0,0,0
 1,94,92,93,1,0,0,0,0,128,0,-1--1--1,,1|(1685,428)|
 1,95,82,92,1,0,0,0,0,128,0,-1--1--1,,1|(1738,501)|
 1,96,82,93,1,0,0,0,0,128,0,-1--1--1,,1|(1657,495)|
 1,97,78,93,1,0,0,0,0,128,0,-1--1--1,,1|(1414,493)|
 1,98,93,85,1,0,0,0,0,128,0,-1--1--1,,1|(1593,588)|
 10,99,INITIAL TIME,1589,388,60,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,100,99,93,0,0,0,0,0,64,0,-1--1--1,,1|(1580,411)|
+1,100,99,93,0,0,0,0,0,64,0,-1--1--1,,1|(1578,414)|
 10,101,Stagegates Missed,1808,835,48,25,3,131,0,0,0,0,0,0
 12,102,48,1614,834,10,8,0,3,0,0,-1,0,0,0
 1,103,105,101,4,0,0,22,0,0,0,-1--1--1,,1|(1724,834)|
@@ -3658,12 +3664,14 @@ Internal Investor Decisions
 1,137,134,132,1,0,0,0,0,128,0,-1--1--1,,1|(1681,270)|
 1,138,133,132,1,0,0,0,0,128,0,-1--1--1,,1|(1584,325)|
 1,139,132,74,1,0,0,0,0,128,0,-1--1--1,,1|(1422,350)|
+1,140,101,92,1,0,0,0,0,128,0,-1--1--1,,1|(2045,650)|
+1,141,133,92,1,0,0,0,0,128,0,-1--1--1,,1|(1736,402)|
 \\\---/// Sketch information - do not modify anything except names
 V300  Do not put anything below this section - it will be ignored
 *Investor Computations
 $192-192-192,0,Times New Roman|12||0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|96,96,95,0
 10,1,Working Capital,999,610,52,11,0,3,0,0,0,0,0,0
-11,2,796,1103,580,8,11,34,3,0,0,1,0,0,0
+11,2,828,1103,580,8,11,34,3,0,0,1,0,0,0
 10,3,actual spending,1103,616,37,25,40,131,0,0,-1,0,0,0
 10,4,hypothetical net income,1914,190,80,11,8,3,0,0,0,0,0,0
 1,5,4,6,1,0,0,0,0,64,0,-1--1--1,,1|(1937,415)|
@@ -4052,7 +4060,7 @@ $192-192-192,0,Times New Roman|12||0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|96,96,1
 10,7,Completed Piloting,481,462,40,20,3,3,0,0,0,0,0,0
 1,8,10,7,4,0,0,22,0,0,0,-1--1--1,,1|(416,464)|
 1,9,10,1,100,0,0,22,0,0,0,-1--1--1,,1|(353,464)|
-11,10,6908,385,464,6,8,34,3,0,0,1,0,0,0
+11,10,6924,385,464,6,8,34,3,0,0,1,0,0,0
 10,11,piloting,385,483,24,11,40,3,0,0,-1,0,0,0
 10,12,target pilot hours,196,542,53,11,8,3,0,0,0,0,0,0
 1,13,1,5,1,0,0,0,0,128,0,-1--1--1,,1|(258,498)|
@@ -4069,7 +4077,7 @@ $192-192-192,0,Times New Roman|12||0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|96,96,1
 10,24,redemoing,1160,597,34,11,40,3,0,0,-1,0,0,0
 1,25,27,19,4,0,0,22,0,0,0,-1--1--1,,1|(1235,510)|
 1,26,27,18,100,0,0,22,0,0,0,-1--1--1,,1|(1174,510)|
-11,27,6444,1205,510,6,8,34,3,0,0,1,0,0,0
+11,27,6460,1205,510,6,8,34,3,0,0,1,0,0,0
 10,28,demoing,1205,529,28,11,40,3,0,0,-1,0,0,0
 1,29,18,23,1,0,0,0,0,128,0,-1--1--1,,1|(1080,554)|
 10,30,Pilot Capital Expense,497,131,48,29,3,131,0,0,0,0,0,0
@@ -4097,7 +4105,7 @@ $192-192-192,0,Times New Roman|12||0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|96,96,1
 10,52,Startup Piloting Hours,355,380,40,24,3,131,0,0,0,0,0,0
 1,53,55,7,4,0,0,22,0,0,0,-1--1--1,,1|(492,414)|
 1,54,55,52,100,0,0,22,0,0,0,-1--1--1,,1|(440,379)|
-11,55,556,492,379,6,8,34,3,0,0,4,0,0,0
+11,55,588,492,379,6,8,34,3,0,0,4,0,0,0
 10,56,startup piloting,544,379,46,11,40,3,0,0,-1,0,0,0
 10,57,startup piloting period,321,293,72,15,8,131,0,0,0,0,0,0
 1,58,57,52,1,0,0,0,0,128,1,-1--1--1,,1|(315,337)|
@@ -4107,7 +4115,7 @@ $192-192-192,0,Times New Roman|12||0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|96,96,1
 10,62,Startup Demoing Hours,1138,400,40,25,3,131,0,0,0,0,0,0
 1,63,65,19,4,0,0,22,0,0,0,-1--1--1,,1|(1300,446)|
 1,64,65,62,100,0,0,22,0,0,0,-1--1--1,,1|(1236,395)|
-11,65,508,1300,395,6,8,34,3,0,0,4,0,0,0
+11,65,540,1300,395,6,8,34,3,0,0,4,0,0,0
 10,66,startup demoing,1357,395,50,11,40,3,0,0,-1,0,0,0
 10,67,startup demoing period,1153,301,74,13,8,131,0,0,0,0,0,0
 1,68,67,62,1,0,0,0,0,128,1,-1--1--1,,1|(1130,340)|
