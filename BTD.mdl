@@ -3357,6 +3357,16 @@ researching management overhead=
 ********************************************************~
 	|
 
+internal capital recovery factor=
+	required internal return * one Year * ( (1 + required internal return*one Year)^(remaining project duration\
+		/one Year)) / ( (1 + required internal return*one Year)^(remaining project duration\
+		/one Year - 1) )
+	~	Dmnl [0,?]
+	~	Calculates the internal required rate of return as the project progresses. \
+		The one Year conversion factor is used to keep exponents and mantissas \
+		dimensionless as required by Vensim.
+	|
+
 completing stages=
 	one stage * PULSE TRAIN( internal project start time + stagegate length,
 	                         TIME STEP,
@@ -3433,12 +3443,6 @@ value threshold=
 		investment continues at the next stagegate. There is no minimum value \
 		because this threshold can reasonably be less than zero.
 	|
-
-internal capital recovery factor=
-	required internal return * remaining project duration / (1 - EXP(-required internal return\
-		*remaining project duration))
-	~	Dmnl [0,?]
-	~		|
 
 probability of internal project success=
 	MIN( 0.124034 * EXP((stage in progress - 0.91*number of stages to complete)/one stage\
@@ -4017,6 +4021,8 @@ Internal Investor Decisions
 10,143,one stage,974,822,40,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
 1,144,143,106,0,0,0,0,0,128,0,-1--1--1,,1|(974,763)|
 1,145,132,88,1,0,0,0,0,64,1,-1--1--1,,1|(1333,351)|
+10,146,one Year,767,388,39,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|0||128-128-128
+1,147,146,71,0,0,0,0,0,128,0,-1--1--1,,1|(849,392)|
 \\\---/// Sketch information - do not modify anything except names
 V300  Do not put anything below this section - it will be ignored
 *Investor Computations
@@ -6340,11 +6346,11 @@ $192-192-192,0,Times New Roman|12||0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|96,96,1
 22:Day,Days
 23:0
 15:0,0,0,0,0,0
-19:99,1
+19:100,2
 27:0,
 34:0,
 4:Time
-5:product approval time
+5:internal capital recovery factor
 35:Date
 36:YYYY-MM-DD
 37:2000
