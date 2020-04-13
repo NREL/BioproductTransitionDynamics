@@ -1607,6 +1607,13 @@ BS balance=
 	-
 	BS liabilities
 	~	USD [-1000,1000]
+	~		|
+
+BS imbalance=
+	ABS(BS balance)
+	/
+	(ABS(BS assets) + ABS(BS equity) + ABS(BS liabilities) + 1e-05)
+	~	Dmnl
 	~		~	:SUPPLEMENTARY 
 	|
 
@@ -5160,6 +5167,11 @@ Cash Flow Statement
 1,106,104,72,1,0,0,0,0,128,0,-1--1--1,,1|(369,605)|
 1,107,102,72,1,0,0,0,0,128,0,-1--1--1,,1|(334,609)|
 1,108,100,72,1,0,0,0,0,128,0,-1--1--1,,1|(308,679)|
+10,109,BS imbalance,1231,517,44,11,8,3,0,0,0,0,0,0
+1,110,49,109,1,0,0,0,0,64,0,-1--1--1,,1|(1233,363)|
+1,111,51,109,1,0,0,0,0,64,0,-1--1--1,,1|(1255,516)|
+1,112,50,109,1,0,0,0,0,64,0,-1--1--1,,1|(1205,545)|
+1,113,48,109,1,0,0,0,0,64,0,-1--1--1,,1|(1208,621)|
 \\\---/// Sketch information - do not modify anything except names
 V300  Do not put anything below this section - it will be ignored
 *Timeline
