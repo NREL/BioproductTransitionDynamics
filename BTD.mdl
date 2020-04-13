@@ -1583,6 +1583,13 @@ Working Capital=
 ********************************************************~
 	|
 
+BS imbalance=
+	ABS(BS balance) / ( ABS(BS assets) + ABS(BS equity) + ABS(BS liabilities) + 1e-05 )
+	~	Dmnl
+	~	Calculates the fraction that BS balance is of total BS quantities. This \
+		number should be vanishingly small if the model is running correctly.
+	|
+
 BS accumulating equity=
 	MAX(CFS net issuance of equity, 0)
 	~	USD/year [0,?]
@@ -1603,7 +1610,7 @@ BS balance=
 	BS equity
 	-
 	BS liabilities
-	~	USD [-1000,1000]
+	~	USD
 	~		~	:SUPPLEMENTARY 
 	|
 
@@ -5157,6 +5164,11 @@ Cash Flow Statement
 1,106,104,72,1,0,0,0,0,128,0,-1--1--1,,1|(369,605)|
 1,107,102,72,1,0,0,0,0,128,0,-1--1--1,,1|(334,609)|
 1,108,100,72,1,0,0,0,0,128,0,-1--1--1,,1|(308,679)|
+10,109,BS imbalance,1458,528,44,11,8,3,0,0,0,0,0,0
+1,110,49,109,1,0,0,0,0,64,0,-1--1--1,,1|(1362,377)|
+1,111,51,109,0,0,0,0,0,64,0,-1--1--1,,1|(1383,529)|
+1,112,50,109,1,0,0,0,0,64,0,-1--1--1,,1|(1305,606)|
+1,113,48,109,1,0,0,0,0,64,0,-1--1--1,,1|(1343,691)|
 \\\---/// Sketch information - do not modify anything except names
 V300  Do not put anything below this section - it will be ignored
 *Timeline
@@ -6370,11 +6382,11 @@ $192-192-192,0,Times New Roman|12||0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|96,96,1
 22:Day,Days
 23:0
 15:0,0,0,0,0,0
-19:100,19
+19:100,13
 27:0,
 34:0,
 4:Time
-5:incumbent favorability indicator
+5:BS balance
 35:Date
 36:YYYY-MM-DD
 37:2000
