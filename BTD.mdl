@@ -1203,6 +1203,7 @@ bioproduct market share mass=
 	~	Dmnl [0,1]
 	~	Calculates bioproduct market share, accounting for bioproduct \
 		effectiveness and incumbent and bioproduct selling prices.
+	~	:SUPPLEMENTARY 
 	|
 
 market growth rate=
@@ -1286,7 +1287,8 @@ New Market Participants= INTEG (
 	market growing-new adopters-new nonadopters,
 		0)
 	~	tonIncumbent/year [0,?]
-	~		|
+	~		~	:SUPPLEMENTARY 
+	|
 
 Potential Adopters= INTEG (
 	overcoming inertia-deciding to adopt,
@@ -1397,6 +1399,7 @@ remaining investment=
 	~	Calculates the total (estimated) investment remaining to complete the \
 		project and begin commercial plant operation. If this value is less than \
 		zero, return zero because no further investment is required.
+	~	:SUPPLEMENTARY 
 	|
 
 demo capital granting=
@@ -1990,7 +1993,8 @@ shared learning for feedstock logistics[feedstock]=
 	  feedstock selector array[feedstock] * 
 	  shared learning rates for feedstock logistics[feedstock]
 	~	tonFeedstock [0,?]
-	~		|
+	~		~	:SUPPLEMENTARY 
+	|
 
 shared learning rates for feedstock logistics[corn]=
 	0.2 ~~|
@@ -3154,7 +3158,8 @@ bioproduct price reversion time=
 bioproduct supply reliability=
 	marginal bioproduct supply reliability gain * Cumulative Production
 	~	Dmnl
-	~		|
+	~		~	:SUPPLEMENTARY 
+	|
 
 marginal bioproduct supply reliability gain=
 	0
@@ -3255,8 +3260,7 @@ Cumulative Feedstock Consumption= INTEG (
 	feedstock consumption,
 		0)
 	~	tonFeedstock [0,?]
-	~		~	:SUPPLEMENTARY 
-	|
+	~		|
 
 cumulative gross revenue from product sales=
 	Cumulative Production * bioproduct selling price with green premium
@@ -3439,7 +3443,8 @@ internal project cancelled indicator=
 	             1,
 	             0)
 	~	Dmnl [0,1]
-	~		|
+	~		~	:SUPPLEMENTARY 
+	|
 
 final stagegate time=
 	INITIAL TIME + initial project duration + project lag
@@ -3516,7 +3521,8 @@ Stages Remaining= INTEG (
 	-completing stages,
 		number of stages to complete)
 	~	stages [0,?]
-	~		|
+	~		~	:SUPPLEMENTARY 
+	|
 
 stagegate length=
 	1
@@ -6381,7 +6387,7 @@ $192-192-192,0,Times New Roman|12||0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|96,96,1
 22:Day,Days
 23:0
 15:0,0,0,0,0,0
-19:100,3
+19:5,0
 27:0,
 34:0,
 4:Time
