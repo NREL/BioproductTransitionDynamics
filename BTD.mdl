@@ -605,7 +605,7 @@ idealized internal NPV=
 		)
 	)
 	* one Year
-	- idealized regulatory costs
+	- idealized regulatory cost PV
 	+ value of intellectual property
 	~	USD
 	~		|
@@ -650,12 +650,12 @@ idealized NPV=
 	  / (1 + one Year * required return)^(years ahead[forecast year!] / one Year)
 	)
 	* one Year
-	- idealized regulatory costs
+	- idealized regulatory cost PV
 	+ value of intellectual property
 	~	USD
 	~		|
 
-idealized regulatory costs=
+idealized regulatory cost PV=
 	Regulatory Costs
 	* IF THEN ELSE(
 	               idealized regulatory wait > 0,
@@ -5315,7 +5315,7 @@ Idealized Forecast
 1,102,95,2,0,0,0,0,0,64,0,-1--1--1,,1|(1164,487)|
 10,103,Regulatory Costs,681,502,40,20,3,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
 10,104,total approval time,766,780,49,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-10,105,idealized regulatory costs,585,570,50,19,8,3,0,0,0,0,0,0
+10,105,idealized regulatory cost PV,585,570,50,19,8,3,0,0,0,0,0,0
 10,106,idealized regulatory wait,712,688,47,19,8,3,0,0,0,0,0,0
 1,107,103,105,1,0,0,0,0,128,0,-1--1--1,,1|(656,538)|
 1,108,106,105,0,0,0,0,0,128,0,-1--1--1,,1|(653,633)|
