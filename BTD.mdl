@@ -224,7 +224,7 @@ startup piloting complete=
 	|
 
 internal investor decision=
-	IF THEN ELSE(completing stages * value threshold >= completing stages * idealized internal NPV
+	IF THEN ELSE(completing stages * value threshold >= completing stages * idealized internal value present value
 	             :AND: base external investor ask rate = 0,
 	             1,
 	             0)
@@ -593,7 +593,7 @@ idealized pilot completion time=
 ********************************************************~
 	|
 
-idealized internal NPV=
+idealized internal value present value=
 	SUM(
 	  (
 	    idealized revenue[forecast year!]
@@ -5344,7 +5344,7 @@ Idealized Forecast
 1,131,130,6,0,1,0,0,0,64,0,-1--1--1,,1|(1070,46)|
 10,132,researching,1238,762,45,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
 1,133,132,115,0,0,0,0,0,64,0,-1--1--1,,1|(1229,747)|
-10,134,idealized internal NPV,474,217,53,19,8,3,0,0,0,0,0,0
+10,134,idealized internal value present value,474,217,53,19,8,3,0,0,0,0,0,0
 1,135,105,134,0,0,0,0,0,64,0,-1--1--1,,1|(531,400)|
 1,136,13,134,0,0,0,0,0,64,0,-1--1--1,,1|(267,405)|
 10,137,one Year,453,310,39,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
@@ -6017,7 +6017,7 @@ $192-192-192,0,Times New Roman|12||0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|96,96,1
 1,236,235,232,0,0,0,0,0,64,0,-1--1--1,,1|(169,710)|
 10,237,base external investor ask rate,355,731,57,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
 1,238,237,232,0,0,0,0,0,64,0,-1--1--1,,1|(225,726)|
-10,239,idealized internal NPV,263,810,57,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,239,idealized internal value present value,263,810,57,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
 1,240,239,232,0,0,0,0,0,64,0,-1--1--1,,1|(182,769)|
 1,241,197,196,0,0,0,0,0,64,0,-1--1--1,,1|(1322,661)|
 \\\---/// Sketch information - do not modify anything except names
