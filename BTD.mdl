@@ -224,7 +224,7 @@ startup piloting complete=
 	|
 
 internal investor decision=
-	IF THEN ELSE(completing stages * value threshold >= completing stages * idealized internal value present value
+	IF THEN ELSE(completing stages * value threshold >= completing stages * expected idealized internal net present value
 	             :AND: base external investor ask rate = 0,
 	             1,
 	             0)
@@ -611,10 +611,10 @@ idealized internal expenses present value=
 	~	USD
 	~		|
 
-idealized internal value present value=
+expected idealized internal net present value=
 	SUM(
 	  (
-	    idealized revenue[forecast year!]
+	    idealized revenue[forecast year!] * probability of internal project success
 	  - idealized capital expenses[forecast year!]
 	  - idealized operating expenses[forecast year!]
 	  - idealized research expenses[forecast year!]
@@ -624,7 +624,7 @@ idealized internal value present value=
 	)
 	* one Year
 	- idealized regulatory cost present value
-	+ value of intellectual property
+	+ value of intellectual property * probability of internal project success
 	~	USD
 	~		|
 
@@ -3494,7 +3494,7 @@ number of stages to complete= INITIAL(
 	|
 
 value threshold=
-	idealized internal value present value / probability of internal project success
+	expected idealized internal net present value / probability of internal project success
 	~	USD
 	~	Calculated project value threshold, used to determine if internal \
 		investment continues at the next stagegate. There is no minimum value \
@@ -4059,10 +4059,10 @@ Internal Investor Decisions
 1,143,130,86,1,0,0,0,0,64,1,-1--1--1,,1|(1508,446)|
 10,144,one Year,942,483,39,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
 1,145,144,71,0,0,0,0,0,128,0,-1--1--1,,1|(1024,487)|
-10,146,idealized internal value present value,1020,367,65,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,146,expected idealized internal net present value,1020,367,65,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
 1,147,146,74,0,0,0,0,0,64,0,-1--1--1,,1|(1132,393)|
-10,149,project lag,1000,771,43,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|0||128-128-128
-1,150,149,105,1,0,0,0,0,128,0,-1--1--1,,1|(1047,742)|
+10,148,project lag,1000,771,43,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,149,148,105,1,0,0,0,0,128,0,-1--1--1,,1|(1047,742)|
 \\\---/// Sketch information - do not modify anything except names
 V300  Do not put anything below this section - it will be ignored
 *Investor Computations
@@ -5234,11 +5234,11 @@ $192-192-192,0,Times New Roman|12||0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|96,96,1
 10,2,idealized operating expenses,1210,536,59,19,8,3,0,0,0,0,0,0
 1,3,1,2,1,0,0,0,0,64,0,-1--1--1,,1|(1134,422)|
 10,4,years ahead,754,359,38,11,8,3,0,0,-1,0,0,0
-12,5,19203122,1636,430,224,126,3,188,0,0,1,0,0,0
+12,5,0,1636,430,224,126,3,188,0,0,1,0,0,0
 Idealized_Operating
 10,6,idealized pilot capital expenses,977,80,52,19,8,3,0,0,0,0,0,0
 10,7,one Year,835,25,39,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-12,8,416811954,1632,164,223,136,3,188,0,0,1,0,0,0
+12,8,0,1632,164,223,136,3,188,0,0,1,0,0,0
 Idealized_Capital
 10,9,Pilot Capital Expense,822,88,45,24,3,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
 1,10,9,6,0,0,0,0,0,64,0,-1--1--1,,1|(889,84)|
@@ -5247,7 +5247,7 @@ Idealized_Capital
 10,13,idealized revenue,31,577,54,11,8,3,0,0,0,0,0,0
 10,14,government production incentive,283,554,69,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
 10,15,bioproduct selling price with green premium,403,621,64,25,8,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-12,16,2229272,1642,679,227,117,3,188,0,0,1,0,0,0
+12,16,0,1642,679,227,117,3,188,0,0,1,0,0,0
 Idealized_Revenue
 10,17,expected continuity of government policy,1152,308,74,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
 1,18,17,2,1,0,0,0,0,64,0,-1--1--1,,1|(1256,395)|
@@ -5267,7 +5267,7 @@ Idealized_Revenue
 1,32,29,24,1,0,0,0,0,128,0,-1--1--1,,1|(504,143)|
 1,33,31,24,1,0,0,0,0,128,0,-1--1--1,,1|(623,193)|
 1,34,30,24,1,0,0,0,0,128,0,-1--1--1,,1|(593,130)|
-12,35,46993354,170,183,194,160,3,188,0,0,1,0,0,0
+12,35,0,170,183,194,160,3,188,0,0,1,0,0,0
 Idealized_NPV
 10,36,value of intellectual property,640,314,65,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
 1,37,36,24,1,0,0,0,0,64,0,-1--1--1,,1|(595,230)|
@@ -5368,17 +5368,17 @@ Idealized Forecast
 1,131,130,6,0,1,0,0,0,64,0,-1--1--1,,1|(1019,46)|
 10,132,researching,1187,762,45,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
 1,133,132,115,0,0,0,0,0,64,0,-1--1--1,,1|(1178,747)|
-10,134,idealized internal value present value,419,223,52,24,8,131,0,0,0,0,0,0
-1,135,105,134,0,0,0,0,0,64,0,-1--1--1,,1|(478,405)|
-1,136,13,134,0,0,0,0,0,64,0,-1--1--1,,1|(212,411)|
+10,134,expected idealized internal net present value,417,230,50,31,8,131,0,0,0,0,0,0
+1,135,105,134,0,0,0,0,0,64,0,-1--1--1,,1|(478,412)|
+1,136,13,134,0,0,0,0,0,64,0,-1--1--1,,1|(207,418)|
 10,137,one Year,402,310,39,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,138,137,134,0,0,0,0,0,64,0,-1--1--1,,1|(407,279)|
+1,138,137,134,0,0,0,0,0,64,0,-1--1--1,,1|(406,286)|
 10,139,required internal return,436,55,56,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
 1,140,139,134,1,0,0,0,0,64,0,-1--1--1,,1|(398,130)|
 1,141,4,134,1,0,0,0,0,64,0,-1--1--1,,1|(710,300)|
 1,142,29,134,1,0,0,0,0,128,0,-1--1--1,,1|(466,144)|
 1,143,30,134,1,0,0,0,0,128,0,-1--1--1,,1|(461,102)|
-1,144,36,134,0,0,0,0,0,128,0,-1--1--1,,1|(538,272)|
+1,144,36,134,0,0,0,0,0,128,0,-1--1--1,,1|(535,273)|
 1,145,116,134,1,0,0,0,0,128,0,-1--1--1,,1|(561,226)|
 10,146,idealized internal expenses present value,1325,300,73,19,8,3,0,0,0,0,0,0
 1,147,11,146,0,0,0,0,0,64,0,-1--1--1,,1|(1264,218)|
@@ -5390,6 +5390,8 @@ Idealized Forecast
 10,153,required internal return,1340,208,56,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
 1,154,153,146,0,0,0,0,0,64,0,-1--1--1,,1|(1333,247)|
 1,155,4,146,1,0,0,0,0,64,0,-1--1--1,,1|(1011,358)|
+10,156,probability of internal project success,551,22,72,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|0||128-128-128
+1,157,156,134,1,0,0,0,0,64,0,-1--1--1,,1|(432,106)|
 \\\---/// Sketch information - do not modify anything except names
 V300  Do not put anything below this section - it will be ignored
 *Shared Learning
@@ -6051,7 +6053,7 @@ $192-192-192,0,Times New Roman|12||0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|96,96,1
 1,236,235,232,0,0,0,0,0,64,0,-1--1--1,,1|(169,710)|
 10,237,base external investor ask rate,355,731,57,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
 1,238,237,232,0,0,0,0,0,64,0,-1--1--1,,1|(225,726)|
-10,239,idealized internal value present value,263,810,57,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,239,expected idealized internal net present value,263,810,57,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
 1,240,239,232,0,0,0,0,0,64,0,-1--1--1,,1|(182,769)|
 1,241,197,196,0,0,0,0,0,64,0,-1--1--1,,1|(1322,661)|
 \\\---/// Sketch information - do not modify anything except names
@@ -6417,11 +6419,11 @@ $192-192-192,0,Times New Roman|12||0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|96,96,1
 22:Day,Days
 23:0
 15:0,0,0,0,0,0
-19:80,2
+19:100,15
 27:0,
 34:0,
 4:Time
-5:abandoning bioproduct
+5:expected idealized internal net present value
 35:Date
 36:YYYY-MM-DD
 37:2000
