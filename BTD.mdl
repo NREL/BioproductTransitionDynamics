@@ -74,12 +74,14 @@ piloting capital expenditure damper=
 	|
 
 regulatory process ongoing=
-	IF THEN ELSE(Continuous Demoing Hours <= regulatory process starting point * target demo hours
+	IF THEN ELSE(Completed Demoing >= regulatory process starting point * target demo hours
 	             :AND: Regulatory Costs > 0,
 	             1,
 	             0)
 	~	Dmnl [-1,1]
-	~		|
+	~	The regulatory process begins once sufficient demoing hours - not \
+		necessarily continuous - are completed.
+	|
 
 commercial plant construction=
 	demoing complete * (1 - regulatory delay) * (1 - precommercial) *
@@ -4069,7 +4071,7 @@ V300  Do not put anything below this section - it will be ignored
 *Investor Computations
 $192-192-192,0,Times New Roman|12||0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|96,96,100,0
 10,1,Working Capital,1239,657,52,11,0,3,0,0,0,0,0,0
-11,2,828,1343,627,8,11,34,3,0,0,1,0,0,0
+11,2,892,1343,627,8,11,34,3,0,0,1,0,0,0
 10,3,actual spending,1343,663,37,25,40,131,0,0,-1,0,0,0
 10,4,hypothetical net income,2033,241,80,11,8,3,0,0,0,0,0,0
 1,5,4,6,1,0,0,0,0,64,0,-1--1--1,,1|(2056,466)|
@@ -6143,11 +6145,10 @@ $192-192-192,0,Times New Roman|12||0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|96,96,1
 1,80,79,78,0,0,0,0,0,64,0,-1--1--1,,1|(154,427)|
 1,81,13,5,1,0,0,0,0,64,0,-1--1--1,,1|(888,147)|
 10,82,regulatory process ongoing,534,546,59,19,8,3,0,0,-1,0,0,0
-10,83,regulatory process starting point,567,631,64,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,84,83,82,0,0,0,0,0,64,0,-1--1--1,,1|(553,594)|
-10,85,target demo hours,447,615,43,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,86,85,82,0,0,0,0,0,64,0,-1--1--1,,1|(484,584)|
-1,87,54,82,1,0,0,0,0,128,0,-1--1--1,,1|(441,512)|
+10,83,regulatory process starting point,629,624,64,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,84,83,82,1,0,0,0,0,64,0,-1--1--1,,1|(570,590)|
+10,85,target demo hours,570,666,43,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,86,85,82,1,0,0,0,0,64,0,-1--1--1,,1|(535,609)|
 1,88,7,67,1,0,0,0,0,64,0,-1--1--1,,1|(774,464)|
 1,89,15,67,1,0,0,0,0,64,0,-1--1--1,,1|(687,416)|
 10,90,commercial capital cost,857,559,57,29,8,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
@@ -6156,6 +6157,8 @@ $192-192-192,0,Times New Roman|12||0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|96,96,1
 1,93,7,9,0,0,0,0,0,64,0,-1--1--1,,1|(689,483)|
 1,94,15,9,1,0,0,0,0,64,0,-1--1--1,,1|(621,451)|
 1,95,58,82,1,0,0,0,0,128,0,-1--1--1,,1|(622,572)|
+10,96,Completed Demoing,455,623,41,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|0||128-128-128
+1,97,96,82,1,0,0,0,0,128,0,-1--1--1,,1|(490,573)|
 \\\---/// Sketch information - do not modify anything except names
 V300  Do not put anything below this section - it will be ignored
 *Flow Dampers
