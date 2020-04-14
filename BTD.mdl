@@ -228,7 +228,7 @@ internal investor decision=
 	             :AND: base external investor ask rate = 0,
 	             1,
 	             0)
-	~	Dmnl [0,1]
+	~	Dmnl [0,1,1]
 	~	Can only be non-zero if the project is internally funded, at the end of an \
 		internal project stagegate (when completing stages is non-zero). During \
 		those time steps, this parameter is 1 if the value threshold exceeds or \
@@ -795,7 +795,7 @@ forecast year:
 
 advertising budget=
 	500000
-	~	USD/year [0,3e+06]
+	~	USD/year [0,3e+06,100000]
 	~		|
 
 advertising spending=
@@ -808,13 +808,13 @@ advertising spending=
 
 advertising start time=
 	2020
-	~	year [2015,2050]
+	~	year [2015,2050,1]
 	~	Year in which the project begins advertising.
 	|
 
 max management runway response=
 	5
-	~	Dmnl [0,50]
+	~	Dmnl [0,50,1]
 	~		|
 
 pilot and demo spending control= DELAY INFORMATION (
@@ -852,7 +852,7 @@ research spending control= DELAY INFORMATION (
 
 BS equity threshold=
 	100000
-	~	USD [0,?]
+	~	USD [0,?,1]
 	~	Determines how much equity needs to be left in the company for it to \
 		remain in business (see Indicator Variables view for `in business` \
 		indicator)
@@ -871,7 +871,7 @@ investor ask rate=
 
 base external investor ask rate=
 	8
-	~	1/year [0,24]
+	~	1/year [0,24,1]
 	~	Base rate at which funding is sought from external investors. Default \
 		value is 8. For a project that is funded internally by an established \
 		firm, set this parameter to zero.
@@ -894,17 +894,17 @@ pilot and demo runway response=
 
 pilot and demo response time=
 	0.25
-	~	year [0,5]
+	~	year [0,5,0.5]
 	~		|
 
 research response time=
 	0.25
-	~	year [0,5]
+	~	year [0,5,0.5]
 	~		|
 
 management response time=
 	0.3
-	~	year [0,5]
+	~	year [0,5,0.1]
 	~		|
 
 business as usual runway=
@@ -919,7 +919,7 @@ allowable spending=
 
 minimum runway=
 	0.3
-	~	year [0.1,5]
+	~	year [0.1,5,0.1]
 	~		|
 
 conserve spending=
@@ -951,22 +951,22 @@ product approval time=
 
 feedstock approval maximum time=
 	5
-	~	year [0,10]
+	~	year [0,10,0.25]
 	~		|
 
 product approval maximum time=
 	5
-	~	year [0,10]
+	~	year [0,10,0.25]
 	~		|
 
 feedstock approval minimum time=
 	1
-	~	year [0,10]
+	~	year [0,10,0.25]
 	~		|
 
 product approval minimum time=
 	1
-	~	year [0,10]
+	~	year [0,10,0.25]
 	~		|
 
 feedstock approval time=
@@ -990,12 +990,12 @@ Regulatory Costs= INTEG (
 
 pathway approval maximum time=
 	5
-	~	year [0,10]
+	~	year [0,10,0.25]
 	~		|
 
 pathway approval minimum time=
 	1
-	~	year [0,10]
+	~	year [0,10,0.25]
 	~		|
 
 feedstock approval maximum cost=
@@ -1055,7 +1055,7 @@ product approval minimum cost=
 
 regulatory process starting point=
 	0.75
-	~	Dmnl [0,1]
+	~	Dmnl [0,1,0.05]
 	~	Represents the fraction of demoing that is completed before the regulatory \
 		process is begun. As demoing proceeds, information necessary to the \
 		regulatory process is generated and so the total costs go down. Costs \
@@ -1137,7 +1137,7 @@ NonAdopters= INTEG (
 
 incumbent market share target economic=
 	0.4
-	~	Dmnl [0,1]
+	~	Dmnl [0,1,0.01]
 	~	Minimum market share the incumbent producers are willing to accept. If the \
 		incumbent price response behavior is turned on and the incumbent market \
 		share (1 - bioproduct market share) drops below this threshold, then the \
@@ -1158,7 +1158,7 @@ deciding to adopt=
 
 retrofit delay=
 	0.5
-	~	year [0,10]
+	~	year [0,10,0.25]
 	~	Delays bioproduct adoption. For direct replacement bioproducts, retrofit \
 		delay is 0. For performance-advantaged bioproducts, retrofit delay may be \
 		greater than zero or equal to zero.
@@ -1171,7 +1171,7 @@ word of mouth impact=
 
 advertising effectiveness=
 	1e-08
-	~	1/USD [0,5]
+	~	1/USD [0,5,0.01]
 	~	Partially controls the rate at which NonAdopters are converted to \
 		Potential Adopters. The value should be very low because it is multiplied \
 		by both advertising budget (USD/year) and NonAdopters (tonIncumbent/year).
@@ -1242,7 +1242,7 @@ new adopters=
 
 bioproduct performance advantage=
 	1
-	~	tonProduct/tonIncumbent [0.1,10]
+	~	tonProduct/tonIncumbent [0.1,10,0.1]
 	~	Quantifies how much bioproduct must be used to substitute for the incumbent product. \
 		A direct replacement has performance advantage = 1 because it is an exact \
 		substitute. A performance advantaged bioproduct will have performance \
@@ -1557,7 +1557,7 @@ Total Government Grants= INTEG (
 
 government operating grant period=
 	1.5
-	~	year [0.5,5]
+	~	year [0.5,5,0.25]
 	~	Project time period for which funding is provided by the government in the \
 		form of operating grants.
 	|
@@ -1907,7 +1907,7 @@ biofuel feedstock[generic fossil]=
 	0 ~~|
 biofuel feedstock[custom]=
 	0
-	~	Dmnl [0,1]
+	~	Dmnl [0,1,1]
 	~	A 1 indicates that the biofuel of interest uses that feedstock.
 	|
 
@@ -1947,7 +1947,7 @@ biofuel technology unit operations[extraction purification and fuel finishing]=
 	1 ~~|
 biofuel technology unit operations[extraction purification and product finishing]=
 	0
-	~	Dmnl [0,1]
+	~	Dmnl [0,1,1]
 	~	Default values are for biological upgrading of lignocellulosic feedstock to biofuels
 		Alternate values are as follows:
 		Catalytic upgrading of lignocellulosic feedstock to biofuels: 1, 0, 1, 0, 0, 0, 1, \
@@ -1958,7 +1958,7 @@ biofuel technology unit operations[extraction purification and product finishing
 
 shared learning threshold for bioproduct production=
 	10000
-	~	tonProduct [0,?]
+	~	tonProduct [0,?,100]
 	~	Shared learning is assumed to begin after some amount of bioproduct has \
 		been manufactured; prior to that threshold being met, sufficient learning \
 		for the bioproduct technology has not taken place.
@@ -1978,7 +1978,7 @@ shared learning for feedstock logistics[feedstock]=
 	  biofuel feedstock[feedstock] * 
 	  feedstock selector array[feedstock] * 
 	  shared learning rates for feedstock logistics[feedstock]
-	~	tonFeedstock [0,?]
+	~	tonFeedstock [0,?,100]
 	~		|
 
 shared learning rates for feedstock logistics[corn]=
@@ -2011,7 +2011,7 @@ shared learning threshold for feedstock logistics=
 
 bioproduct technology unit operations[unit operation]=
 	1, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1
-	~	Dmnl [0,1]
+	~	Dmnl [0,1,1]
 	~	Unit operations for succinic acid are as follows:
 		lignocellulosic succinic acid: 1, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1
 		commodity sugar succinic acid: 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1
@@ -2058,7 +2058,7 @@ shared learning rates for unit operations[extraction purification and fuel finis
 shared learning rates for unit operations[extraction purification and product finishing\
 		]=
 	0.2
-	~	Dmnl [0,1]
+	~	Dmnl [0,1,0.05]
 	~	Default value for shared learning rates is 20% across all unit operations.
 	|
 
@@ -2147,7 +2147,7 @@ demoing failure recovery time=
 
 researching impact on demoing=
 	0.2
-	~	Dmnl [0,0.95]
+	~	Dmnl [0,0.95,0.05]
 	~		|
 
 demoing=
@@ -2205,7 +2205,7 @@ remaining demoing duration=
 
 staff sent to demo=
 	0.75
-	~	Dmnl [0,1]
+	~	Dmnl [0,1,0.05]
 	~		|
 
 demo opex=
@@ -2215,7 +2215,7 @@ demo opex=
 
 demoing failure distribution max=
 	5
-	~	Dmnl [0,10]
+	~	Dmnl [0,10,0.1]
 	~	0.005
 	|
 
@@ -2258,7 +2258,7 @@ Startup Demoing Hours= INTEG (
 
 startup demoing period=
 	1000
-	~	hours [0,?]
+	~	hours [0,?,10]
 	~		|
 
 startup demoing rate=
@@ -2282,7 +2282,7 @@ Completed Demoing= INTEG (
 
 demo construction time=
 	2
-	~	year [0,5]
+	~	year [0,5,0.0833]
 	~		|
 
 Demo Capital Expense= INTEG (
@@ -2293,7 +2293,7 @@ Demo Capital Expense= INTEG (
 
 target demo hours=
 	5000
-	~	hours [0,100000]
+	~	hours [0,100000,1000]
 	~		|
 
 demo capital cost=
@@ -2304,7 +2304,7 @@ demo capital cost=
 
 demo capital cost scaling factor=
 	0.5
-	~	Dmnl [0,1]
+	~	Dmnl [0,1,0.05]
 	~		|
 
 demo fixed operating cost=
@@ -2315,7 +2315,7 @@ demo fixed operating cost=
 
 demo fixed operating cost scaling factor=
 	1
-	~	Dmnl [0,1]
+	~	Dmnl [0,1,0.05]
 	~		|
 
 demo capacity=
@@ -2342,7 +2342,7 @@ piloting failure recovery time=
 
 researching impact on piloting=
 	0.25
-	~	Dmnl [0,0.95]
+	~	Dmnl [0,0.95,0.05]
 	~		|
 
 pilot capital expenditure=
@@ -2408,7 +2408,7 @@ Continuous Piloting Hours= INTEG (
 
 piloting failure distribution max=
 	5
-	~	Dmnl [0,10]
+	~	Dmnl [0,10,0.1]
 	~	0.1
 	|
 
@@ -2423,7 +2423,7 @@ piloting failure random=
 
 staff sent to pilot=
 	0.5
-	~	Dmnl [0,1]
+	~	Dmnl [0,1,0.05]
 	~		|
 
 piloting management overhead=
@@ -2450,7 +2450,7 @@ pilot opex=
 
 piloting acceptable rate=
 	7500
-	~	hours/year [1,8766]
+	~	hours/year [1,8766,1]
 	~		|
 
 startup piloting period=
@@ -2460,7 +2460,7 @@ startup piloting period=
 
 startup piloting rate=
 	200
-	~	hours/year [0,8772]
+	~	hours/year [0,8772,1]
 	~		|
 
 Startup Piloting Hours= INTEG (
@@ -2491,12 +2491,12 @@ Pilot Capital Expense= INTEG (
 
 pilot construction time=
 	1.5
-	~	year [0,3]
+	~	year [0,3,0.0833]
 	~		|
 
 target pilot hours=
 	3000
-	~	hours [0,100000]
+	~	hours [0,100000,500]
 	~		|
 
 pilot capital cost=
@@ -2507,7 +2507,7 @@ pilot capital cost=
 
 pilot capital cost scaling factor=
 	0.3
-	~	Dmnl [0,1]
+	~	Dmnl [0,1,0.05]
 	~	This value should be lower than the commercial-scale capital scaling \
 		factor, to represent that pilot plants are more expensive per capacity \
 		unit than are commercial plants.
@@ -2521,7 +2521,7 @@ pilot fixed operating cost=
 
 pilot fixed operating cost scaling factor=
 	1
-	~	Dmnl [0,1]
+	~	Dmnl [0,1,0.05]
 	~		|
 
 pilot capacity=
@@ -2619,7 +2619,7 @@ incumbent monthly change in price=
 
 incumbent price response magnitude=
 	0.2
-	~	Dmnl [0,1]
+	~	Dmnl [0,1,0.05]
 	~	Fraction by which the incumbent product price is reduced in response to \
 		bioproduct market entry. For instance, a value of 0.2 means the incumbent \
 		product price will be reduced to 80% (1 - 0.2) of its previous value on \
@@ -2637,7 +2637,7 @@ incumbent price trend=
 
 incumbent reversion time=
 	0.1
-	~	year [0,5]
+	~	year [0,5,0.05]
 	~	How quickly, on average, the incumbent price moves back to its long-term \
 		trend after a fluctuation.
 	|
@@ -2650,7 +2650,7 @@ incumbent starting price=
 
 incumbent long term price trend=
 	0.1
-	~	Dmnl [-10,10]
+	~	Dmnl [-10,10,0.05]
 	~	Fraction increase or decrease in the incumbent starting price that is \
 		expected, on average, over the model running time.
 	|
@@ -2662,7 +2662,7 @@ changing incumbent price=
 
 incumbent maximum fluctuation=
 	0.05
-	~	Dmnl [0,5]
+	~	Dmnl [0,5,0.05]
 	~	Largest likely fluctuation in the incumbent price.
 	|
 
@@ -2674,7 +2674,7 @@ Current Incumbent Price= INTEG (
 
 expected green premium=
 	0
-	~	Dmnl [0,1]
+	~	Dmnl [0,1,0.01]
 	~	Percentage by which the bioproduct selling price can be increased to \
 		reflect the value to purchaser of a "green" product
 	|
@@ -2785,7 +2785,7 @@ feedstock selector array[generic fossil]=
 	0 ~~|
 feedstock selector array[custom]=
 	0
-	~	Dmnl [0,1]
+	~	Dmnl [0,1,1]
 	~		|
 
 feedstock:
@@ -2833,7 +2833,7 @@ soybean periodic fluctuation magnitude=
 
 bioproduct long term price=
 	5000
-	~	USD/tonProduct [0,10000]
+	~	USD/tonProduct [0,10000,10]
 	~		|
 
 corn stover starting price=
@@ -3127,12 +3127,12 @@ Current Commodity Sugar Price= INTEG (
 
 bioproduct price fluctuations=
 	0
-	~	Dmnl [0,0.05]
+	~	Dmnl [0,0.05,0.001]
 	~		|
 
 bioproduct price reversion time=
 	1
-	~	year [0.1,5]
+	~	year [0.1,5,0.1]
 	~		|
 
 ********************************************************
@@ -3168,7 +3168,7 @@ production=
 
 commercial plant startup period=
 	3
-	~	year [0,20]
+	~	year [0,20,0.25]
 	~	Time during which the commercial plant linearly ramps up production from \
 		zero to the scaled plant capacity
 	|
@@ -3181,7 +3181,7 @@ Commercial Capital Expense= INTEG (
 
 commercial construction time=
 	2
-	~	year [1,5]
+	~	year [1,5,0.1]
 	~		|
 
 piloting production=
@@ -3215,7 +3215,7 @@ commercial fixed operating cost=
 
 commercial plant capacity input=
 	730480
-	~	tonProduct/year [0,?]
+	~	tonProduct/year [0,?,1]
 	~		|
 
 commercial variable operating cost=
@@ -3237,7 +3237,7 @@ feedstock consumption=
 
 include demo in cumulative production=
 	1
-	~	Dmnl [0,1]
+	~	Dmnl [0,1,1]
 	~		|
 
 Cumulative Feedstock Consumption= INTEG (
@@ -3338,7 +3338,7 @@ number of researchers=
 		 * total staff )
 	 - demoing ongoing * pilot and demo spending control * INTEGER( staff sent to demo *\
 		 total staff )
-	~	Person [1,50]
+	~	Person [1,50,1]
 	~	For staff to be transferred to the pilot/demo plant, piloting/demoing must \
 		be ongoing (has begun and the target continuous hours not yet met) and the \
 		pilot/demo plants must be operating according to the spending control. If \
@@ -3359,7 +3359,7 @@ research rate=
 
 total staff=
 	15
-	~	Person [1,100]
+	~	Person [1,100,1]
 	~		|
 
 Completed Research= INTEG (
@@ -3371,12 +3371,12 @@ Completed Research= INTEG (
 
 researcher average salary=
 	100000
-	~	USD/Person/year [50000,150000]
+	~	USD/Person/year [50000,150000,5000]
 	~		|
 
 researching management overhead=
 	500000
-	~	USD/year [50000,2e+06]
+	~	USD/year [50000,2e+06,50000]
 	~		|
 
 ********************************************************
@@ -3447,7 +3447,7 @@ Stages Completed= INTEG (
 
 number of missed stagegates allowed=
 	3
-	~	stages [0,10]
+	~	stages [0,10,1]
 	~	Gives the number of times an internal project can fail to meet the goals \
 		of a stagegate before it is cancelled. A higher number indicates a more \
 		lenient funding entity and will allow the project to fall further behind \
@@ -3498,7 +3498,7 @@ missing stagegates=
 
 required internal return=
 	0.08
-	~	1/year [0,5]
+	~	1/year [0,5,0.01]
 	~	Rate of return expected by internal investors.
 	|
 
@@ -3519,7 +3519,7 @@ Stages Remaining= INTEG (
 
 stagegate length=
 	1
-	~	year [0,5]
+	~	year [0,5,0.25]
 	~	Length of time between internal stagegates.
 	|
 
@@ -3538,7 +3538,7 @@ aversion to NPV deviation=
 
 required return multiplier=
 	1
-	~	Dmnl [0,?]
+	~	Dmnl [0,?,0.05]
 	~		|
 
 required payback period=
@@ -3559,7 +3559,7 @@ required return=
 
 payback period multiplier=
 	1
-	~	Dmnl [0,?]
+	~	Dmnl [0,?,0.05]
 	~		|
 
 remaining project duration=
@@ -3610,14 +3610,14 @@ payback period=
 
 government operating cost share=
 	0.5
-	~	Dmnl [0,1]
+	~	Dmnl [0,1,0.01]
 	~		|
 
 required return trend= WITH LOOKUP (
 	technology readiness level / one TRL,
 		([(0,0)-(15,20)],(0,0.6),(1,0.6),(2,0.6),(3,0.6),(4,0.6),(5,0.6),(6,0.6),(7,0.5),(8\
 		,0.45),(9,0.3),(15,0.3) ))
-	~	1/year [0.1,3]
+	~	1/year [0.1,3,0.05]
 	~	\!Technology Readiness Level
 	|
 
@@ -3625,7 +3625,7 @@ required payback period trend= WITH LOOKUP (
 	technology readiness level / one TRL,
 		([(0,0)-(15,20)],(0,12),(1,12),(2,12),(3,12),(4,12),(5,12),(6,12),(7,8),(8,5),(9,3)\
 		,(15,3) ))
-	~	year [0,25]
+	~	year [0,25,1]
 	~		|
 
 government capital cost share=
@@ -3656,7 +3656,7 @@ strategic value to external investors=
 
 random stream=
 	0
-	~	Dmnl [0,?]
+	~	Dmnl [0,?,1]
 	~		|
 
 FINAL TIME  = 2050
@@ -6382,7 +6382,7 @@ $192-192-192,0,Times New Roman|12||0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|96,96,1
 22:Day,Days
 23:0
 15:0,0,0,0,0,0
-19:100,13
+19:80,2
 27:0,
 34:0,
 4:Time
