@@ -1167,7 +1167,7 @@ NonAdopters= INTEG (
 	abandoning bioproduct+new nonadopters-overcoming inertia,
 		(initial market size - bioproduct offtake agreement) / bioproduct performance advantage\
 		)
-	~	tonIncumbent/year
+	~	tonIncumbent/year [0,?]
 	~		|
 
 incumbent market share target economic=
@@ -1200,21 +1200,24 @@ retrofit delay=
 	|
 
 word of mouth impact=
-	word of mouth effectiveness * word of mouth contact rate 
-	* ( NonAdopters / (NonAdopters + Potential Adopters + Adopters) )
+	MIN(word of mouth effectiveness * word of mouth contact rate 
+	    * ( NonAdopters / (NonAdopters + Potential Adopters + Adopters) ),
+	    NonAdopters / TIME STEP)
 	~	tonIncumbent/year/year [0,?]
 	~		|
 
 advertising effectiveness=
-	1e-08
-	~	1/USD [0,5,0.01]
-	~	Partially controls the rate at which NonAdopters are converted to \
-		Potential Adopters. The value should be very low because it is multiplied \
-		by both advertising budget (USD/year) and NonAdopters (tonIncumbent/year).
+	1e-07
+	~	1/USD [0,5]
+	~	Partially controls the rate at which NonAdopters are converted to Potential \
+		Adopters. The value should be very low because it is multiplied by both \
+		advertising budget (USD/year) and NonAdopters (tonIncumbent/year).
+		Default value is 1e-08
 	|
 
 advertising impact=
-	advertising effectiveness * advertising spending * NonAdopters
+	MIN(advertising effectiveness * advertising spending * NonAdopters,
+	    NonAdopters / TIME STEP)
 	~	tonIncumbent/year/year [0,?]
 	~		|
 
@@ -4974,6 +4977,10 @@ Dynamic Market Share Calculation
 1,137,136,124,1,0,0,0,0,128,0,-1--1--1,,1|(1642,181)|
 1,138,32,80,1,0,0,0,0,64,0,-1--1--1,,1|(1300,487)|
 1,139,31,80,0,0,0,0,0,64,0,-1--1--1,,1|(1151,454)|
+10,140,TIME STEP,1181,311,50,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|0||128-128-128
+1,141,140,79,0,0,0,0,0,64,0,-1--1--1,,1|(1134,321)|
+10,142,TIME STEP,985,503,35,19,8,130,0,3,-1,0,0,0,128-128-128,0-0-0,|0||128-128-128
+1,143,142,80,1,0,0,0,0,64,0,-1--1--1,,1|(1022,529)|
 \\\---/// Sketch information - do not modify anything except names
 V300  Do not put anything below this section - it will be ignored
 *Income Statement
@@ -6414,9 +6421,10 @@ $192-192-192,0,Times New Roman|12||0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|96,96,1
 :VAR idealized demo completion time
 :VAR idealized commercial construction time
 :L<%^E!@
+1:latest-commit-3-local.vdf
 1:latest-commit-2-local.vdf
 1:latest-commit-local.vdf
-9:latest-commit-2-local
+9:latest-commit-3-local
 22:$,Dollar,Dollars,$s
 22:Hour,Hours
 22:Month,Months
@@ -6427,11 +6435,11 @@ $192-192-192,0,Times New Roman|12||0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|96,96,1
 22:Day,Days
 23:0
 15:0,0,0,0,0,0
-19:100,19
+19:100,11
 27:0,
 34:0,
 4:Time
-5:commercial process yield input
+5:advertising impact
 35:Date
 36:YYYY-MM-DD
 37:2000
