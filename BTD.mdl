@@ -1200,7 +1200,8 @@ retrofit delay=
 	|
 
 word of mouth impact=
-	word of mouth effectiveness * word of mouth contact rate * NonAdopters
+	word of mouth effectiveness * word of mouth contact rate 
+	* ( NonAdopters / (NonAdopters + Potential Adopters + Adopters) )
 	~	tonIncumbent/year/year [0,?]
 	~		|
 
@@ -1257,8 +1258,8 @@ overcoming inertia=
 	~		|
 
 word of mouth effectiveness=
-	1e-06
-	~	Dmnl [0,?]
+	0.4
+	~	Dmnl [0,1,0.04]
 	~		|
 
 word of mouth contact rate=
@@ -4972,6 +4973,8 @@ Dynamic Market Share Calculation
 1,135,134,32,1,0,0,0,0,128,1,-1--1--1,,1|(1588,438)|
 10,136,bioproduct supply to demand ratio indicator,1617,273,61,32,8,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
 1,137,136,124,1,0,0,0,0,128,0,-1--1--1,,1|(1642,181)|
+1,138,32,80,1,0,0,0,0,64,0,-1--1--1,,1|(1300,487)|
+1,139,31,80,0,0,0,0,0,64,0,-1--1--1,,1|(1151,454)|
 \\\---/// Sketch information - do not modify anything except names
 V300  Do not put anything below this section - it will be ignored
 *Income Statement
@@ -6425,11 +6428,11 @@ $192-192-192,0,Times New Roman|12||0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|96,96,1
 22:Day,Days
 23:0
 15:0,0,0,0,0,0
-19:100,18
+19:100,11
 27:0,
 34:0,
 4:Time
-5:Current Soybean Price
+5:NonAdopters
 35:Date
 36:YYYY-MM-DD
 37:2000
