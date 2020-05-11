@@ -2790,21 +2790,7 @@ feedstock price array[custom]=
 
 feedstock price=
 	feedstock selection check * 
-	( feedstock price array[corn] * feedstock selector array[corn]
-	  +
-	  feedstock price array[corn stover] * feedstock selector array[corn stover]
-	  +
-	  feedstock price array[soybean] * feedstock selector array[soybean]
-	  +
-	  feedstock price array[commodity sugar] * feedstock selector array[commodity sugar]
-	  +
-	  feedstock price array[generic perennial] * feedstock selector array[generic perennial\
-		]
-	  +
-	  feedstock price array[generic fossil] * feedstock selector array[generic fossil]
-	  +
-	  feedstock price array[custom] * feedstock selector array[custom]
-	)
+	SUM( feedstock price array[feedstock!] * feedstock selector array[feedstock!] )
 	~	USD/tonFeedstock [0,?]
 	~		|
 
@@ -2814,8 +2800,9 @@ feedstock selector array[feedstock]=
 	~	Enter a 1 to select the corresponding feedstock and 0 everywhere else. If no \
 		elements or more than one element are equal to 1, the model will return a \
 		warning.
-		Element order is as follows: [corn, corn stover, soybean, commodity sugar, \
-		generic perennial, generic fossil, custom]
+		Element order is as follows: [corn, corn stover, soybean, commodity sugar, generic \
+		perennial, generic fossil, custom]
+		Commodity sugar is the defaul feedstock; enter 0, 0, 0, 1, 0, 0, 0
 	|
 
 feedstock:
@@ -6423,8 +6410,9 @@ $192-192-192,0,Times New Roman|12||0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|96,96,1
 :VAR idealized demo completion time
 :VAR idealized commercial construction time
 :L<%^E!@
+1:latest-commit-2-local.vdf
 1:latest-commit-local.vdf
-9:latest-commit-local
+9:latest-commit-2-local
 22:$,Dollar,Dollars,$s
 22:Hour,Hours
 22:Month,Months
@@ -6439,7 +6427,7 @@ $192-192-192,0,Times New Roman|12||0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|96,96,1
 27:0,
 34:0,
 4:Time
-5:Current Commodity Sugar Price
+5:feedstock selector array[feedstock]
 35:Date
 36:YYYY-MM-DD
 37:2000
