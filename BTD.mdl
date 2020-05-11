@@ -1138,10 +1138,12 @@ abandoning bioproduct=
 	~		|
 
 abandonment rate=
-	100
-	~	1/year [0,?]
-	~	Average rate at which bioproduct adopters will switch back to incumbent \
-		product if the conditions in the abandoning bioproduct indicator are met.
+	0.2
+	~	1/year [0,1,0.01]
+	~	Fraction of Adopters who will abandon bioproducts each year if the conditions in \
+		abandoning bioproduct indicator are met. Setting this value higher \
+		indicates a greater tendency to purchase fossil over bioproducts.
+		Default value 0.2 (20% of Adopters).
 	|
 
 supply to demand ratio price impact= WITH LOOKUP (
@@ -4981,7 +4983,7 @@ Dynamic Market Share Calculation
 1,137,136,3,0,0,0,0,0,128,0,-1--1--1,,1|(191,158)|
 1,138,136,6,0,0,0,0,0,128,0,-1--1--1,,1|(321,172)|
 1,139,136,8,0,0,0,0,0,128,0,-1--1--1,,1|(385,263)|
-10,140,commercial plant capacity,1684,449,59,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|0||128-128-128
+10,140,commercial plant capacity,1684,449,59,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
 1,141,140,33,1,0,0,0,0,128,0,-1--1--1,,1|(1605,438)|
 \\\---/// Sketch information - do not modify anything except names
 V300  Do not put anything below this section - it will be ignored
@@ -6432,7 +6434,7 @@ $192-192-192,0,Times New Roman|12||0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|96,96,1
 27:0,
 34:0,
 4:Time
-5:bioproduct supply to demand ratio
+5:abandoning bioproduct
 35:Date
 36:YYYY-MM-DD
 37:2000
