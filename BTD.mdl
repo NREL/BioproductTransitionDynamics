@@ -1628,6 +1628,7 @@ BS imbalance=
 	~	Dmnl
 	~	Calculates the fraction that BS balance is of total BS quantities. This \
 		number should be vanishingly small if the model is running correctly.
+	~	:SUPPLEMENTARY 
 	|
 
 BS accumulating equity=
@@ -1651,8 +1652,7 @@ BS balance=
 	-
 	BS liabilities
 	~	USD
-	~		~	:SUPPLEMENTARY 
-	|
+	~		|
 
 BS Cumulative Cash= INTEG (
 	CFS net change of cash and cash equivalents,
