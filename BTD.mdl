@@ -225,6 +225,15 @@ startup piloting complete=
 ********************************************************~
 	|
 
+IS equipment depreciation indicator=
+	IF THEN ELSE(
+	IS Equipment Useful Value > one dollar,
+	1,
+	0
+	)
+	~	Dmnl [0,1,1]
+	~		|
+
 bioproduct supply to demand ratio indicator=
 	IF THEN ELSE(Adopters > 0,
 	             production / ( Adopters * bioproduct performance advantage ),
@@ -1860,11 +1869,8 @@ one dollar=
 	~		|
 
 recent max IS Equipment Useful Value=
-	IF THEN ELSE(
-	IS Equipment Useful Value > one dollar,
-	MAX(IS Equipment Useful Value, last recent max IS Equipment Useful Value),
-	0
-	)
+	IS equipment depreciation indicator *
+	MAX(IS Equipment Useful Value, last recent max IS Equipment Useful Value)
 	~	USD
 	~		|
 
@@ -5101,8 +5107,7 @@ Income Statement
 1,96,54,91,1,0,0,0,0,128,0,-1--1--1,,1|(627,522)|
 1,97,54,64,1,0,0,0,0,128,0,-1--1--1,,1|(696,600)|
 1,98,89,64,1,1,0,0,0,64,0,-1--1--1,,1|(794,518)|
-10,99,one dollar,813,482,32,11,8,3,0,0,-1,0,0,0
-1,100,99,91,0,0,0,0,0,64,0,-1--1--1,,1|(771,479)|
+10,99,one dollar,813,482,32,11,8,3,1,0,-1,0,0,0
 10,101,IS carry forward period,1236,137,54,19,8,3,0,0,0,0,0,0
 1,102,101,49,1,0,0,0,0,128,0,-1--1--1,,1|(1168,120)|
 1,103,39,20,1,0,0,0,0,128,0,-1--1--1,,1|(1085,176)|
@@ -5111,6 +5116,8 @@ Income Statement
 10,106,TIME STEP,1186,180,50,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
 1,107,106,49,1,1,0,0,0,64,0,-1--1--1,,1|(1156,139)|
 1,108,106,20,1,1,0,0,0,64,0,-1--1--1,,1|(1190,200)|
+10,109,IS equipment depreciation indicator,802,448,73,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|0||128-128-128
+1,110,109,91,1,0,0,0,0,64,0,-1--1--1,,1|(770,485)|
 \\\---/// Sketch information - do not modify anything except names
 V300  Do not put anything below this section - it will be ignored
 *Cash Flow Statement & Balance Sheet
@@ -6092,6 +6099,11 @@ $192-192-192,0,Times New Roman|12||0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|96,96,1
 1,246,245,242,1,0,0,0,0,64,0,-1--1--1,,1|(1373,947)|
 10,247,production,1257,913,44,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
 1,248,247,242,0,0,0,0,0,64,0,-1--1--1,,1|(1335,912)|
+10,249,IS equipment depreciation indicator,1132,452,69,19,8,3,0,0,0,0,0,0
+10,250,IS Equipment Useful Value,1156,397,48,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|0||128-128-128
+1,251,250,249,0,0,0,0,0,64,0,-1--1--1,,1|(1146,418)|
+10,252,one dollar,1165,505,41,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|0||128-128-128
+1,253,252,249,0,0,0,0,0,64,0,-1--1--1,,1|(1154,488)|
 \\\---/// Sketch information - do not modify anything except names
 V300  Do not put anything below this section - it will be ignored
 *Development Stages
