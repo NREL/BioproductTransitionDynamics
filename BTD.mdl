@@ -20,6 +20,95 @@ Round = INTEGER(Input) + IF THEN ELSE(Input - INTEGER(Input) >= 0.5, 1, 0)
 
 :END OF MACRO:
 ********************************************************
+	.commercialcosts
+********************************************************~
+	|
+
+commercial feedstock cost=
+	feedstock price * commercial plant capacity * (1 / commercial process yield input)
+	~	USD/year [0,?]
+	~	Cost per year of feedstock for the first commercial scale plant, \
+		accounting for actual process yield and current feedstock price.
+	|
+
+commercial capital cost=
+	commercial capital cost input * ( commercial plant capacity / commercial plant capacity input\
+		 ) ^ 0.6
+	~	USD [0,?]
+	~	Scaled (if applicable) cost of building and equipping the first commercial \
+		scale plant.
+	|
+
+commercial fixed operating cost=
+	commercial fixed operating cost input * ( commercial plant capacity / commercial plant capacity input\
+		 )
+	~	USD/year [0,?]
+	~	Scaled (if applicable) fixed cost of operating the first commercial scale \
+		plant.
+	|
+
+commercial plant capacity input=
+	730480
+	~	tonProduct/year [0,?,1]
+	~	Production capacity of first commercial scale plant.
+	|
+
+commercial variable operating cost=
+	commercial variable operating cost input * commercial plant capacity
+	~	USD/year [0,?]
+	~	Scaled variable cost per year of operating the first commercial scale \
+		plant.
+	|
+
+commercial total operating cost=
+	commercial fixed operating cost + commercial variable operating cost + commercial feedstock cost
+	~	USD/year [0,?]
+	~	Total (fixed plus variable plus feedstock) cost of operating the first \
+		commercial scale plant
+	~	:SUPPLEMENTARY 
+	|
+
+commercial plant capacity=
+	730480
+	~	tonProduct/year [0,?]
+	~	If this value differs from "commercial plant capacity input", the commercial capital \
+		and operating costs will be scaled up or down to match this plant \
+		capacity. If this value is the same as "commercial plant capacity input", \
+		then the capital and operating cost input parameters will be used in \
+		downstream calculations as-is.
+		
+		This parameter can be used to quickly explore the impact of small changes \
+		to the commercial plant capacity without needing to re-enter the various \
+		cost components.
+	|
+
+commercial capital cost input=
+	1.25338e+09
+	~	USD [0,2e+09]
+	~	Cost of building and equipping the first commercial scale plant, with \
+		scale defined by commercial plant capacity input and, if necessary, \
+		adjusted using commercial plant capacity.
+	|
+
+commercial variable operating cost input=
+	756.113
+	~	USD/tonProduct [0,2000]
+	~	Cost per ton bioproduct of operating the first commercial scale plant.
+	|
+
+commercial process yield input=
+	0.409
+	~	tonProduct/tonFeedstock [0,1]
+	~	Expected yield of the scaled-up commercial bioproduct process.
+	|
+
+commercial fixed operating cost input=
+	2.7e+07
+	~	USD/year [0,5e+07]
+	~	Fixed cost per year of operating the first commercial scale plant.
+	|
+
+********************************************************
 	.dampers
 ********************************************************~
 	|
@@ -3320,33 +3409,6 @@ demoing production=
 	~	tonProduct/year [0,?]
 	~		|
 
-commercial feedstock cost=
-	feedstock price * commercial plant capacity * (1 / commercial process yield input)
-	~	USD/year [0,?]
-	~		|
-
-commercial capital cost=
-	commercial capital cost input * ( commercial plant capacity / commercial plant capacity input\
-		 ) ^ 0.6
-	~	USD [0,?]
-	~		|
-
-commercial fixed operating cost=
-	commercial fixed operating cost input * ( commercial plant capacity / commercial plant capacity input\
-		 )
-	~	USD/year [0,?]
-	~		|
-
-commercial plant capacity input=
-	730480
-	~	tonProduct/year [0,?,1]
-	~		|
-
-commercial variable operating cost=
-	commercial variable operating cost input * commercial plant capacity
-	~	USD/year [0,?]
-	~		|
-
 Cumulative Demoing Production= INTEG (
 	demoing production,
 		0)
@@ -3382,26 +3444,6 @@ Cumulative Production= INTEG (
 	~	tonProduct [0,?]
 	~		|
 
-commercial total operating cost=
-	commercial fixed operating cost + commercial variable operating cost + commercial feedstock cost
-	~	USD/year [0,?]
-	~		~	:SUPPLEMENTARY 
-	|
-
-commercial plant capacity=
-	730480
-	~	tonProduct/year [0,?]
-	~	If this value differs from "commercial plant capacity input", the commercial capital \
-		and operating costs will be scaled up or down to match this plant \
-		capacity. If this value is the same as "commercial plant capacity input", \
-		then the capital and operating cost input parameters will be used in \
-		downstream calculations as-is.
-		
-		This parameter can be used to quickly explore the impact of small changes \
-		to the commercial plant capacity without needing to re-enter the various \
-		cost components.
-	|
-
 capital cost maturity factor=
 	1
 	~	Dmnl [0.1,2]
@@ -3424,30 +3466,6 @@ process yield maturity factor=
 	1
 	~	Dmnl [0.1,2]
 	~		~	:SUPPLEMENTARY 
-	|
-
-commercial capital cost input=
-	1.25338e+09
-	~	USD [0,2e+09]
-	~	Plant capacity is 730480 tonProduct/year
-	|
-
-commercial variable operating cost input=
-	756.113
-	~	USD/tonProduct [0,2000]
-	~	2.03e+008 / (5.91893e+008 / 2204.62)
-		Plant capacity is 730480 tonProduct/year
-	|
-
-commercial process yield input=
-	0.409
-	~	tonProduct/tonFeedstock [0,1]
-	~		|
-
-commercial fixed operating cost input=
-	2.7e+07
-	~	USD/year [0,5e+07]
-	~	Plant capacity is 730480 tonProduct/year
 	|
 
 ********************************************************
@@ -4838,35 +4856,35 @@ $192-192-192,0,Times New Roman|12||0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|96,96,5
 V300  Do not put anything below this section - it will be ignored
 *Commercial Costs
 $192-192-192,0,Times New Roman|12||0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|96,96,5,0
-10,1,commercial fixed operating cost,927,602,54,19,8,131,0,0,0,0,0,0
-10,2,commercial variable operating cost,923,469,64,19,8,131,0,0,0,0,0,0
-10,3,commercial capital cost,901,337,37,19,8,131,0,0,0,0,0,0
-10,4,commercial capital cost input,556,465,66,19,8,3,0,18,0,0,0,0,0-0-0,0-0-0,|12|B|128-128-0
-10,5,commercial fixed operating cost input,556,619,69,19,8,3,0,18,0,0,0,0,0-0-0,0-0-0,|12|B|128-128-0
-10,6,commercial variable operating cost input,556,542,71,19,8,3,0,18,0,0,0,0,0-0-0,0-0-0,|12|B|128-128-0
-10,7,commercial process yield input,556,696,66,19,8,3,0,18,0,0,0,0,0-0-0,0-0-0,|12|B|128-128-0
-1,8,4,3,0,0,0,0,0,128,0,-1--1--1,,1|(728,400)|
-1,9,5,1,0,0,0,0,0,128,0,-1--1--1,,1|(742,610)|
-1,10,6,2,1,0,0,0,0,128,0,-1--1--1,,1|(736,505)|
-10,11,commercial plant capacity,556,380,82,27,8,131,0,2,0,0,0,0,0-0-0,0-0-0,|12||128-128-0
-10,12,commercial feedstock cost,1064,582,47,19,8,131,0,0,0,0,0,0
-10,13,feedstock price,1261,585,39,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,14,13,12,0,0,0,0,0,128,0,-1--1--1,,1|(1173,583)|
-1,15,11,2,1,0,0,0,0,64,0,-1--1--1,,1|(737,402)|
-1,16,11,12,1,0,0,0,0,64,0,-1--1--1,,1|(813,482)|
-10,17,commercial total operating cost,1093,396,53,19,8,3,0,0,0,0,0,0
-1,18,1,17,1,0,0,0,0,128,0,-1--1--1,,1|(1044,509)|
-1,19,2,17,1,0,0,0,0,128,0,-1--1--1,,1|(1035,447)|
-1,20,12,17,1,0,0,0,0,128,0,-1--1--1,,1|(1112,503)|
-1,21,11,1,1,0,0,0,0,128,0,-1--1--1,,1|(741,491)|
-1,22,11,3,1,0,0,0,0,128,0,-1--1--1,,1|(837,326)|
-10,23,commercial plant capacity input,556,290,60,19,8,131,0,18,0,0,0,0,0-0-0,0-0-0,|12|B|128-128-0
-1,24,23,3,1,0,0,0,0,128,0,-1--1--1,,1|(632,279)|
-1,25,23,1,1,0,0,0,0,128,0,-1--1--1,,1|(800,468)|
-1,26,7,12,1,0,0,0,0,64,0,-1--1--1,,1|(919,704)|
-12,27,0,566,216,88,40,3,135,0,8,-1,0,0,0,-1--1--1,0-0-0,|16||0-0-0
+10,1,commercial fixed operating cost,927,585,54,19,8,131,0,0,0,0,0,0
+10,2,commercial variable operating cost,923,452,64,19,8,131,0,0,0,0,0,0
+10,3,commercial capital cost,901,320,37,19,8,131,0,0,0,0,0,0
+10,4,commercial capital cost input,556,448,66,19,8,3,0,18,0,0,0,0,0-0-0,0-0-0,|12|B|128-128-0
+10,5,commercial fixed operating cost input,556,602,69,19,8,3,0,18,0,0,0,0,0-0-0,0-0-0,|12|B|128-128-0
+10,6,commercial variable operating cost input,556,525,71,19,8,3,0,18,0,0,0,0,0-0-0,0-0-0,|12|B|128-128-0
+10,7,commercial process yield input,556,679,66,19,8,3,0,18,0,0,0,0,0-0-0,0-0-0,|12|B|128-128-0
+1,8,4,3,0,0,0,0,0,128,0,-1--1--1,,1|(728,383)|
+1,9,5,1,0,0,0,0,0,128,0,-1--1--1,,1|(742,593)|
+1,10,6,2,1,0,0,0,0,128,0,-1--1--1,,1|(736,488)|
+10,11,commercial plant capacity,556,363,82,27,8,131,0,2,0,0,0,0,0-0-0,0-0-0,|12||128-128-0
+10,12,commercial feedstock cost,1064,565,47,19,8,131,0,0,0,0,0,0
+10,13,feedstock price,1261,568,39,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,14,13,12,0,0,0,0,0,128,0,-1--1--1,,1|(1173,566)|
+1,15,11,2,1,0,0,0,0,64,0,-1--1--1,,1|(737,385)|
+1,16,11,12,1,0,0,0,0,64,0,-1--1--1,,1|(813,465)|
+10,17,commercial total operating cost,1093,379,53,19,8,3,0,0,0,0,0,0
+1,18,1,17,1,0,0,0,0,128,0,-1--1--1,,1|(1044,492)|
+1,19,2,17,1,0,0,0,0,128,0,-1--1--1,,1|(1035,430)|
+1,20,12,17,1,0,0,0,0,128,0,-1--1--1,,1|(1112,486)|
+1,21,11,1,1,0,0,0,0,128,0,-1--1--1,,1|(741,474)|
+1,22,11,3,1,0,0,0,0,128,0,-1--1--1,,1|(837,309)|
+10,23,commercial plant capacity input,556,273,60,19,8,131,0,18,0,0,0,0,0-0-0,0-0-0,|12|B|128-128-0
+1,24,23,3,1,0,0,0,0,128,0,-1--1--1,,1|(632,262)|
+1,25,23,1,1,0,0,0,0,128,0,-1--1--1,,1|(800,451)|
+1,26,7,12,1,0,0,0,0,64,0,-1--1--1,,1|(919,687)|
+12,27,0,566,199,88,40,3,135,0,8,-1,0,0,0,-1--1--1,0-0-0,|16||0-0-0
 Techno-Economic Inputs
-12,28,0,1016,260,155,28,3,135,0,8,-1,0,0,0,-1--1--1,0-0-0,|16||0-0-0
+12,28,0,1016,243,155,28,3,135,0,8,-1,0,0,0,-1--1--1,0-0-0,|16||0-0-0
 Calculated Values
 \\\---/// Sketch information - do not modify anything except names
 V300  Do not put anything below this section - it will be ignored
@@ -6556,11 +6574,11 @@ $192-192-192,0,Times New Roman|12||0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|96,96,1
 22:Day,Days
 23:0
 15:0,0,0,0,0,0
-19:5,8
+19:5,9
 27:0,
 34:0,
 4:Time
-5:regulatory process spending
+5:commercial total operating cost
 35:Date
 36:YYYY-MM-DD
 37:2000
