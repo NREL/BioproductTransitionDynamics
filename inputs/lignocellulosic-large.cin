@@ -11,11 +11,12 @@ feedstock selector array[custom] =            0
 
 :C TECHNO-ECONOMIC DATA
 
+commercial plant capacity input = 286300
 commercial plant capacity = 286300
 commercial capital cost input = 1253382708
-commercial fixed operating cost input = 27000000
 commercial variable operating cost input = 494.2368145
-commercial process yield = 0.409
+commercial fixed operating cost input = 27000000
+commercial process yield input = 0.409
 
 
 :C PILOT PLANT PARAMETERS

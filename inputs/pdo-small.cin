@@ -11,16 +11,17 @@ feedstock selector array[custom] =            0
 
 :C BIOPRODUCT PRICE
 
-bioproduct long term selling price = 1652
+bioproduct long term price = 1652
 
 
 :C TECHNO-ECONOMIC DATA
 
+commercial plant capacity input = 132000
 commercial plant capacity = 132000
 commercial capital cost input = 536650000
-commercial fixed operating cost input = 25555200
 commercial variable operating cost input = 36458400
-commercial process yield = 0.184
+commercial fixed operating cost input = 25555200
+commercial process yield input = 0.184
 
 
 :C PILOT PLANT PARAMETERS
