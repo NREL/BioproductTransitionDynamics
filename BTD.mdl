@@ -1012,149 +1012,201 @@ conserve spending=
 regulatory process spending=
 	regulatory process ongoing * regulatory process spending damper
 	~	USD/year [0,?]
-	~		|
+	~	Rate at which the regulatory process proceeds, calculated from approval \
+		costs and time
+	|
 
 pathway approval time=
 	pathway approval maximum time - regulatory process starting point * ( pathway approval maximum time\
 		 - pathway approval minimum time )
 	~	year [0,?]
-	~		|
+	~	Calculates estimated time to obtain pathway regulatory approval based on \
+		time and starting point inputs.
+	|
 
 product approval time=
 	product approval maximum time - regulatory process starting point * ( product approval maximum time\
 		 - product approval minimum time )
 	~	year [0,?]
-	~		|
+	~	Calculates estimated time to obtain bioproduct regulatory approval based \
+		on time and starting point inputs.
+	|
 
 feedstock approval maximum time=
 	5
 	~	year [0,10,0.25]
-	~		|
+	~	Estimated time to obtain feedstock regulatory approval if the process is \
+		started when demo plant construction begins.
+	|
 
 product approval maximum time=
 	5
 	~	year [0,10,0.25]
-	~		|
+	~	Estimated time to obtain bioproduct regulatory approval if the process is \
+		started when demo plant construction begins.
+	|
 
 feedstock approval minimum time=
 	1
 	~	year [0,10,0.25]
-	~		|
+	~	Estimated time to obtain feedstock regulatory approval if the process is \
+		started when demoing is completed.
+	|
 
 product approval minimum time=
 	1
 	~	year [0,10,0.25]
-	~		|
+	~	Estimated time to obtain bioproduct regulatory approval if the process is \
+		started when demoing is complete.
+	|
 
 feedstock approval time=
 	feedstock approval maximum time - regulatory process starting point * ( feedstock approval maximum time\
 		 - feedstock approval minimum time )
 	~	year [0,?]
-	~		|
+	~	Calculates estimated time to obtain feedstock regulatory approval based on \
+		time and starting point inputs.
+	|
 
 total approval time=
 	feedstock approval required switch * feedstock approval time + 
 	 pathway approval required switch * pathway approval time + 
 	 product approval required switch * product approval time
 	~	year [0,?]
-	~		|
+	~	Aggregates feedstock, pathway and product approval times at the beginning \
+		of the regulatory process
+	|
 
 Regulatory Costs= INTEG (
 	-regulatory process spending,
 		total approval cost)
 	~	USD [0,?]
-	~		|
+	~	Tracks regulatory costs as they are spent
+	|
 
 pathway approval maximum time=
 	5
 	~	year [0,10,0.25]
-	~		|
+	~	Estimated time to obtain pathway regulatory approval if the process is \
+		started when demo plant construction begins.
+	|
 
 pathway approval minimum time=
 	1
 	~	year [0,10,0.25]
-	~		|
+	~	Estimated time to obtain pathway regulatory approval if the process is \
+		started when demoing is complete.
+	|
 
 feedstock approval maximum cost=
 	1e+06
 	~	USD [0,?]
-	~		|
+	~	Estimated cost of obtaining feedstock regulatory approval if the process \
+		is started when demo plant construction begins.
+	|
 
 feedstock approval cost=
 	feedstock approval maximum cost - regulatory process starting point * ( feedstock approval maximum cost\
 		 - feedstock approval minimum cost )
 	~	USD [0,?]
-	~		|
+	~	Calculates estimated cost of obtaining feedstock regulatory approval based \
+		on cost and starting point inputs.
+	|
 
 pathway approval maximum cost=
 	1e+06
 	~	USD [0,?]
-	~		|
+	~	Estimated cost of obtaining pathway (bioproduct production technology) \
+		regulatory approval if the process is started when demo plant construction \
+		begins.
+	|
 
 feedstock approval minimum cost=
 	1000
 	~	USD [0,?]
-	~		|
+	~	Estimated cost of obtaining feedstock regulatory approval if the process \
+		is started when demoing is completed.
+	|
 
 pathway approval cost=
 	pathway approval maximum cost - regulatory process starting point * ( pathway approval maximum cost\
 		 - pathway approval minimum cost )
 	~	USD [0,?]
-	~		|
+	~	Calculates estimated cost of obtaining pathway regulatory approval based \
+		on cost and starting point inputs.
+	|
 
 total approval cost=
 	feedstock approval required switch * feedstock approval cost + 
 	pathway approval required switch * pathway approval cost +
 	product approval required switch * product approval cost
 	~	USD [0,?]
-	~		|
+	~	Aggregates feedstock, pathway and product approval costs at the beginning \
+		of the regulatory process
+	|
 
 product approval cost=
 	product approval maximum cost - regulatory process starting point * ( product approval maximum cost\
 		 - product approval minimum cost )
 	~	USD [0,?]
-	~		|
+	~	Calculates estimated cost of obtaining bioproduct regulatory approval \
+		based on cost and starting point inputs.
+	|
 
 product approval maximum cost=
 	1e+06
 	~	USD [0,?]
-	~		|
+	~	Estimated cost of obtaining bioproduct regulatory approval if the process \
+		is started when demo plant construction begins.
+	|
 
 pathway approval minimum cost=
 	1000
 	~	USD [0,?]
-	~		|
+	~	Estimated cost of obtaining pathway regulatory approval if the process is \
+		started when demoing is completed.
+	|
 
 product approval minimum cost=
 	1000
 	~	USD [0,?]
-	~		|
+	~	Estimated cost of obtaining bioproduct regulatory approval if the process \
+		is started when demoing is completed.
+	|
 
 regulatory process starting point=
 	0.75
 	~	Dmnl [0,1,0.05]
-	~	Represents the fraction of demoing that is completed before the regulatory \
-		process is begun. As demoing proceeds, information necessary to the \
-		regulatory process is generated and so the total costs go down. Costs \
-		never go completely to zero. This parameter is influenced by management \
-		decision making. More experienced management will wait until costs are \
-		lowered before beginning the regulatory process.
+	~	Represents the fraction of demoing that is completed before the regulatory process \
+		is begun.
+		As demoing proceeds, information necessary to the regulatory process is \
+		generated and so the total costs go down. Costs never go completely to \
+		zero. This parameter is influenced by management decision making. More \
+		experienced management will wait until costs are lowered before beginning \
+		the regulatory process.
 	|
 
 feedstock approval required switch=
 	1
 	~	Dmnl [0,1]
-	~		|
+	~	Set equal to 1 if approval is required (if the feedstock being used has \
+		not previously been used as a bioproduct feedstock), and equal to 0 if \
+		approval is not required
+	|
 
 pathway approval required switch=
 	1
 	~	Dmnl [0,1]
-	~		|
+	~	Set equal to 1 if approval is required (if the pathway being used has not \
+		previously been commercialized), and equal to 0 if approval is not required
+	|
 
 product approval required switch=
 	1
 	~	Dmnl [0,1]
-	~		|
+	~	Set equal to 1 if approval is required (if the bioproduct has not \
+		previously been manufactured), and equal to 0 if approval is not required
+	|
 
 ********************************************************
 	.market share
@@ -6504,11 +6556,11 @@ $192-192-192,0,Times New Roman|12||0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|96,96,1
 22:Day,Days
 23:0
 15:0,0,0,0,0,0
-19:95,4
+19:5,8
 27:0,
 34:0,
 4:Time
-5:investor ask rate
+5:regulatory process spending
 35:Date
 36:YYYY-MM-DD
 37:2000
