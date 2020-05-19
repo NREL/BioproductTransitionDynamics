@@ -3315,30 +3315,6 @@ commercial plant capacity=
 		cost components.
 	|
 
-capital cost maturity factor=
-	1
-	~	Dmnl [0.1,2]
-	~		~	:SUPPLEMENTARY 
-	|
-
-fixed operating cost maturity factor=
-	1
-	~	Dmnl [0.1,2]
-	~		~	:SUPPLEMENTARY 
-	|
-
-variable operating cost maturity factor=
-	1
-	~	Dmnl [0.1,2]
-	~		~	:SUPPLEMENTARY 
-	|
-
-process yield maturity factor=
-	1
-	~	Dmnl [0.1,2]
-	~		~	:SUPPLEMENTARY 
-	|
-
 commercial capital cost input=
 	1.25338e+09
 	~	USD [0,2e+09]
@@ -6469,11 +6445,11 @@ $192-192-192,0,Times New Roman|12||0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|96,96,1
 22:Day,Days
 23:0
 15:0,0,0,0,0,0
-19:100,2
+19:5,16
 27:0,
 34:0,
 4:Time
-5:Stages Remaining
+5:biofuel feedstock[feedstock]
 35:Date
 36:YYYY-MM-DD
 37:2000
