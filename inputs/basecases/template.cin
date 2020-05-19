@@ -1,0 +1,11 @@
+:C MARKET SIZE: NICHE OR COMMODITY
+
+initial market size = 1e+06                   :C tonProduct/year
+market growth rate = 0.01                     :C percent/year
+
+
+:C BIOPRODUCT TYPE: DIRECT REPLACEMENT OR PERFORMANCE ADVANTAGED
+
+bioproduct performance advantage = 1          :C tonProduct/tonIncumbent
+retrofit delay = 0                            :C years
+incumbent market share target economic = 0.4  :C unitless
