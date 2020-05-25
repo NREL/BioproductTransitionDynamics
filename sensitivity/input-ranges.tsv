@@ -1,0 +1,59 @@
+Variable	Units	Type	Default	Minimum	Maximum
+advertising budget	USD/year	Float	500000	0	3e+06
+aversion to NPV deviation	Dmnl	Float	0.2	0	1
+base external investor ask rate	1/year	Float	8	0	24
+bioproduct long term price	USD/tonProduct	Float	5000	0	10000
+bioproduct offtake agreement	Dmnl	Float	0.5	0	5
+bioproduct performance advantage	tonProduct/tonIncumbent	Float	1	0.1	10
+bioproduct price fluctuations	Dmnl	Float	0	0	0.05
+bioproduct price reversion time	year	Float	1	0.1	5
+commercial capital cost input	USD	Float	1.25338e+09	0	2e+09
+commercial fixed operating cost input	USD/year	Float	2.7e+07	0	5e+07
+commercial plant capacity	tonProduct/year	Float	730480	0	10000000
+commercial plant capacity input	tonProduct/year	Float	730480	0	10000000
+commercial plant startup period	year	Float	3	0	20
+commercial process yield input	tonProduct/tonFeedstock	Float	0.409	0	1
+commercial variable operating cost input	USD/tonProduct	Float	756.113	0	2000
+custom feedstock long term price change	Dmnl	Float	0	0	1
+custom feedstock maximum fluctuation magnitude	Dmnl	Float	0.475	0	1
+custom feedstock periodic fluctuation magnitude	USD/tonFeedstock	Float	3.5	0	10
+custom feedstock reversion time	year	Float	1	0	4
+custom feedstock starting price	USD/tonFeedstock	Float	70	0	150
+elasticity of demand	Dmnl	Float	1	0.5	1.5
+elasticity of supply	Dmnl	Float	1	0.5	1.5
+expected continuity of government policy	Dmnl	Float	1	0	1
+expected green premium	Dmnl	Float	0	0	1
+feedstock approval maximum cost	USD	Float	1e+06	0	5e6
+feedstock approval maximum time	year	Float	5	0	10
+feedstock approval required switch	Dmnl	Boolean	1	0	1
+government capital cost share	Dmnl	Float	1	0	1
+government operating cost share	Dmnl	Float	0.5	0	1
+government operating grant period	year	Float	1.5	0.5	5
+government production incentive	USD/tonProduct	Float	0	0	10000
+government research cost share	Dmnl	Float	0.5	0	1
+incumbent long term price trend	Dmnl	Float	0.1	-10	10
+incumbent market share target economic	Dmnl	Float	0.4	0	1
+incumbent maximum fluctuation	Dmnl	Float	0.05	0	5
+incumbent price response magnitude	Dmnl	Float	0.2	0	1
+incumbent reversion time	year	Float	0.1	0	5
+incumbent starting price	USD/tonIncumbent	Float	1600	0	3000
+initial market size	tonProduct/year	Float	1e+06	0	1e7
+investor optimism	Dmnl	Float	1	0.2	5
+long term market size	tonProduct/year	Float	30000	0	1e7
+market growth rate	1/year	Float	0.01	0	5
+pathway approval maximum cost	USD	Float	1e+06	0	1e7
+pathway approval maximum time	year	Float	5	0	10
+pathway approval required switch	Dmnl	Boolean	1	0	1
+payback period multiplier	Dmnl	Float	1	0	5
+product approval maximum cost	USD	Float	1e+06	0	1e7
+product approval maximum time	year	Float	5	0	10
+product approval required switch	Dmnl	Boolean	1	0	1
+random stream	Dmnl	Integer	0	0	10
+regulatory process starting point	Dmnl	Float	0.75	0	1
+required internal return	1/year	Float	0.08	0	5
+required return multiplier	Dmnl	Float	1	0	2
+retrofit delay	year	Float	0.5	0	10
+stagegate length	year	Float	1	0	5
+strategic value to external investors	USD	Float	0	0	1e+09
+target demo hours	hours	Float	5000	0	100000
+target pilot hours	hours	Float	3000	0	100000

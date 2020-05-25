@@ -1,0 +1,7 @@
+vensim/
+.cache/
+.ipython/
+.local/
+simulation.cin
+simulation.lst
+simulation.vdf
