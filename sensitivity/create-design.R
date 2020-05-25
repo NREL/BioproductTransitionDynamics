@@ -42,8 +42,8 @@ z.inputs %>% summary
 
 write.table(z.inputs, file="inputs.tsv", row.names = FALSE, col.names = TRUE, sep = "\t", quote = FALSE)
 
-?morris
+#?morris
 
-fread("outputs.tsv")[Time == 2020] %>% summary
+#fread("outputs.tsv")[Time == 2020] %>% summary
 
 

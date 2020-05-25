@@ -5,3 +5,4 @@ vensim/
 simulation.cin
 simulation.lst
 simulation.vdf
+*.log

@@ -5,6 +5,10 @@ import pandas as pd
 from subprocess import Popen
 
 
+class VensimFailed(Exception):
+    pass
+
+
 class Vensim:
     
     executable = None
@@ -78,4 +82,4 @@ class Vensim:
                 if retry:
                     self.run_vensim(timeout, False)
                 else:
-                    raise Exception("Vensim failed.")   
+                    raise VensimFailed()
