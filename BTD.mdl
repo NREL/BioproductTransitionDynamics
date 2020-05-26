@@ -3,20 +3,26 @@
 SpendingDamper = IF THEN ELSE(Stock >= TIME STEP * Stock Initial Value / stock drain time\
 		,Stock Initial Value / stock drain time,Stock / TIME STEP)
 	~	USD/year
-	~		|
+	~	Reduces stock outflows to prevent the stock going negative when it is \
+		close to depleted
+	|
 
 :END OF MACRO:
 :MACRO: HoursDamper(Stock,stock drain rate,TIME STEP,one Year)
 HoursDamper = IF THEN ELSE(Stock >= stock drain rate * TIME STEP,stock drain rate,Stock\
 		 / TIME STEP)
 	~	hours/year
-	~		|
+	~	Reduces stock outflows to prevent the stock going negative when it is \
+		close to depleted
+	|
 
 :END OF MACRO:
 :MACRO: Round(Input)
 Round = INTEGER(Input) + IF THEN ELSE(Input - INTEGER(Input) >= 0.5, 1, 0)
 	~	Input
-	~		|
+	~	Rounds floating points up to nearest integer if the decimal portion is \
+		greater than 0.5 and down otherwise
+	|
 
 :END OF MACRO:
 ********************************************************
@@ -161,45 +167,53 @@ commercial capital expenditure damper=
 	SpendingDamper(Commercial Capital Expense, commercial capital cost, commercial construction time\
 		, TIME STEP)
 	~	USD/year [0,?]
-	~		|
+	~	See doc comment on SpendingDamper macro
+	|
 
 piloting damper=
 	HoursDamper(Continuous Piloting Hours, actual piloting rate, TIME STEP, one Year)
 	~	hours/year
-	~		|
+	~	See doc comment on HoursDamper macro
+	|
 
 demoing damper=
 	HoursDamper(Continuous Demoing Hours, actual demoing rate, TIME STEP, one Year)
 	~	hours/year
-	~		|
+	~	See doc comment on HoursDamper macro
+	|
 
 demoing capital expenditure damper=
 	SpendingDamper(Demo Capital Expense, demo capital cost, demo construction time, TIME STEP\
 		)
 	~	USD/year [0,?]
-	~		|
+	~	See doc comment on SpendingDamper macro
+	|
 
 startup demoing damper=
 	HoursDamper(Startup Demoing Hours, startup demoing rate, TIME STEP, one Year)
 	~	hours/year [0,8766]
-	~		|
+	~	See doc comment on HoursDamper macro
+	|
 
 startup piloting damper=
 	HoursDamper(Startup Piloting Hours, startup piloting rate, TIME STEP, one Year)
 	~	hours/year [0,8766]
-	~		|
+	~	See doc comment on HoursDamper macro
+	|
 
 regulatory process spending damper=
 	SpendingDamper(Regulatory Costs, total approval cost, total approval time, TIME STEP\
 		)
 	~	USD/year [0,?]
-	~		|
+	~	See doc comment on SpendingDamper macro
+	|
 
 piloting capital expenditure damper=
 	SpendingDamper(Pilot Capital Expense, pilot capital cost, pilot construction time, TIME STEP\
 		)
 	~	USD/year [0,?]
-	~		|
+	~	See doc comment on SpendingDamper macro
+	|
 
 ********************************************************
 	.stages
@@ -6850,11 +6864,11 @@ $192-192-192,0,Times New Roman|12||0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|96,96,1
 22:Day,Days
 23:0
 15:0,0,0,0,0,0
-19:100,20
+19:100,21
 27:0,
 34:0,
 4:Time
-5:pilot plant construction
+5:demoing damper
 35:Date
 36:YYYY-MM-DD
 37:2000
