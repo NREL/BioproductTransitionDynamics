@@ -1,8 +1,9 @@
 
-import numpy   as np
-import os      as os
-import pandas  as pd
-import Vensim  as vs
+import numpy    as np
+import os       as os
+import pandas   as pd
+import platform as pl
+import Vensim   as vs
 
 from subprocess import TimeoutExpired
 
@@ -10,8 +11,8 @@ from subprocess import TimeoutExpired
 v = vs.Vensim(
     "simulation",
      5,
-     mdl_name="BTD.mdl",
-     executable="wine vensim/vensimdp.exe"
+     mdl_name = "BTD.mdl",
+     executable = "wine vensim/vensimdp.exe" if pl.system() == "Linux" else "c:\\Program Files (x86)\\Vensim\\vensimdp.exe",
 )
 
 v.make_cmd()
