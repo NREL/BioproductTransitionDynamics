@@ -741,19 +741,25 @@ expected idealized internal net present value=
 	- idealized regulatory cost present value
 	+ value of intellectual property * probability of internal project success
 	~	USD
-	~		|
+	~	This variable estimates the net present value of the firm as an internal \
+		investment, given revenue and other expenses. It includes the probability \
+		of successfully realizing revenue and intellectual-property value.
+	|
 
 idealized regulatory wait=
 	total approval time
 	* Regulatory Costs
 	/ total approval cost
 	~	year [0,?]
-	~		|
+	~	This variable tracks the expected time for regulatory approvals to be \
+		completed.
+	|
 
 idealized research expenses[forecast year]=
 	researching
-	~	USD/year
-	~		|
+	~	USD/year [0,?]
+	~	This variable tracks the anticipated research expenses in future years.
+	|
 
 idealized demo revenue[forecast year]=
 	idealized demo revenue indicator[forecast year] *
@@ -761,16 +767,22 @@ idealized demo revenue[forecast year]=
 	demo capacity * 
 	(bioproduct selling price with green premium + government production incentive * expected continuity of government policy\
 		)
-	~	USD/year
-	~		|
+	~	USD/year [0,?]
+	~	This variable tracks the anticipated revenue in future years from \
+		demo-plant operations. It includes expected production incentives from \
+		government policy.
+	|
 
 idealized commercial revenue[forecast year]=
 	idealized commercial revenue indicator[forecast year] * 
 	commercial plant capacity * 
 	(bioproduct selling price with green premium + government production incentive * expected continuity of government policy\
 		)
-	~	USD/year
-	~		|
+	~	USD/year [0,?]
+	~	This variable tracks the anticipated revenue in future years from \
+		commercial plants. It includes expected production incentives from \
+		government policy.
+	|
 
 idealized NPV=
 	SUM(
@@ -786,7 +798,10 @@ idealized NPV=
 	- idealized regulatory cost present value
 	+ value of intellectual property
 	~	USD
-	~		|
+	~	This variable estimates the net present value of the firm, given revenue \
+		and other expenses. It includes the certainty of realizing \
+		intellectual-property value.
+	|
 
 idealized regulatory cost present value=
 	Regulatory Costs
@@ -796,8 +811,11 @@ idealized regulatory cost present value=
 	                   / required return / idealized regulatory wait,
 	               1
 	              )
-	~	USD
-	~		|
+	~	USD [0,?]
+	~	This variable estimates the present value of future regulatory costs. It \
+		uses a simple analytic approximation to the present value of a cash flow \
+		that is constant for a limited duration.
+	|
 
 idealized pilot capital expenses[forecast year]=
 	IF THEN ELSE(
@@ -807,7 +825,9 @@ idealized pilot capital expenses[forecast year]=
 	    0
 	)
 	~	USD/year [0,?]
-	~		|
+	~	This variable tracks the anticipated capital expenses in future years for \
+		pilot plants.
+	|
 
 idealized operating expenses[forecast year]=
 	researching * (1 - government research cost share * expected continuity of government policy\
@@ -816,32 +836,45 @@ idealized operating expenses[forecast year]=
 	+ idealized demo operating expenses[forecast year]
 	+ idealized commercial operating expenses[forecast year]
 	~	USD/year [0,?]
-	~		|
+	~	This variable tracks the anticipated operating expenses in future years \
+		for pilot-, demo-, and commercial-plant operations and for research \
+		activities. It exclused the portion of research operating expenses that \
+		are expected to be paid accordint to government policy, so it represents \
+		costs that the firm and investors would bear.
+	|
 
 idealized pilot operating expenses[forecast year]=
 	idealized pilot operating expenses indicator[forecast year] * (pilot opex + piloting management overhead\
 		)
-	~	USD/year
-	~		|
+	~	USD/year [0,?]
+	~	This variable tracks the anticipated operating expenses in future years \
+		for pilot plant operations.
+	|
 
 idealized demo operating expenses[forecast year]=
 	idealized demo operating expenses indicator[forecast year] * (demo opex + demoing management overhead\
 		)
-	~	USD/year
-	~		|
+	~	USD/year [0,?]
+	~	This variable tracks the anticipated operating expenses in future years \
+		for demo-plant operations.
+	|
 
 idealized commercial operating expenses[forecast year]=
 	idealized commercial operating expenses indicator[forecast year] * 
 	(commercial fixed operating cost + commercial variable operating cost + commercial feedstock cost\
 		)
-	~	USD/year
-	~		|
+	~	USD/year [0,?]
+	~	This variable tracks the anticipated operating expenses in future years \
+		for commercial-plant operations.
+	|
 
 idealized demo capital expenses[forecast year]=
 	idealized demo capital expenses indicator[forecast year] * 
 	Demo Capital Expense / INTEGER(demo construction time + one Year / 2)
-	~	USD/year
-	~		|
+	~	USD/year [0,?]
+	~	This variable tracts the anticipated capital expenses in future years for \
+		demo plants.
+	|
 
 idealized capital expenses[forecast year]=
 	(
@@ -850,21 +883,30 @@ idealized capital expenses[forecast year]=
 	+ idealized commercial capital expenses[forecast year]
 	)
 	* (1 - government capital cost share * expected continuity of government policy)
-	~	USD/year
-	~		|
+	~	USD/year [0,?]
+	~	This variable tracks the anticipated capital expenses in future years for \
+		pilot, demo, and commercial plants. It excludes the expected capital-cost \
+		contribution from government policy, so it represents the capital expenses \
+		that would be paid by the firm and its investors.
+	|
 
 idealized commercial capital expenses[forecast year]=
 	idealized commercial capital expenses indicator[forecast year] 
 	* Commercial Capital Expense / INTEGER(commercial construction time + one Year / 2)
-	~	USD/year
-	~		|
+	~	USD/year [0,?]
+	~	This variable tracks the anticipated capital expenses in future years for \
+		the first commercial plant.
+	|
 
 idealized revenue[forecast year]=
 	idealized commercial revenue[forecast year]
 	+
 	idealized demo revenue[forecast year]
-	~	USD/year
-	~		|
+	~	USD/year [0,?]
+	~	This variable tracks the anticipated revenue in future years from demo- \
+		and commercial-plant operations. It includes expected production \
+		incentives from government policy.
+	|
 
 years ahead[FY00]=
 	0 ~~|
@@ -908,8 +950,10 @@ years ahead[FY19]=
 	19 ~~|
 years ahead[FY20]=
 	20
-	~	year
-	~		|
+	~	year [0,?]
+	~	This constant maps the future-year subscript to the number of years in the \
+		future.
+	|
 
 forecast year:
 	FY00, FY01, FY02, FY03, FY04,
