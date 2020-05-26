@@ -321,7 +321,9 @@ IS equipment depreciation indicator=
 	0
 	)
 	~	Dmnl [0,1,1]
-	~		|
+	~	Returns 1 if sufficient value remains in the plant equipment (in all three \
+		plants) for depreciation to occur, and 0 otherwise.
+	|
 
 bioproduct supply to demand ratio indicator=
 	IF THEN ELSE(Adopters > 0,
@@ -367,7 +369,10 @@ green premium adjusted=
 bioproduct selling price with green premium=
 	Current Bioproduct Price * (1 + green premium adjusted)
 	~	USD/tonProduct
-	~		|
+	~	Implements the adjusted green premium. If the adjusted green premium is \
+		zero, the random walk model of Current Bioproduct Price is used elsewhere \
+		in the model for the bioproduct selling price.
+	|
 
 abandoning bioproduct indicator=
 	IF THEN ELSE(retrofit delay = 0 
@@ -377,7 +382,7 @@ abandoning bioproduct indicator=
 	             1,
 	             0)
 	~	Dmnl [0,1]
-	~	Allows biproduct consumers to switch back to incumbent product only if no \
+	~	Allows bioproduct consumers to switch back to incumbent product only if no \
 		retrofitting was done (retrofit delay = 0) and if the incumbent is \
 		financially favorable. Only consumers not under an offtake agreement can \
 		abandon, hence the greater-than requirement on Adopters.
@@ -389,12 +394,16 @@ bioproduct favorability indicator=
 	             1,
 	             0)
 	~	Dmnl [0,1]
-	~		|
+	~	Returns 1 if the bioproduct is cost-advantaged over the incumbent product, \
+		and 0 otherwise.
+	|
 
 incumbent favorability indicator=
 	1 - bioproduct favorability indicator
 	~	Dmnl [0,1]
-	~		|
+	~	Returns 1 if the incumbent product is cost-advantaged over the bioproduct, \
+		and 0 otherwise.
+	|
 
 internal project on time indicator=
 	IF THEN ELSE(technology readiness level >= required technology readiness level,
@@ -411,8 +420,8 @@ researching indicator=
 	             1,
 	             0)
 	~	Dmnl [0,1]
-	~	When the researching flow is non-zero, this indicator reduces the recovery \
-		time for the pilot and demo facility.
+	~	When the researching flow is non-zero, this indicator is equal to 1 and \
+		reduces the recovery time for the pilot and demo facilities.
 	|
 
 shared learning from feedstock logistics=
@@ -421,7 +430,9 @@ shared learning from feedstock logistics=
 	             Cumulative Feedstock Consumption,
 	             0)
 	~	tonFeedstock [0,?]
-	~		|
+	~	Returns Cumulative Feedstock Consumption if sufficient feedstock \
+		consumption has taken place for shared larning to occur, and 0 otherwise.
+	|
 
 shared learning from bioproduct production=
 	IF THEN ELSE(Cumulative Production > shared learning threshold for bioproduct production\
@@ -429,18 +440,21 @@ shared learning from bioproduct production=
 	             Cumulative Production,
 	             0)
 	~	tonProduct [0,?]
-	~		|
+	~	Returns Cumulative Production (of bioproduct) when sufficient production \
+		has taken place for shared learning to occur, and 0 otherwise.
+	|
 
 investor ask=
 	IF THEN ELSE( ( Time - INTEGER( Time ) ) / TIME STEP < investor ask rate * one Year,
 	              1,
 	              0)
 	~	Dmnl [0,1]
-	~	this equation is non-zero when an ask is made and zero otherwise. All asks \
-		are clustered at the beginning of the year. Ideal functionality would have \
-		asks scattered evenly throughout the year, but a method could not be found \
-		to implement the even scattering with the discrete time steps, especially \
-		given that the time step might change in the future.
+	~	Indicator which is is non-zero during a timestep when an investor ask is \
+		made and zero otherwise. All asks are clustered at the beginning of the \
+		year. Ideal functionality would have asks scattered evenly throughout the \
+		year, but a method could not be found to implement the even scattering \
+		with the discrete time steps, especially given that the model time step \
+		could be changed.
 	|
 
 external investor decision=
@@ -451,8 +465,8 @@ external investor decision=
 	                               0 , 1 , random stream ) ,
 	              0 )
 	~	Dmnl [0,1]
-	~	p * time step * ask rate --- gets above 1?
-		1 - (1 - p)^{rate*del_t} --- combined with random uniform
+	~	Returns a draw from the binomial distribution when an external investor \
+		ask is made.
 	|
 
 actual demoing rate=
@@ -464,7 +478,12 @@ actual demoing rate=
 	                          Demoing Rate,
 	                          0)))
 	~	hours/year [0,8772]
-	~		|
+	~	For the demo plant to operate continuously, the Demoing Rate (calculated \
+		from a random walk model, and accounting for plant failures) must remain \
+		above the demoing acceptable rate. This variable keeps the demo plant \
+		running at Demoing Rate when this is true, and shuts down the demo plant \
+		when it is not (when Demoing Rate falls below the demoing acceptable rate).
+	|
 
 actual piloting rate=
 	IF THEN ELSE(Piloting Rate < 0,
@@ -475,19 +494,30 @@ actual piloting rate=
 	                          Piloting Rate,
 	                          0)))
 	~	hours/year [0,?]
-	~		|
+	~	For the pilot plant to operate continuously, the Piloting Rate (calculated \
+		from a random walk model, and accounting for plant failures) must remain \
+		above the piloting acceptable rate. This variable keeps the pilot plant \
+		running at Piloting Rate when this is true, and shuts down the pilot plant \
+		when it is not (when Piloting Rate falls below the piloting acceptable \
+		rate).
+	|
 
 perennial monthly change in price indicator=
 	IF THEN ELSE(Time - INTEGER(Time) >= 0.25 :AND: Time - INTEGER(Time) <= 0.5, 1, 0)
 	~	Dmnl [0,1]
-	~		|
+	~	Defines when in the calendar year the perennial feedstock price is subject \
+		to longer-than-seasonal fluctuations.
+	|
 
 feedstock selection check=
 	IF THEN ELSE(SUM( feedstock selector array[feedstock!] ) = 1,
 	             1 , 
 	             0 )
 	~	Dmnl [1,1]
-	~		|
+	~	Returns 1 when exactly one feedstock price model has been selected, and 0 \
+		otherwise. The model will return a warning when this variable is equal to \
+		0.
+	|
 
 repiloting indicator=
 	IF THEN ELSE(Continuous Piloting Hours > 0 :AND:
@@ -495,14 +525,18 @@ repiloting indicator=
 	             1,
 	             0)
 	~	Dmnl [0,1]
-	~		|
+	~	Returns 1 when the pilot plant has experienced a failure and the \
+		continuous piloting time must be restarted, and 0 otherwise.
+	|
 
 piloting spending indicator=
 	IF THEN ELSE( piloting + startup piloting > 0 ,
 	              1 ,
 	              0 )
 	~	Dmnl [0,1]
-	~		|
+	~	Returns 1 when the pilot plant is incurring expenses either by \
+		construction or operating, and 0 otherwise.
+	|
 
 redemoing indicator=
 	IF THEN ELSE(Continuous Demoing Hours > 0 :AND:
@@ -510,29 +544,39 @@ redemoing indicator=
 	             1,
 	             0)
 	~	Dmnl [0,1]
-	~		|
+	~	Returns 1 when the demo plant has experienced a failure and the continuous \
+		demoing time must be restarted, and 0 otherwise.
+	|
 
 demoing spending indicator=
 	IF THEN ELSE(demoing + startup demoing > 0 ,
 	             1,
 	             0)
 	~	Dmnl [0,1]
-	~		|
+	~	Returns 1 when the demo plant is incurring expenses either by construction \
+		or operating, and 0 otherwise.
+	|
 
 FM positive cash flow=
 	IF THEN ELSE( CFS net change of cash and cash equivalents > 0 , Time , 9999 )
 	~	year
-	~		|
+	~	Returns the current model Time when the bioproduct project is experiencing \
+		a positive cash flow, and 9999 otherwise.
+	|
 
 government operating grant amount indicator=
 	IF THEN ELSE(Time = INTEGER(Time), 1 / TIME STEP, 0)
 	~	1/year
-	~		|
+	~	Defines times when operating grants from the government are received: at \
+		the start of every calendar year.
+	|
 
 actual net income indicator=
 	IF THEN ELSE (Commercial Capital Expense > 0, 0, 1)
 	~	Dmnl [0,1]
-	~		|
+	~	Returns 1 when the first commercial scale plant has been built and is \
+		operating (when the project has an actual net income), and 0 otherwise
+	|
 
 research runway response=
 	IF THEN ELSE(actual spending >= conserve spending , 
@@ -542,7 +586,8 @@ research runway response=
 	~	Quantifies how the research process is adjusted (how the researching rate \
 		is scaled back) when actual spending is above allowable spending but below \
 		conserve spending - funds are running low but there are still a few months \
-		left. This takes effect following the research response time.
+		left. This takes effect following a delay defined by the research response \
+		time.
 	|
 
 research spending control indicator=
@@ -553,8 +598,7 @@ research spending control indicator=
 	                          1 ))
 	~	Dmnl [0,1]
 	~	Implements the research runway response when funds are running low; \
-		otherwise has no effect on research team spending. The research runway \
-		response is located on the Indicator Variables view.
+		otherwise has no effect on research team spending.
 	|
 
 management spending control indicator=
@@ -578,7 +622,9 @@ idealized pilot operating expenses indicator[forecast year]=
 	0
 	)
 	~	Dmnl [0,?]
-	~		|
+	~	Takes a value of 1 to indicate that the pilot scale plant is operating and \
+		incurring operating expenses, and 0 otherwise.
+	|
 
 idealized demo operating expenses indicator[forecast year]=
 	IF THEN ELSE(years ahead[forecast year] >= idealized demo construction time
@@ -586,14 +632,18 @@ idealized demo operating expenses indicator[forecast year]=
 	             1,
 	             0)
 	~	Dmnl
-	~		|
+	~	Takes a value of 1 to indicate that the demo scale plant is operating and \
+		incurring operating expenses, and 0 otherwise.
+	|
 
 idealized commercial operating expenses indicator[forecast year]=
 	IF THEN ELSE(years ahead[forecast year] >= idealized commercial construction time,
 	             1,
 	             0)
 	~	Dmnl
-	~		|
+	~	Takes a value of 1 to indicate that the first commercial scale plant is \
+		operating and incurring operating expenses, and 0 otherwise.
+	|
 
 idealized demo capital expenses indicator[forecast year]=
 	IF THEN ELSE(years ahead[forecast year] >= idealized pilot completion time
@@ -602,7 +652,9 @@ idealized demo capital expenses indicator[forecast year]=
 	             1, 
 	             0)
 	~	Dmnl
-	~		|
+	~	Takes a value of 1 to indicate that the demo scale plant is under \
+		construction and requires capital expenditures, and 0 otherwise.
+	|
 
 idealized commercial capital expenses indicator[forecast year]=
 	IF THEN ELSE(years ahead[forecast year] >= idealized demo completion time
@@ -611,7 +663,9 @@ idealized commercial capital expenses indicator[forecast year]=
 	             1,
 	             0)
 	~	Dmnl
-	~		|
+	~	Takes a value of 1 to indicate that the first commercial scale plant is \
+		under construction and requires capital expenditures, and 0 otherwise.
+	|
 
 idealized demo revenue indicator[forecast year]=
 	IF THEN ELSE(years ahead[forecast year] >= idealized demo construction time :AND: years ahead\
@@ -619,7 +673,10 @@ idealized demo revenue indicator[forecast year]=
 	,
 	             1, 0)
 	~	Dmnl
-	~		|
+	~	Takes a value of 1 to indicate that the demo plant is operating and \
+		bringing in revenue, and takes a value of 0 when the demo plant is not \
+		operating.
+	|
 
 pilot and demo spending control indicator=
 	IF THEN ELSE(actual spending >= allowable spending :OR: actual spending >= conserve spending\
@@ -636,18 +693,25 @@ in business indicator=
 	              1,
 	              0 )
 	~	Dmnl [0,1]
-	~		|
+	~	Returns 1 when remaining equity in the project is above the threshold, and \
+		0 otherwise.
+	|
 
 profitability indicator=
 	IF THEN ELSE(hypothetical net margin > 0, 1, 0)
 	~	Dmnl [0,1]
-	~		|
+	~	Returns 1 when the first commerical plant's hypothetical net margin is \
+		greater than zero, and 0 otherwise.
+	|
 
 idealized commercial revenue indicator[forecast year]=
 	IF THEN ELSE (years ahead[forecast year] >= idealized commercial construction time, \
 		1, 0)
 	~	Dmnl
-	~		|
+	~	Takes a value of 1 to indicate that the first commercial scale plant is \
+		operating and bringing in revenue, and takes a value of 0 when the plant \
+		is not yet operating.
+	|
 
 lower bound on probability=
 	IF THEN ELSE( NPV at required return + strategic value to external investors > 0:AND:
@@ -655,7 +719,10 @@ lower bound on probability=
 	              0.25 ,
 	              0 )
 	~	Dmnl [0,1]
-	~		|
+	~	Sets the lower bound of the probability of a successful investor ask as \
+		either 0.25 or 0, depending on how favorable the bioproduct \
+		techno-economics are compared to investor expectations.
+	|
 
 upper bound on probability=
 	IF THEN ELSE( NPV at required return + strategic value to external investors > 0:AND:
@@ -663,7 +730,10 @@ upper bound on probability=
 	              0.75 ,
 	              0.5 )
 	~	Dmnl [0,1]
-	~		|
+	~	Sets the upper bound of the probability of a successful investor ask as \
+		either 0.75 or 0.5, depending on how favorable the bioproduct \
+		techno-economics are compared to investor expectations.
+	|
 
 granting decision=
 	IF THEN ELSE(NPV at required return + strategic value to external investors >= 0 
@@ -671,7 +741,10 @@ granting decision=
 	             1,
 	             0)
 	~	Dmnl [0,1]
-	~		|
+	~	Returns 1 if the bioproduct techno-economics are favorable enough to \
+		receive either capital or operating grants from the government, and 0 \
+		otherwise.
+	|
 
 ********************************************************
 	.timeline
@@ -3336,7 +3409,8 @@ Current Perennial Price= INTEG (
 perennial annual fluctuation magnitude=
 	RANDOM NORMAL(0.1, 0.68, 0.3, 0.19, random stream)
 	~	Dmnl [0,?]
-	~	Separate parameter for generating random fluctuations in perennial price.
+	~	Separate parameter for generating longer-term (longer than seasonal) \
+		random fluctuations in perennial price.
 	|
 
 perennial long term price change=
@@ -3705,7 +3779,9 @@ internal project cancelled indicator=
 	             1,
 	             0)
 	~	Dmnl [0,1]
-	~		~	:SUPPLEMENTARY 
+	~	Returns a 1 if an internal project has missed more stagegates than allowed \
+		and is cancelled, and 0 otherwise.
+	~	:SUPPLEMENTARY 
 	|
 
 final stagegate time=
@@ -5688,617 +5764,617 @@ $192-192-192,0,Times New Roman|12||0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|96,96,9
 V300  Do not put anything below this section - it will be ignored
 *Price Models
 $192-192-192,0,Times New Roman|12||0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|96,96,100,0
-10,1,feedstock price,1047,231,49,11,8,131,0,0,0,0,0,0
-10,2,Current Bioproduct Price,565,234,50,29,3,131,0,0,0,0,0,0
-12,3,48,248,229,10,8,0,3,0,0,-1,0,0,0
-1,4,6,2,4,0,0,22,0,0,0,-1--1--1,,1|(453,229)|
-1,5,6,3,100,0,0,22,0,0,0,-1--1--1,,1|(319,229)|
-11,6,48,386,229,6,8,34,3,0,0,1,0,0,0
-10,7,change in bioproduct selling price,386,256,67,19,40,3,0,0,-1,0,0,0
-10,8,bioproduct price fluctuations,196,160,57,19,8,3,0,18,0,0,0,0,0-0-0,0-0-0,|12|B|128-128-0
-10,9,bioproduct price reversion time,402,159,57,19,8,3,0,18,0,0,0,0,0-0-0,0-0-0,|12|B|128-128-0
-1,10,2,7,1,0,0,0,0,128,0,-1--1--1,,1|(472,220)|
-1,11,9,7,1,0,0,0,0,128,0,-1--1--1,,1|(385,188)|
-1,12,8,7,1,0,0,0,0,128,0,-1--1--1,,1|(293,191)|
-10,13,TIME STEP,180,543,50,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,14,13,7,0,1,0,0,0,64,0,-1--1--1,,1|(275,410)|
-12,15,0,382,62,124,18,3,135,0,8,-1,0,0,0,-1--1--1,0-0-0,|18||0-0-0
+10,1,feedstock price,1047,-874,49,11,8,131,0,0,0,0,0,0
+10,2,Current Bioproduct Price,565,-871,50,29,3,131,0,0,0,0,0,0
+12,3,48,248,-876,10,8,0,3,0,0,-1,0,0,0
+1,4,6,2,4,0,0,22,0,0,0,-1--1--1,,1|(453,-876)|
+1,5,6,3,100,0,0,22,0,0,0,-1--1--1,,1|(319,-876)|
+11,6,48,386,-876,6,8,34,3,0,0,1,0,0,0
+10,7,change in bioproduct selling price,386,-849,67,19,40,3,0,0,-1,0,0,0
+10,8,bioproduct price fluctuations,196,-945,57,19,8,3,0,18,0,0,0,0,0-0-0,0-0-0,|12|B|128-128-0
+10,9,bioproduct price reversion time,402,-946,57,19,8,3,0,18,0,0,0,0,0-0-0,0-0-0,|12|B|128-128-0
+1,10,2,7,1,0,0,0,0,128,0,-1--1--1,,1|(472,-885)|
+1,11,9,7,1,0,0,0,0,128,0,-1--1--1,,1|(385,-917)|
+1,12,8,7,1,0,0,0,0,128,0,-1--1--1,,1|(293,-914)|
+10,13,TIME STEP,180,-562,50,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,14,13,7,0,1,0,0,0,64,0,-1--1--1,,1|(275,-696)|
+12,15,0,382,-1043,124,18,3,135,0,8,-1,0,0,0,-1--1--1,0-0-0,|18||0-0-0
 Bioproduct Selling Price
-10,16,Current Commodity Sugar Price,1383,1447,44,28,3,131,0,0,0,0,0,0
-12,17,48,1160,1452,10,8,0,3,0,0,-1,0,0,0
-1,18,20,16,4,0,0,22,0,0,0,-1--1--1,,1|(1297,1452)|
-1,19,20,17,100,0,0,22,0,0,0,-1--1--1,,1|(1206,1452)|
-11,20,48,1249,1452,6,8,34,3,0,0,1,0,0,0
-10,21,change in commodity sugar price,1249,1479,67,19,40,3,0,0,-1,0,0,0
-10,22,commodity sugar maximum fluctuation magnitude,1005,1420,93,20,8,131,0,2,0,0,0,0,0-0-0,0-0-0,|12||128-128-0
-10,23,commodity sugar reversion time,998,1388,98,13,8,131,0,2,0,0,0,0,0-0-0,0-0-0,|12||128-128-0
-10,24,commodity sugar monthly change in price,1250,1367,74,19,8,3,0,0,0,0,0,0
-1,25,22,24,0,0,0,0,0,128,0,-1--1--1,,1|(1129,1392)|
-1,26,23,24,0,0,0,0,0,128,0,-1--1--1,,1|(1129,1377)|
-1,27,16,24,0,0,0,0,0,128,0,-1--1--1,,1|(1315,1407)|
-10,28,TIME STEP,1132,1327,50,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,29,28,24,0,1,0,0,0,64,0,-1--1--1,,1|(1171,1340)|
-10,30,commodity sugar starting price,1365,1310,55,19,8,3,0,2,0,0,0,0,0-0-0,0-0-0,|12||128-128-0
-1,31,30,16,1,0,0,0,0,128,1,-1--1--1,,1|(1433,1356)|
-10,32,commodity sugar long term price change,1360,1240,70,19,8,131,0,2,0,0,0,0,0-0-0,0-0-0,|12||128-128-0
-10,33,commodity sugar price trend,1197,1267,55,19,8,3,0,0,0,0,0,0
-10,34,FINAL TIME,981,1358,55,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,35,34,33,0,1,0,0,0,64,0,-1--1--1,,1|(1072,1319)|
-10,36,INITIAL TIME,976,1330,60,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,37,36,33,0,1,0,0,0,64,0,-1--1--1,,1|(1071,1302)|
-1,38,32,33,0,0,0,0,0,64,0,-1--1--1,,1|(1277,1252)|
-1,39,30,33,0,0,0,0,0,64,0,-1--1--1,,1|(1287,1290)|
-10,40,Time,968,1309,26,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,41,40,33,1,1,0,0,0,64,0,-1--1--1,,1|(1103,1269)|
-1,42,24,21,0,0,0,0,0,128,0,-1--1--1,,1|(1249,1416)|
-1,43,33,24,0,0,0,0,0,128,0,-1--1--1,,1|(1219,1310)|
-12,44,0,957,1204,103,20,3,135,0,8,-1,0,0,0,-1--1--1,0-0-0,|18||0-0-0
+10,16,Current Commodity Sugar Price,1383,342,44,28,3,131,0,0,0,0,0,0
+12,17,48,1160,347,10,8,0,3,0,0,-1,0,0,0
+1,18,20,16,4,0,0,22,0,0,0,-1--1--1,,1|(1297,347)|
+1,19,20,17,100,0,0,22,0,0,0,-1--1--1,,1|(1206,347)|
+11,20,48,1249,347,6,8,34,3,0,0,1,0,0,0
+10,21,change in commodity sugar price,1249,374,67,19,40,3,0,0,-1,0,0,0
+10,22,commodity sugar maximum fluctuation magnitude,1005,315,93,20,8,131,0,2,0,0,0,0,0-0-0,0-0-0,|12||128-128-0
+10,23,commodity sugar reversion time,998,283,98,13,8,131,0,2,0,0,0,0,0-0-0,0-0-0,|12||128-128-0
+10,24,commodity sugar monthly change in price,1250,262,74,19,8,3,0,0,0,0,0,0
+1,25,22,24,0,0,0,0,0,128,0,-1--1--1,,1|(1129,287)|
+1,26,23,24,0,0,0,0,0,128,0,-1--1--1,,1|(1129,272)|
+1,27,16,24,0,0,0,0,0,128,0,-1--1--1,,1|(1315,302)|
+10,28,TIME STEP,1132,222,50,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,29,28,24,0,1,0,0,0,64,0,-1--1--1,,1|(1171,235)|
+10,30,commodity sugar starting price,1365,205,55,19,8,3,0,2,0,0,0,0,0-0-0,0-0-0,|12||128-128-0
+1,31,30,16,1,0,0,0,0,128,1,-1--1--1,,1|(1433,251)|
+10,32,commodity sugar long term price change,1360,135,70,19,8,131,0,2,0,0,0,0,0-0-0,0-0-0,|12||128-128-0
+10,33,commodity sugar price trend,1197,162,55,19,8,3,0,0,0,0,0,0
+10,34,FINAL TIME,981,253,55,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,35,34,33,0,1,0,0,0,64,0,-1--1--1,,1|(1072,214)|
+10,36,INITIAL TIME,976,225,60,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,37,36,33,0,1,0,0,0,64,0,-1--1--1,,1|(1071,197)|
+1,38,32,33,0,0,0,0,0,64,0,-1--1--1,,1|(1277,147)|
+1,39,30,33,0,0,0,0,0,64,0,-1--1--1,,1|(1287,185)|
+10,40,Time,968,204,26,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,41,40,33,1,1,0,0,0,64,0,-1--1--1,,1|(1103,164)|
+1,42,24,21,0,0,0,0,0,128,0,-1--1--1,,1|(1249,311)|
+1,43,33,24,0,0,0,0,0,128,0,-1--1--1,,1|(1219,205)|
+12,44,0,957,99,103,20,3,135,0,8,-1,0,0,0,-1--1--1,0-0-0,|18||0-0-0
 Commodity Sugar
-10,45,Current Fossil Feedstock Price,1441,1852,54,29,3,131,0,0,0,0,0,0
-12,46,48,1197,1852,10,8,0,3,0,0,-1,0,0,0
-1,47,49,45,4,0,0,22,0,0,0,-1--1--1,,1|(1343,1851)|
-1,48,49,46,100,0,0,22,0,0,0,-1--1--1,,1|(1247,1851)|
-11,49,48,1294,1851,6,8,34,3,0,0,1,0,0,0
-10,50,change in fossil feedstock price,1294,1878,49,19,40,3,0,0,-1,0,0,0
-10,51,fossil feedstock maximum fluctuation magnitude,1035,1805,81,19,8,131,0,2,0,0,0,0,0-0-0,0-0-0,|12||128-128-0
-10,52,fossil feedstock reversion time,1059,1763,49,19,8,3,0,2,0,0,0,0,0-0-0,0-0-0,|12||128-128-0
-10,53,fossil feedstock monthly change in price,1298,1771,74,19,8,3,0,0,0,0,0,0
-1,54,51,53,0,0,0,0,0,128,0,-1--1--1,,1|(1163,1788)|
-1,55,52,53,0,0,0,0,0,128,0,-1--1--1,,1|(1159,1765)|
-1,56,45,53,1,0,0,0,0,128,0,-1--1--1,,1|(1355,1815)|
-10,57,TIME STEP,1424,1761,50,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,58,57,53,1,1,0,0,0,64,0,-1--1--1,,1|(1383,1785)|
-10,59,fossil feedstock starting price,1413,1714,49,19,8,3,0,2,0,0,0,0,0-0-0,0-0-0,|12||128-128-0
-1,60,59,45,1,0,0,0,0,128,1,-1--1--1,,1|(1481,1760)|
-10,61,fossil feedstock long term price change,1408,1644,65,19,8,131,0,2,0,0,0,0,0-0-0,0-0-0,|12||128-128-0
-10,62,FINAL TIME,1092,1689,55,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-10,63,INITIAL TIME,1018,1724,60,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-10,64,Time,1139,1718,26,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,65,53,50,0,0,0,0,0,128,0,-1--1--1,,1|(1296,1817)|
-10,66,fossil feedstock price trend,1239,1667,49,19,8,3,0,0,0,0,0,0
-1,67,64,66,0,1,0,0,0,128,0,-1--1--1,,1|(1174,1699)|
-1,68,63,66,1,1,0,0,0,128,0,-1--1--1,,1|(1119,1705)|
-1,69,62,66,0,1,0,0,0,128,0,-1--1--1,,1|(1161,1678)|
-1,70,61,66,0,0,0,0,0,128,0,-1--1--1,,1|(1322,1654)|
-1,71,59,66,0,0,0,0,0,128,0,-1--1--1,,1|(1332,1692)|
-12,72,0,979,1627,87,17,3,135,0,8,-1,0,0,0,-1--1--1,0-0-0,|18||0-0-0
+10,45,Current Fossil Feedstock Price,1441,747,54,29,3,131,0,0,0,0,0,0
+12,46,48,1197,747,10,8,0,3,0,0,-1,0,0,0
+1,47,49,45,4,0,0,22,0,0,0,-1--1--1,,1|(1343,746)|
+1,48,49,46,100,0,0,22,0,0,0,-1--1--1,,1|(1247,746)|
+11,49,48,1294,746,6,8,34,3,0,0,1,0,0,0
+10,50,change in fossil feedstock price,1294,773,49,19,40,3,0,0,-1,0,0,0
+10,51,fossil feedstock maximum fluctuation magnitude,1035,700,81,19,8,131,0,2,0,0,0,0,0-0-0,0-0-0,|12||128-128-0
+10,52,fossil feedstock reversion time,1059,658,49,19,8,3,0,2,0,0,0,0,0-0-0,0-0-0,|12||128-128-0
+10,53,fossil feedstock monthly change in price,1298,666,74,19,8,3,0,0,0,0,0,0
+1,54,51,53,0,0,0,0,0,128,0,-1--1--1,,1|(1163,683)|
+1,55,52,53,0,0,0,0,0,128,0,-1--1--1,,1|(1159,660)|
+1,56,45,53,1,0,0,0,0,128,0,-1--1--1,,1|(1355,710)|
+10,57,TIME STEP,1424,656,50,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,58,57,53,1,1,0,0,0,64,0,-1--1--1,,1|(1383,680)|
+10,59,fossil feedstock starting price,1413,609,49,19,8,3,0,2,0,0,0,0,0-0-0,0-0-0,|12||128-128-0
+1,60,59,45,1,0,0,0,0,128,1,-1--1--1,,1|(1481,655)|
+10,61,fossil feedstock long term price change,1408,539,65,19,8,131,0,2,0,0,0,0,0-0-0,0-0-0,|12||128-128-0
+10,62,FINAL TIME,1092,584,55,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,63,INITIAL TIME,1018,619,60,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,64,Time,1139,613,26,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,65,53,50,0,0,0,0,0,128,0,-1--1--1,,1|(1296,712)|
+10,66,fossil feedstock price trend,1239,562,49,19,8,3,0,0,0,0,0,0
+1,67,64,66,0,1,0,0,0,128,0,-1--1--1,,1|(1174,594)|
+1,68,63,66,1,1,0,0,0,128,0,-1--1--1,,1|(1119,600)|
+1,69,62,66,0,1,0,0,0,128,0,-1--1--1,,1|(1161,573)|
+1,70,61,66,0,0,0,0,0,128,0,-1--1--1,,1|(1322,549)|
+1,71,59,66,0,0,0,0,0,128,0,-1--1--1,,1|(1332,587)|
+12,72,0,979,522,87,17,3,135,0,8,-1,0,0,0,-1--1--1,0-0-0,|18||0-0-0
 Generic Fossil
-1,73,66,53,0,0,0,0,0,128,0,-1--1--1,,1|(1264,1712)|
-10,74,Current Perennial Price,587,1903,46,23,3,131,0,0,0,0,0,0
-12,75,48,362,1913,10,8,0,3,0,0,-1,0,0,0
-1,76,78,74,4,0,0,22,0,0,0,-1--1--1,,1|(499,1913)|
-1,77,78,75,100,0,0,22,0,0,0,-1--1--1,,1|(408,1913)|
-11,78,48,451,1913,6,8,34,3,0,0,1,0,0,0
-10,79,change in perennial price,451,1940,47,19,40,3,0,0,-1,0,0,0
-10,80,perennial maximum fluctuation magnitude,195,1829,67,19,8,131,0,2,0,0,0,0,0-0-0,0-0-0,|12||128-128-0
-10,81,perennial reversion time,189,1780,45,19,8,3,0,2,0,0,0,0,0-0-0,0-0-0,|12||128-128-0
-10,82,perennial monthly change in price,452,1828,56,19,8,3,0,0,0,0,0,0
-1,83,80,82,0,0,0,0,0,128,0,-1--1--1,,1|(322,1828)|
-1,84,81,82,0,0,0,0,0,128,0,-1--1--1,,1|(308,1801)|
-1,85,74,82,1,0,0,0,0,128,0,-1--1--1,,1|(490,1878)|
-10,86,TIME STEP,277,1770,51,11,8,130,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,87,86,82,0,1,0,0,0,64,0,-1--1--1,,1|(346,1792)|
-10,88,perennial starting price,656,1773,54,19,8,3,0,2,0,0,0,0,0-0-0,0-0-0,|12||128-128-0
-1,89,88,74,1,0,0,0,0,128,1,-1--1--1,,1|(719,1867)|
-10,90,perennial long term price change,563,1719,60,19,8,131,0,2,0,0,0,0,0-0-0,0-0-0,|12||128-128-0
-10,91,perennial price trend,399,1728,47,19,8,3,0,0,0,0,0,0
-10,92,FINAL TIME,208,1706,55,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,93,92,91,0,1,0,0,0,64,0,-1--1--1,,1|(300,1716)|
-10,94,INITIAL TIME,209,1683,60,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,95,94,91,0,1,0,0,0,64,0,-1--1--1,,1|(296,1703)|
-1,96,90,91,0,0,0,0,0,64,0,-1--1--1,,1|(481,1723)|
-1,97,88,91,1,0,0,0,0,64,0,-1--1--1,,1|(518,1757)|
-10,98,Time,352,1683,26,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,99,98,91,1,1,0,0,0,64,0,-1--1--1,,1|(392,1724)|
-1,100,82,79,0,0,0,0,0,128,0,-1--1--1,,1|(451,1877)|
-1,101,91,82,0,0,0,0,0,128,0,-1--1--1,,1|(421,1771)|
-10,102,perennial periodic fluctuation magnitude,556,1663,67,19,8,131,0,2,0,0,0,0,0-0-0,0-0-0,|12||128-128-0
-1,103,102,91,1,0,0,0,0,128,0,-1--1--1,,1|(455,1680)|
-12,104,0,248,1588,109,21,3,135,0,8,-1,0,0,0,-1--1--1,0-0-0,|18||0-0-0
+1,73,66,53,0,0,0,0,0,128,0,-1--1--1,,1|(1264,607)|
+10,74,Current Perennial Price,587,798,46,23,3,131,0,0,0,0,0,0
+12,75,48,362,808,10,8,0,3,0,0,-1,0,0,0
+1,76,78,74,4,0,0,22,0,0,0,-1--1--1,,1|(499,808)|
+1,77,78,75,100,0,0,22,0,0,0,-1--1--1,,1|(408,808)|
+11,78,48,451,808,6,8,34,3,0,0,1,0,0,0
+10,79,change in perennial price,451,835,47,19,40,3,0,0,-1,0,0,0
+10,80,perennial maximum fluctuation magnitude,195,724,67,19,8,131,0,2,0,0,0,0,0-0-0,0-0-0,|12||128-128-0
+10,81,perennial reversion time,189,675,45,19,8,3,0,2,0,0,0,0,0-0-0,0-0-0,|12||128-128-0
+10,82,perennial monthly change in price,452,723,56,19,8,3,0,0,0,0,0,0
+1,83,80,82,0,0,0,0,0,128,0,-1--1--1,,1|(322,723)|
+1,84,81,82,0,0,0,0,0,128,0,-1--1--1,,1|(308,696)|
+1,85,74,82,1,0,0,0,0,128,0,-1--1--1,,1|(490,773)|
+10,86,TIME STEP,277,665,51,11,8,130,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,87,86,82,0,1,0,0,0,64,0,-1--1--1,,1|(346,687)|
+10,88,perennial starting price,656,668,54,19,8,3,0,2,0,0,0,0,0-0-0,0-0-0,|12||128-128-0
+1,89,88,74,1,0,0,0,0,128,1,-1--1--1,,1|(719,762)|
+10,90,perennial long term price change,563,614,60,19,8,131,0,2,0,0,0,0,0-0-0,0-0-0,|12||128-128-0
+10,91,perennial price trend,399,623,47,19,8,3,0,0,0,0,0,0
+10,92,FINAL TIME,208,601,55,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,93,92,91,0,1,0,0,0,64,0,-1--1--1,,1|(300,611)|
+10,94,INITIAL TIME,209,578,60,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,95,94,91,0,1,0,0,0,64,0,-1--1--1,,1|(296,598)|
+1,96,90,91,0,0,0,0,0,64,0,-1--1--1,,1|(481,618)|
+1,97,88,91,1,0,0,0,0,64,0,-1--1--1,,1|(518,652)|
+10,98,Time,352,578,26,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,99,98,91,1,1,0,0,0,64,0,-1--1--1,,1|(392,619)|
+1,100,82,79,0,0,0,0,0,128,0,-1--1--1,,1|(451,772)|
+1,101,91,82,0,0,0,0,0,128,0,-1--1--1,,1|(421,666)|
+10,102,perennial periodic fluctuation magnitude,556,558,67,19,8,131,0,2,0,0,0,0,0-0-0,0-0-0,|12||128-128-0
+1,103,102,91,1,0,0,0,0,128,0,-1--1--1,,1|(455,575)|
+12,104,0,248,483,109,21,3,135,0,8,-1,0,0,0,-1--1--1,0-0-0,|18||0-0-0
 Generic Perennial
-10,105,perennial annual fluctuation magnitude,191,1876,67,19,8,3,0,0,0,0,0,0
-1,106,105,82,0,0,0,0,0,128,0,-1--1--1,,1|(320,1852)|
-10,107,Current Soybean Price,650,1471,46,23,3,131,0,0,0,0,0,0
-12,108,48,408,1485,10,8,0,3,0,0,-1,0,0,0
-1,109,111,107,4,0,0,22,0,0,0,-1--1--1,,1|(562,1481)|
-1,110,111,108,100,0,0,22,0,0,0,-1--1--1,,1|(463,1481)|
-11,111,48,514,1481,6,8,34,3,0,0,1,0,0,0
-10,112,change in soybean price,514,1508,58,19,40,3,0,0,-1,0,0,0
-10,113,soybean maximum fluctuation magnitude,248,1392,67,19,8,131,0,2,0,0,0,0,0-0-0,0-0-0,|12||128-128-0
-10,114,soybean reversion time,344,1365,45,19,8,3,0,2,0,0,0,0,0-0-0,0-0-0,|12||128-128-0
-10,115,soybean monthly change in price,515,1396,54,19,8,3,0,0,0,0,0,0
-1,116,113,115,0,0,0,0,0,128,0,-1--1--1,,1|(381,1393)|
-1,117,114,115,0,0,0,0,0,128,0,-1--1--1,,1|(418,1378)|
-1,118,107,115,0,0,0,0,0,128,0,-1--1--1,,1|(585,1434)|
-10,119,TIME STEP,295,1460,50,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,120,119,115,0,1,0,0,0,64,0,-1--1--1,,1|(389,1431)|
-10,121,soybean starting price,630,1339,52,19,8,3,0,2,0,0,0,0,0-0-0,0-0-0,|12||128-128-0
-1,122,121,107,1,0,0,0,0,128,1,-1--1--1,,1|(698,1385)|
-10,123,soybean long term price change,625,1269,58,19,8,131,0,2,0,0,0,0,0-0-0,0-0-0,|12||128-128-0
-10,124,soybean price trend,462,1296,45,19,8,3,0,0,0,0,0,0
-10,125,FINAL TIME,223,1316,55,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,126,125,124,0,1,0,0,0,64,0,-1--1--1,,1|(340,1306)|
-10,127,INITIAL TIME,202,1287,60,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,128,127,124,0,1,0,0,0,64,0,-1--1--1,,1|(332,1291)|
-1,129,123,124,0,0,0,0,0,64,0,-1--1--1,,1|(543,1281)|
-1,130,121,124,0,0,0,0,0,64,0,-1--1--1,,1|(549,1318)|
-10,131,Time,214,1254,26,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,132,131,124,1,1,0,0,0,64,0,-1--1--1,,1|(351,1253)|
-1,133,115,112,0,0,0,0,0,128,0,-1--1--1,,1|(514,1445)|
-1,134,124,115,0,0,0,0,0,128,0,-1--1--1,,1|(484,1339)|
-10,135,soybean periodic fluctuation magnitude,632,1217,67,19,8,131,0,2,0,0,0,0,0-0-0,0-0-0,|12||128-128-0
-1,136,135,124,1,0,0,0,0,128,0,-1--1--1,,1|(521,1238)|
-12,137,0,268,1171,89,18,3,135,0,8,-1,0,0,0,-1--1--1,0-0-0,|18||0-0-0
+10,105,perennial annual fluctuation magnitude,191,771,67,19,8,3,0,0,0,0,0,0
+1,106,105,82,0,0,0,0,0,128,0,-1--1--1,,1|(320,747)|
+10,107,Current Soybean Price,650,366,46,23,3,131,0,0,0,0,0,0
+12,108,48,408,380,10,8,0,3,0,0,-1,0,0,0
+1,109,111,107,4,0,0,22,0,0,0,-1--1--1,,1|(562,376)|
+1,110,111,108,100,0,0,22,0,0,0,-1--1--1,,1|(463,376)|
+11,111,48,514,376,6,8,34,3,0,0,1,0,0,0
+10,112,change in soybean price,514,403,58,19,40,3,0,0,-1,0,0,0
+10,113,soybean maximum fluctuation magnitude,248,287,67,19,8,131,0,2,0,0,0,0,0-0-0,0-0-0,|12||128-128-0
+10,114,soybean reversion time,344,260,45,19,8,3,0,2,0,0,0,0,0-0-0,0-0-0,|12||128-128-0
+10,115,soybean monthly change in price,515,291,54,19,8,3,0,0,0,0,0,0
+1,116,113,115,0,0,0,0,0,128,0,-1--1--1,,1|(381,288)|
+1,117,114,115,0,0,0,0,0,128,0,-1--1--1,,1|(418,273)|
+1,118,107,115,0,0,0,0,0,128,0,-1--1--1,,1|(585,329)|
+10,119,TIME STEP,295,355,50,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,120,119,115,0,1,0,0,0,64,0,-1--1--1,,1|(389,326)|
+10,121,soybean starting price,630,234,52,19,8,3,0,2,0,0,0,0,0-0-0,0-0-0,|12||128-128-0
+1,122,121,107,1,0,0,0,0,128,1,-1--1--1,,1|(698,280)|
+10,123,soybean long term price change,625,164,58,19,8,131,0,2,0,0,0,0,0-0-0,0-0-0,|12||128-128-0
+10,124,soybean price trend,462,191,45,19,8,3,0,0,0,0,0,0
+10,125,FINAL TIME,223,211,55,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,126,125,124,0,1,0,0,0,64,0,-1--1--1,,1|(340,201)|
+10,127,INITIAL TIME,202,182,60,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,128,127,124,0,1,0,0,0,64,0,-1--1--1,,1|(332,186)|
+1,129,123,124,0,0,0,0,0,64,0,-1--1--1,,1|(543,176)|
+1,130,121,124,0,0,0,0,0,64,0,-1--1--1,,1|(549,213)|
+10,131,Time,214,149,26,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,132,131,124,1,1,0,0,0,64,0,-1--1--1,,1|(351,148)|
+1,133,115,112,0,0,0,0,0,128,0,-1--1--1,,1|(514,340)|
+1,134,124,115,0,0,0,0,0,128,0,-1--1--1,,1|(484,234)|
+10,135,soybean periodic fluctuation magnitude,632,112,67,19,8,131,0,2,0,0,0,0,0-0-0,0-0-0,|12||128-128-0
+1,136,135,124,1,0,0,0,0,128,0,-1--1--1,,1|(521,133)|
+12,137,0,268,66,89,18,3,135,0,8,-1,0,0,0,-1--1--1,0-0-0,|18||0-0-0
 Soybean
-10,138,Current Corn Price,612,1094,46,23,3,131,0,0,0,0,0,0
-12,139,48,409,1097,10,8,0,3,0,0,-1,0,0,0
-1,140,142,138,4,0,0,22,0,0,0,-1--1--1,,1|(523,1096)|
-1,141,142,139,100,0,0,22,0,0,0,-1--1--1,,1|(443,1096)|
-11,142,48,474,1096,6,8,34,3,0,0,1,0,0,0
-10,143,change in corn price,474,1123,46,19,40,3,0,0,-1,0,0,0
-10,144,corn maximum fluctuation magnitude,205,1028,67,19,8,131,0,2,0,0,0,0,0-0-0,0-0-0,|12||128-128-0
-10,145,corn reversion time,259,996,60,11,8,3,0,2,0,0,0,0,0-0-0,0-0-0,|12||128-128-0
-10,146,corn monthly change in price,477,1019,48,19,8,3,0,0,0,0,0,0
-1,147,144,146,0,0,0,0,0,128,0,-1--1--1,,1|(343,1024)|
-1,148,145,146,0,0,0,0,0,128,0,-1--1--1,,1|(367,1008)|
-1,149,138,146,0,0,0,0,0,128,0,-1--1--1,,1|(547,1058)|
-10,150,TIME STEP,374,969,50,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,151,150,146,0,1,0,0,0,64,0,-1--1--1,,1|(410,987)|
-10,152,corn starting price,592,962,56,11,8,3,0,2,0,0,0,0,0-0-0,0-0-0,|12||128-128-0
-1,153,152,138,1,0,0,0,0,128,1,-1--1--1,,1|(660,1008)|
-10,154,corn long term price change,587,892,46,19,8,131,0,2,0,0,0,0,0-0-0,0-0-0,|12||128-128-0
-10,155,corn price trend,424,919,50,11,8,3,0,0,0,0,0,0
-10,156,FINAL TIME,254,906,55,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,157,156,155,1,1,0,0,0,64,0,-1--1--1,,1|(406,913)|
-10,158,INITIAL TIME,253,931,60,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,159,158,155,0,1,0,0,0,64,0,-1--1--1,,1|(336,926)|
-1,160,154,155,0,0,0,0,0,64,0,-1--1--1,,1|(514,904)|
-1,161,152,155,0,0,0,0,0,64,0,-1--1--1,,1|(514,943)|
-10,162,Time,251,881,26,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,163,162,155,1,1,0,0,0,64,0,-1--1--1,,1|(386,897)|
-1,164,146,143,0,0,0,0,0,128,0,-1--1--1,,1|(475,1065)|
-1,165,155,146,0,0,0,0,0,128,0,-1--1--1,,1|(444,959)|
-10,166,corn periodic fluctuation magnitude,594,840,67,19,8,131,0,2,0,0,0,0,0-0-0,0-0-0,|12||128-128-0
-1,167,166,155,1,0,0,0,0,128,0,-1--1--1,,1|(483,861)|
-12,168,0,316,809,108,15,3,135,0,8,-1,0,0,0,-1--1--1,0-0-0,|18||0-0-0
+10,138,Current Corn Price,612,-11,46,23,3,131,0,0,0,0,0,0
+12,139,48,409,-8,10,8,0,3,0,0,-1,0,0,0
+1,140,142,138,4,0,0,22,0,0,0,-1--1--1,,1|(523,-9)|
+1,141,142,139,100,0,0,22,0,0,0,-1--1--1,,1|(443,-9)|
+11,142,48,474,-9,6,8,34,3,0,0,1,0,0,0
+10,143,change in corn price,474,18,46,19,40,3,0,0,-1,0,0,0
+10,144,corn maximum fluctuation magnitude,205,-77,67,19,8,131,0,2,0,0,0,0,0-0-0,0-0-0,|12||128-128-0
+10,145,corn reversion time,259,-109,60,11,8,3,0,2,0,0,0,0,0-0-0,0-0-0,|12||128-128-0
+10,146,corn monthly change in price,477,-86,48,19,8,3,0,0,0,0,0,0
+1,147,144,146,0,0,0,0,0,128,0,-1--1--1,,1|(343,-82)|
+1,148,145,146,0,0,0,0,0,128,0,-1--1--1,,1|(367,-99)|
+1,149,138,146,0,0,0,0,0,128,0,-1--1--1,,1|(547,-48)|
+10,150,TIME STEP,374,-136,50,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,151,150,146,0,1,0,0,0,64,0,-1--1--1,,1|(410,-119)|
+10,152,corn starting price,592,-143,56,11,8,3,0,2,0,0,0,0,0-0-0,0-0-0,|12||128-128-0
+1,153,152,138,1,0,0,0,0,128,1,-1--1--1,,1|(660,-97)|
+10,154,corn long term price change,587,-213,46,19,8,131,0,2,0,0,0,0,0-0-0,0-0-0,|12||128-128-0
+10,155,corn price trend,424,-186,50,11,8,3,0,0,0,0,0,0
+10,156,FINAL TIME,254,-199,55,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,157,156,155,1,1,0,0,0,64,0,-1--1--1,,1|(406,-192)|
+10,158,INITIAL TIME,253,-174,60,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,159,158,155,0,1,0,0,0,64,0,-1--1--1,,1|(336,-180)|
+1,160,154,155,0,0,0,0,0,64,0,-1--1--1,,1|(514,-202)|
+1,161,152,155,0,0,0,0,0,64,0,-1--1--1,,1|(514,-163)|
+10,162,Time,251,-224,26,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,163,162,155,1,1,0,0,0,64,0,-1--1--1,,1|(386,-208)|
+1,164,146,143,0,0,0,0,0,128,0,-1--1--1,,1|(475,-41)|
+1,165,155,146,0,0,0,0,0,128,0,-1--1--1,,1|(444,-147)|
+10,166,corn periodic fluctuation magnitude,594,-265,67,19,8,131,0,2,0,0,0,0,0-0-0,0-0-0,|12||128-128-0
+1,167,166,155,1,0,0,0,0,128,0,-1--1--1,,1|(483,-244)|
+12,168,0,316,-296,108,15,3,135,0,8,-1,0,0,0,-1--1--1,0-0-0,|18||0-0-0
 Corn
-10,169,one Year,255,957,39,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,170,169,155,0,1,0,0,0,128,0,-1--1--1,,1|(327,942)|
-10,171,one Year,227,1729,39,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,172,171,91,0,1,0,0,0,128,0,-1--1--1,,1|(302,1728)|
-10,173,one Year,315,1276,39,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,174,173,124,0,1,0,0,0,128,0,-1--1--1,,1|(378,1284)|
-1,175,171,82,1,1,0,0,0,128,0,-1--1--1,,1|(333,1757)|
-10,176,soybean bushel to ton,626,1387,49,19,8,3,0,0,0,0,0,0
-10,177,Current Soybean Price,1403,322,56,22,3,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-10,178,Current Fossil Feedstock Price,1539,323,59,23,3,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-10,179,Current Commodity Sugar Price,1543,213,59,23,3,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-10,180,Current Perennial Price,1539,267,60,20,3,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-10,181,Current Corn Price,1406,216,59,22,3,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-10,182,corn bushel to ton,576,999,56,11,8,3,0,0,0,0,0,0
-10,183,Current Corn Stover Price,1331,1119,46,23,3,131,0,0,0,0,0,0
-12,184,48,1128,1122,10,8,0,3,0,0,-1,0,0,0
-1,185,187,183,4,0,0,22,0,0,0,-1--1--1,,1|(1242,1121)|
-1,186,187,184,100,0,0,22,0,0,0,-1--1--1,,1|(1162,1121)|
-11,187,48,1193,1121,6,8,34,3,0,0,1,0,0,0
-10,188,change in corn stover price,1193,1148,46,19,40,3,0,0,-1,0,0,0
-10,189,corn stover maximum fluctuation magnitude,969,1045,68,19,8,131,0,2,0,0,0,0,0-0-0,0-0-0,|12||128-128-0
-10,190,corn stover reversion time,1001,977,45,19,8,3,0,2,0,0,0,0,0-0-0,0-0-0,|12||128-128-0
-10,191,corn stover monthly change in price,1199,1033,63,19,8,3,0,0,0,0,0,0
-1,192,189,191,0,0,0,0,0,128,0,-1--1--1,,1|(1079,1040)|
-1,193,190,191,0,0,0,0,0,128,0,-1--1--1,,1|(1084,1001)|
-1,194,183,191,0,0,0,0,0,128,0,-1--1--1,,1|(1267,1079)|
-10,195,TIME STEP,1014,1086,50,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,196,195,191,0,1,0,0,0,64,0,-1--1--1,,1|(1087,1066)|
-10,197,corn stover starting price,1311,987,41,19,8,3,0,0,0,0,0,0
-1,198,197,183,1,0,0,0,0,128,1,-1--1--1,,1|(1379,1033)|
-10,199,corn stover long term price change,1306,917,68,19,8,131,0,2,0,0,0,0,0-0-0,0-0-0,|12||128-128-0
-10,200,corn stover price trend,1141,941,54,19,8,3,0,0,0,0,0,0
-10,201,FINAL TIME,970,912,55,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,202,201,200,1,1,0,0,0,64,0,-1--1--1,,1|(1127,934)|
-10,203,INITIAL TIME,959,932,60,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,204,203,200,0,1,0,0,0,64,0,-1--1--1,,1|(1046,936)|
-1,205,199,200,0,0,0,0,0,64,0,-1--1--1,,1|(1223,929)|
-1,206,197,200,0,0,0,0,0,64,0,-1--1--1,,1|(1239,968)|
-10,207,Time,1076,892,28,10,8,130,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,208,207,200,1,1,0,0,0,64,0,-1--1--1,,1|(1125,920)|
-1,209,191,188,0,0,0,0,0,128,0,-1--1--1,,1|(1196,1084)|
-1,210,200,191,0,0,0,0,0,128,0,-1--1--1,,1|(1165,982)|
-10,211,corn stover periodic fluctuation magnitude,1313,865,67,19,8,131,0,2,0,0,0,0,0-0-0,0-0-0,|12||128-128-0
-1,212,211,200,1,0,0,0,0,128,0,-1--1--1,,1|(1201,884)|
-12,213,0,990,809,100,18,3,135,0,8,-1,0,0,0,-1--1--1,0-0-0,|18||0-0-0
+10,169,one Year,255,-148,39,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,170,169,155,0,1,0,0,0,128,0,-1--1--1,,1|(327,-164)|
+10,171,one Year,227,624,39,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,172,171,91,0,1,0,0,0,128,0,-1--1--1,,1|(302,623)|
+10,173,one Year,315,171,39,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,174,173,124,0,1,0,0,0,128,0,-1--1--1,,1|(378,179)|
+1,175,171,82,1,1,0,0,0,128,0,-1--1--1,,1|(333,652)|
+10,176,soybean bushel to ton,626,282,49,19,8,3,0,0,0,0,0,0
+10,177,Current Soybean Price,1403,-783,56,22,3,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,178,Current Fossil Feedstock Price,1539,-782,59,23,3,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,179,Current Commodity Sugar Price,1543,-892,59,23,3,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,180,Current Perennial Price,1539,-838,60,20,3,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,181,Current Corn Price,1406,-889,59,22,3,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,182,corn bushel to ton,576,-106,56,11,8,3,0,0,0,0,0,0
+10,183,Current Corn Stover Price,1331,14,46,23,3,131,0,0,0,0,0,0
+12,184,48,1128,17,10,8,0,3,0,0,-1,0,0,0
+1,185,187,183,4,0,0,22,0,0,0,-1--1--1,,1|(1242,16)|
+1,186,187,184,100,0,0,22,0,0,0,-1--1--1,,1|(1162,16)|
+11,187,48,1193,16,6,8,34,3,0,0,1,0,0,0
+10,188,change in corn stover price,1193,43,46,19,40,3,0,0,-1,0,0,0
+10,189,corn stover maximum fluctuation magnitude,969,-60,68,19,8,131,0,2,0,0,0,0,0-0-0,0-0-0,|12||128-128-0
+10,190,corn stover reversion time,1001,-128,45,19,8,3,0,2,0,0,0,0,0-0-0,0-0-0,|12||128-128-0
+10,191,corn stover monthly change in price,1199,-72,63,19,8,3,0,0,0,0,0,0
+1,192,189,191,0,0,0,0,0,128,0,-1--1--1,,1|(1079,-66)|
+1,193,190,191,0,0,0,0,0,128,0,-1--1--1,,1|(1084,-105)|
+1,194,183,191,0,0,0,0,0,128,0,-1--1--1,,1|(1267,-27)|
+10,195,TIME STEP,1014,-19,50,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,196,195,191,0,1,0,0,0,64,0,-1--1--1,,1|(1087,-41)|
+10,197,corn stover starting price,1311,-118,41,19,8,3,0,0,0,0,0,0
+1,198,197,183,1,0,0,0,0,128,1,-1--1--1,,1|(1379,-72)|
+10,199,corn stover long term price change,1306,-188,68,19,8,131,0,2,0,0,0,0,0-0-0,0-0-0,|12||128-128-0
+10,200,corn stover price trend,1141,-164,54,19,8,3,0,0,0,0,0,0
+10,201,FINAL TIME,970,-193,55,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,202,201,200,1,1,0,0,0,64,0,-1--1--1,,1|(1127,-171)|
+10,203,INITIAL TIME,959,-173,60,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,204,203,200,0,1,0,0,0,64,0,-1--1--1,,1|(1046,-170)|
+1,205,199,200,0,0,0,0,0,64,0,-1--1--1,,1|(1223,-177)|
+1,206,197,200,0,0,0,0,0,64,0,-1--1--1,,1|(1239,-138)|
+10,207,Time,1076,-213,28,10,8,130,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,208,207,200,1,1,0,0,0,64,0,-1--1--1,,1|(1125,-185)|
+1,209,191,188,0,0,0,0,0,128,0,-1--1--1,,1|(1196,-22)|
+1,210,200,191,0,0,0,0,0,128,0,-1--1--1,,1|(1165,-124)|
+10,211,corn stover periodic fluctuation magnitude,1313,-240,67,19,8,131,0,2,0,0,0,0,0-0-0,0-0-0,|12||128-128-0
+1,212,211,200,1,0,0,0,0,128,0,-1--1--1,,1|(1201,-221)|
+12,213,0,990,-296,100,18,3,135,0,8,-1,0,0,0,-1--1--1,0-0-0,|18||0-0-0
 Corn Stover
-10,214,one Year,926,957,39,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,215,214,200,0,1,0,0,0,128,0,-1--1--1,,1|(1019,952)|
-10,216,Current Corn Stover Price,1405,269,58,23,3,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-10,217,bioproduct long term price,532,339,54,19,8,3,0,18,0,0,0,0,0-0-0,0-0-0,|12|B|128-128-0
-10,218,TIME STEP,178,705,50,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,219,217,2,0,0,0,0,0,128,1,-1--1--1,,1|(543,299)|
-1,220,217,7,1,0,0,0,0,128,0,-1--1--1,,1|(444,305)|
-10,221,random stream,376,311,56,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,222,221,7,0,0,0,0,0,64,0,-1--1--1,,1|(378,295)|
-10,223,random stream,958,1013,56,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,224,223,191,0,0,0,0,0,64,0,-1--1--1,,1|(1068,1022)|
-10,225,random stream,356,1884,56,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,226,225,82,0,0,0,0,0,64,0,-1--1--1,,1|(390,1863)|
-10,227,random stream,267,1057,56,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,228,227,146,0,0,0,0,0,64,0,-1--1--1,,1|(369,1039)|
-10,229,random stream,415,1457,56,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,230,229,115,0,0,0,0,0,64,0,-1--1--1,,1|(452,1434)|
-1,231,225,105,0,0,0,0,0,128,0,-1--1--1,,1|(285,1880)|
-10,232,random stream,1174,1812,56,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,233,232,53,0,0,0,0,0,64,0,-1--1--1,,1|(1216,1797)|
-10,234,random stream,1057,1455,56,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,235,234,24,0,0,0,0,0,64,0,-1--1--1,,1|(1138,1417)|
-10,236,feedstock selection check,869,220,54,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,237,236,1,1,0,0,0,0,64,0,-1--1--1,,1|(971,220)|
-10,238,perennial monthly change in price indicator,621,1816,82,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,239,238,82,1,0,0,0,0,64,0,-1--1--1,,1|(536,1850)|
-1,240,176,124,1,0,0,0,0,128,0,-1--1--1,,1|(515,1330)|
-1,241,176,107,1,0,0,0,0,128,1,-1--1--1,,1|(654,1424)|
-1,242,182,155,1,0,0,0,0,128,0,-1--1--1,,1|(476,965)|
-1,243,182,138,1,0,0,0,0,128,1,-1--1--1,,1|(615,1030)|
-10,244,feedstock price array,1200,236,49,19,8,3,0,0,0,0,0,0
-1,245,216,244,0,0,0,0,0,128,0,-1--1--1,,1|(1305,254)|
-1,246,177,244,0,0,0,0,0,128,0,-1--1--1,,1|(1304,281)|
-1,247,178,244,0,0,0,0,0,128,0,-1--1--1,,1|(1371,281)|
-1,248,179,244,0,0,0,0,0,128,0,-1--1--1,,1|(1373,224)|
-1,249,180,244,0,0,0,0,0,128,0,-1--1--1,,1|(1370,253)|
-1,250,181,244,0,0,0,0,0,128,0,-1--1--1,,1|(1304,226)|
-10,251,feedstock selector array,845,316,58,19,8,3,0,0,0,0,0,0
-1,252,244,1,0,0,0,0,0,128,0,-1--1--1,,1|(1130,235)|
-1,253,251,1,0,0,0,0,0,128,0,-1--1--1,,1|(948,273)|
-12,254,0,316,847,123,22,8,135,0,0,-1,0,0,0
+10,214,one Year,926,-148,39,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,215,214,200,0,1,0,0,0,128,0,-1--1--1,,1|(1019,-155)|
+10,216,Current Corn Stover Price,1405,-836,58,23,3,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,217,bioproduct long term price,532,-766,54,19,8,3,0,18,0,0,0,0,0-0-0,0-0-0,|12|B|128-128-0
+10,218,TIME STEP,178,-400,50,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,219,217,2,0,0,0,0,0,128,1,-1--1--1,,1|(543,-807)|
+1,220,217,7,1,0,0,0,0,128,0,-1--1--1,,1|(444,-800)|
+10,221,random stream,376,-794,56,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,222,221,7,0,0,0,0,0,64,0,-1--1--1,,1|(378,-811)|
+10,223,random stream,958,-92,56,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,224,223,191,0,0,0,0,0,64,0,-1--1--1,,1|(1068,-84)|
+10,225,random stream,356,779,56,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,226,225,82,0,0,0,0,0,64,0,-1--1--1,,1|(390,758)|
+10,227,random stream,267,-48,56,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,228,227,146,0,0,0,0,0,64,0,-1--1--1,,1|(369,-67)|
+10,229,random stream,415,352,56,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,230,229,115,0,0,0,0,0,64,0,-1--1--1,,1|(452,329)|
+1,231,225,105,0,0,0,0,0,128,0,-1--1--1,,1|(285,775)|
+10,232,random stream,1174,707,56,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,233,232,53,0,0,0,0,0,64,0,-1--1--1,,1|(1216,692)|
+10,234,random stream,1057,350,56,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,235,234,24,0,0,0,0,0,64,0,-1--1--1,,1|(1138,312)|
+10,236,feedstock selection check,869,-885,54,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,237,236,1,1,0,0,0,0,64,0,-1--1--1,,1|(971,-885)|
+10,238,perennial monthly change in price indicator,621,711,82,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,239,238,82,1,0,0,0,0,64,0,-1--1--1,,1|(536,745)|
+1,240,176,124,1,0,0,0,0,128,0,-1--1--1,,1|(515,225)|
+1,241,176,107,1,0,0,0,0,128,1,-1--1--1,,1|(654,319)|
+1,242,182,155,1,0,0,0,0,128,0,-1--1--1,,1|(476,-140)|
+1,243,182,138,1,0,0,0,0,128,1,-1--1--1,,1|(615,-75)|
+10,244,feedstock price array,1200,-869,49,19,8,3,0,0,0,0,0,0
+1,245,216,244,0,0,0,0,0,128,0,-1--1--1,,1|(1305,-853)|
+1,246,177,244,0,0,0,0,0,128,0,-1--1--1,,1|(1304,-825)|
+1,247,178,244,0,0,0,0,0,128,0,-1--1--1,,1|(1371,-826)|
+1,248,179,244,0,0,0,0,0,128,0,-1--1--1,,1|(1373,-882)|
+1,249,180,244,0,0,0,0,0,128,0,-1--1--1,,1|(1370,-854)|
+1,250,181,244,0,0,0,0,0,128,0,-1--1--1,,1|(1304,-880)|
+10,251,feedstock selector array,845,-789,58,19,8,3,0,0,0,0,0,0
+1,252,244,1,0,0,0,0,0,128,0,-1--1--1,,1|(1130,-872)|
+1,253,251,1,0,0,0,0,0,128,0,-1--1--1,,1|(948,-833)|
+12,254,0,316,-258,123,22,8,135,0,0,-1,0,0,0
 (Calibrated on National Agricultural Statistical Service data)
-12,255,0,989,859,101,32,8,135,0,0,-1,0,0,0
+12,255,0,989,-246,101,32,8,135,0,0,-1,0,0,0
 (calibrated based on National Agricultural Statistical Service data for corn)
-12,256,0,246,1638,108,26,8,135,0,0,-1,0,0,0
+12,256,0,246,533,108,26,8,135,0,0,-1,0,0,0
 (calibrated based on National Agricultural Statistical Service data for alfalfa)
-12,257,0,272,1211,117,21,8,135,0,0,-1,0,0,0
+12,257,0,272,106,117,21,8,135,0,0,-1,0,0,0
  (calibrated based on National Agricultural Statistical Service data)
-12,258,0,973,1664,87,17,8,135,0,0,-1,0,0,0
+12,258,0,973,559,87,17,8,135,0,0,-1,0,0,0
 (calibrated on maleic anhydride data)
-12,259,0,956,1256,103,29,8,135,0,0,-1,0,0,0
+12,259,0,956,151,103,29,8,135,0,0,-1,0,0,0
 (calibrated based on USDA Economic Research Service data on raw sugar)
-10,260,Current Custom Feedstock Price,1316,723,58,31,3,131,0,0,0,0,0,0
-12,261,48,1062,729,10,8,0,3,0,0,-1,0,0,0
-1,262,264,260,4,0,0,22,0,0,0,-1--1--1,,1|(1216,725)|
-1,263,264,261,100,0,0,22,0,0,0,-1--1--1,,1|(1117,725)|
-11,264,48,1168,725,6,8,34,3,0,0,1,0,0,0
-10,265,change in custom feedstock price,1168,752,55,19,40,3,0,0,-1,0,0,0
-10,266,custom feedstock maximum fluctuation magnitude,876,657,65,28,8,131,0,2,0,0,0,0,0-0-0,0-0-0,|12||128-128-0
-10,267,custom feedstock reversion time,887,596,56,19,8,3,0,2,0,0,0,0,0-0-0,0-0-0,|12||128-128-0
-10,268,custom feedstock monthly change in price,1083,636,74,19,8,3,0,0,0,0,0,0
-1,269,266,268,0,0,0,0,0,128,0,-1--1--1,,1|(968,649)|
-1,270,267,268,0,0,0,0,0,128,0,-1--1--1,,1|(969,613)|
-1,271,260,268,1,0,0,0,0,128,0,-1--1--1,,1|(1217,663)|
-10,272,custom feedstock starting price,1483,645,56,19,8,3,0,2,0,0,0,0,0-0-0,0-0-0,|12||128-128-0
-1,273,272,260,1,0,0,0,0,128,1,-1--1--1,,1|(1353,677)|
-10,274,custom feedstock long term price change,1476,588,71,19,8,131,0,2,0,0,0,0,0-0-0,0-0-0,|12||128-128-0
-10,275,custom feedstock price trend,1283,609,56,19,8,3,0,0,0,0,0,0
-1,276,274,275,0,0,0,0,0,64,0,-1--1--1,,1|(1378,599)|
-1,277,272,275,1,0,0,0,0,64,0,-1--1--1,,1|(1392,626)|
-1,278,268,265,0,0,0,0,0,128,0,-1--1--1,,1|(1120,689)|
-1,279,275,268,1,0,0,0,0,128,0,-1--1--1,,1|(1187,604)|
-10,280,custom feedstock periodic fluctuation magnitude,1529,535,86,22,8,131,0,2,0,0,0,0,0-0-0,0-0-0,|12||128-128-0
-1,281,280,275,1,0,0,0,0,128,0,-1--1--1,,1|(1361,579)|
-10,282,random stream,1083,563,56,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,283,282,268,0,0,0,0,0,64,0,-1--1--1,,1|(1083,589)|
-12,284,0,946,516,146,21,3,135,0,8,-1,0,0,0,-1--1--1,0-0-0,|16||0-0-0
+10,260,Current Custom Feedstock Price,1316,-382,58,31,3,131,0,0,0,0,0,0
+12,261,48,1062,-376,10,8,0,3,0,0,-1,0,0,0
+1,262,264,260,4,0,0,22,0,0,0,-1--1--1,,1|(1216,-380)|
+1,263,264,261,100,0,0,22,0,0,0,-1--1--1,,1|(1117,-380)|
+11,264,48,1168,-380,6,8,34,3,0,0,1,0,0,0
+10,265,change in custom feedstock price,1168,-353,55,19,40,3,0,0,-1,0,0,0
+10,266,custom feedstock maximum fluctuation magnitude,876,-448,65,28,8,131,0,2,0,0,0,0,0-0-0,0-0-0,|12||128-128-0
+10,267,custom feedstock reversion time,887,-509,56,19,8,3,0,2,0,0,0,0,0-0-0,0-0-0,|12||128-128-0
+10,268,custom feedstock monthly change in price,1083,-469,74,19,8,3,0,0,0,0,0,0
+1,269,266,268,0,0,0,0,0,128,0,-1--1--1,,1|(968,-458)|
+1,270,267,268,0,0,0,0,0,128,0,-1--1--1,,1|(969,-493)|
+1,271,260,268,1,0,0,0,0,128,0,-1--1--1,,1|(1217,-442)|
+10,272,custom feedstock starting price,1483,-460,56,19,8,3,0,2,0,0,0,0,0-0-0,0-0-0,|12||128-128-0
+1,273,272,260,1,0,0,0,0,128,1,-1--1--1,,1|(1353,-428)|
+10,274,custom feedstock long term price change,1476,-517,71,19,8,131,0,2,0,0,0,0,0-0-0,0-0-0,|12||128-128-0
+10,275,custom feedstock price trend,1283,-496,56,19,8,3,0,0,0,0,0,0
+1,276,274,275,0,0,0,0,0,64,0,-1--1--1,,1|(1378,-508)|
+1,277,272,275,1,0,0,0,0,64,0,-1--1--1,,1|(1392,-479)|
+1,278,268,265,0,0,0,0,0,128,0,-1--1--1,,1|(1120,-417)|
+1,279,275,268,1,0,0,0,0,128,0,-1--1--1,,1|(1187,-501)|
+10,280,custom feedstock periodic fluctuation magnitude,1529,-570,86,22,8,131,0,2,0,0,0,0,0-0-0,0-0-0,|12||128-128-0
+1,281,280,275,1,0,0,0,0,128,0,-1--1--1,,1|(1361,-526)|
+10,282,random stream,1083,-542,56,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,283,282,268,0,0,0,0,0,64,0,-1--1--1,,1|(1083,-517)|
+12,284,0,946,-589,146,21,3,135,0,8,-1,0,0,0,-1--1--1,0-0-0,|16||0-0-0
 Custom Feedstock Price Model
-10,285,FINAL TIME,1371,506,55,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,286,285,275,1,1,0,0,0,64,0,-1--1--1,,1|(1341,555)|
-10,287,INITIAL TIME,1289,526,60,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,288,287,275,0,1,0,0,0,64,0,-1--1--1,,1|(1287,557)|
-10,289,one Year,1191,511,39,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,290,289,275,0,1,0,0,0,64,0,-1--1--1,,1|(1228,551)|
-10,291,Time,1175,540,26,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,292,291,275,0,1,0,0,0,64,0,-1--1--1,,1|(1216,567)|
-10,293,TIME STEP,1003,702,50,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,294,293,268,0,1,0,0,0,64,0,-1--1--1,,1|(1032,678)|
-10,295,Current Custom Feedstock Price,1481,385,65,27,3,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,296,295,244,1,0,0,0,0,128,0,-1--1--1,,1|(1321,352)|
-10,297,expected green premium,641,162,54,19,8,131,0,18,0,0,0,0,0-0-0,0-0-0,|12|B|128-128-0
-12,298,0,353,420,146,19,3,135,0,8,-1,0,0,0,-1--1--1,0-0-0,|16||0-0-0
+10,285,FINAL TIME,1371,-599,55,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,286,285,275,1,1,0,0,0,64,0,-1--1--1,,1|(1341,-550)|
+10,287,INITIAL TIME,1289,-579,60,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,288,287,275,0,1,0,0,0,64,0,-1--1--1,,1|(1287,-549)|
+10,289,one Year,1191,-594,39,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,290,289,275,0,1,0,0,0,64,0,-1--1--1,,1|(1228,-555)|
+10,291,Time,1175,-565,26,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,292,291,275,0,1,0,0,0,64,0,-1--1--1,,1|(1216,-539)|
+10,293,TIME STEP,1003,-403,50,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,294,293,268,0,1,0,0,0,64,0,-1--1--1,,1|(1032,-428)|
+10,295,Current Custom Feedstock Price,1481,-720,65,27,3,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,296,295,244,1,0,0,0,0,128,0,-1--1--1,,1|(1321,-753)|
+10,297,expected green premium,641,-943,54,19,8,131,0,18,0,0,0,0,0-0-0,0-0-0,|12|B|128-128-0
+12,298,0,353,-685,146,19,3,135,0,8,-1,0,0,0,-1--1--1,0-0-0,|16||0-0-0
 Incumbent Product Price Model
-10,299,incumbent long term price trend,565,466,64,19,8,3,0,2,0,0,0,0,0-0-0,0-0-0,|12||128-128-0
-10,300,incumbent starting price,630,511,57,19,8,3,0,2,0,0,0,0,0-0-0,0-0-0,|12||128-128-0
-10,301,incumbent price trend,349,523,50,19,8,3,0,0,0,0,0,0
-10,302,incumbent price response,451,588,50,19,8,3,0,0,0,0,0,0
-10,303,incumbent price response magnitude,600,562,63,19,8,3,0,2,0,0,0,0,0-0-0,0-0-0,|12||128-128-0
-10,304,incumbent monthly change in price,315,626,59,19,8,3,0,0,0,0,0,0
-10,305,incumbent reversion time,137,567,45,19,8,3,0,2,0,0,0,0,0-0-0,0-0-0,|12||128-128-0
-10,306,incumbent maximum fluctuation,107,621,65,19,8,3,0,2,0,0,0,0,0-0-0,0-0-0,|12||128-128-0
-10,307,Current Incumbent Price,594,700,57,33,3,131,0,0,0,0,0,0
-12,308,48,273,697,10,8,0,3,0,0,-1,0,0,0
-1,309,311,307,4,0,0,22,0,0,0,-1--1--1,,1|(476,697)|
-1,310,311,308,100,0,0,22,0,0,0,-1--1--1,,1|(343,697)|
-11,311,48,410,697,6,8,34,3,0,0,1,0,0,0
-10,312,changing incumbent price,410,724,50,19,40,3,0,0,-1,0,0,0
-10,313,FINAL TIME,429,465,55,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,314,313,301,0,0,0,0,0,64,0,-1--1--1,,1|(400,486)|
-1,315,299,301,0,0,0,0,0,64,0,-1--1--1,,1|(456,495)|
-1,316,302,301,0,0,0,0,0,64,0,-1--1--1,,1|(405,560)|
-1,317,300,301,0,0,0,0,0,64,0,-1--1--1,,1|(492,517)|
-10,318,INITIAL TIME,299,466,60,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,319,318,301,0,0,0,0,0,64,0,-1--1--1,,1|(315,486)|
-10,320,Time,232,498,26,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,321,320,301,0,0,0,0,0,64,0,-1--1--1,,1|(271,507)|
-1,322,307,304,0,0,0,0,0,64,0,-1--1--1,,1|(462,666)|
-1,323,306,304,0,0,0,0,0,64,0,-1--1--1,,1|(207,624)|
-1,324,301,304,0,0,0,0,0,64,0,-1--1--1,,1|(334,568)|
-1,325,305,304,0,0,0,0,0,64,0,-1--1--1,,1|(212,592)|
-10,326,random stream,113,661,56,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,327,326,304,0,0,0,0,0,64,0,-1--1--1,,1|(205,646)|
-10,328,TIME STEP,163,688,50,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,329,328,304,0,0,0,0,0,64,0,-1--1--1,,1|(222,664)|
-1,330,304,312,0,0,0,0,0,64,0,-1--1--1,,1|(357,670)|
-1,331,300,307,1,0,0,0,0,64,1,-1--1--1,,1|(745,602)|
-1,332,303,302,1,0,0,0,0,128,0,-1--1--1,,1|(522,551)|
-1,333,307,302,0,0,0,0,0,64,0,-1--1--1,,1|(519,642)|
-10,334,incumbent price response indicator,619,622,63,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,335,334,302,1,0,0,0,0,128,0,-1--1--1,,1|(523,610)|
-10,336,supply to demand ratio price impact,182,280,61,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,337,336,7,1,0,0,0,0,128,0,-1--1--1,,1|(297,280)|
+10,299,incumbent long term price trend,565,-639,64,19,8,3,0,2,0,0,0,0,0-0-0,0-0-0,|12||128-128-0
+10,300,incumbent starting price,630,-594,57,19,8,3,0,2,0,0,0,0,0-0-0,0-0-0,|12||128-128-0
+10,301,incumbent price trend,349,-582,50,19,8,3,0,0,0,0,0,0
+10,302,incumbent price response,451,-517,50,19,8,3,0,0,0,0,0,0
+10,303,incumbent price response magnitude,600,-543,63,19,8,3,0,2,0,0,0,0,0-0-0,0-0-0,|12||128-128-0
+10,304,incumbent monthly change in price,315,-479,59,19,8,3,0,0,0,0,0,0
+10,305,incumbent reversion time,137,-538,45,19,8,3,0,2,0,0,0,0,0-0-0,0-0-0,|12||128-128-0
+10,306,incumbent maximum fluctuation,107,-484,65,19,8,3,0,2,0,0,0,0,0-0-0,0-0-0,|12||128-128-0
+10,307,Current Incumbent Price,594,-405,57,33,3,131,0,0,0,0,0,0
+12,308,48,273,-408,10,8,0,3,0,0,-1,0,0,0
+1,309,311,307,4,0,0,22,0,0,0,-1--1--1,,1|(476,-408)|
+1,310,311,308,100,0,0,22,0,0,0,-1--1--1,,1|(343,-408)|
+11,311,48,410,-408,6,8,34,3,0,0,1,0,0,0
+10,312,changing incumbent price,410,-381,50,19,40,3,0,0,-1,0,0,0
+10,313,FINAL TIME,429,-640,55,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,314,313,301,0,0,0,0,0,64,0,-1--1--1,,1|(400,-620)|
+1,315,299,301,0,0,0,0,0,64,0,-1--1--1,,1|(456,-612)|
+1,316,302,301,0,0,0,0,0,64,0,-1--1--1,,1|(405,-546)|
+1,317,300,301,0,0,0,0,0,64,0,-1--1--1,,1|(492,-589)|
+10,318,INITIAL TIME,299,-639,60,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,319,318,301,0,0,0,0,0,64,0,-1--1--1,,1|(315,-620)|
+10,320,Time,232,-607,26,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,321,320,301,0,0,0,0,0,64,0,-1--1--1,,1|(271,-600)|
+1,322,307,304,0,0,0,0,0,64,0,-1--1--1,,1|(462,-441)|
+1,323,306,304,0,0,0,0,0,64,0,-1--1--1,,1|(207,-483)|
+1,324,301,304,0,0,0,0,0,64,0,-1--1--1,,1|(334,-538)|
+1,325,305,304,0,0,0,0,0,64,0,-1--1--1,,1|(212,-514)|
+10,326,random stream,113,-444,56,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,327,326,304,0,0,0,0,0,64,0,-1--1--1,,1|(205,-460)|
+10,328,TIME STEP,163,-417,50,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,329,328,304,0,0,0,0,0,64,0,-1--1--1,,1|(222,-442)|
+1,330,304,312,0,0,0,0,0,64,0,-1--1--1,,1|(357,-436)|
+1,331,300,307,1,0,0,0,0,64,1,-1--1--1,,1|(745,-503)|
+1,332,303,302,1,0,0,0,0,128,0,-1--1--1,,1|(522,-554)|
+1,333,307,302,0,0,0,0,0,64,0,-1--1--1,,1|(519,-464)|
+10,334,incumbent price response indicator,619,-483,63,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,335,334,302,1,0,0,0,0,128,0,-1--1--1,,1|(523,-495)|
+10,336,supply to demand ratio price impact,182,-825,61,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,337,336,7,1,0,0,0,0,128,0,-1--1--1,,1|(297,-825)|
 \\\---/// Sketch information - do not modify anything except names
 V300  Do not put anything below this section - it will be ignored
 *Indicator Variables
 $192-192-192,0,Times New Roman|12||0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|96,96,100,0
-10,1,in business indicator,-254,280,41,15,8,131,0,0,0,0,0,0
-10,2,BS equity,-305,341,41,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,3,2,1,0,0,0,0,0,64,0,-1--1--1,,1|(-285,318)|
-10,4,BS equity threshold,-184,343,36,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,5,4,1,0,0,0,0,0,64,0,-1--1--1,,1|(-215,315)|
-10,6,profitability indicator,-59,281,47,18,8,131,0,0,0,0,0,0
-10,7,hypothetical net margin,-59,351,55,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,8,7,6,0,0,0,0,0,64,0,-1--1--1,,1|(-59,323)|
-10,9,pilot and demo spending control indicator,331,130,82,22,8,131,0,0,0,0,0,0
-10,10,actual spending,367,33,40,22,8,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,11,10,9,1,0,0,0,0,64,0,-1--1--1,,1|(351,74)|
-10,12,allowable spending,498,48,35,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,13,12,9,1,0,0,0,0,64,0,-1--1--1,,1|(417,77)|
-10,14,conserve spending,242,27,34,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,15,14,9,1,0,0,0,0,64,0,-1--1--1,,1|(296,71)|
-10,16,pilot and demo runway response,347,212,59,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,17,16,9,1,0,0,0,0,64,0,-1--1--1,,1|(324,197)|
-10,18,idealized demo revenue indicator,843,59,55,19,8,3,0,0,0,0,0,0
-10,19,idealized demo completion time,723,122,55,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,20,19,18,0,0,0,0,0,64,0,-1--1--1,,1|(776,94)|
-10,21,idealized demo construction time,962,136,59,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,22,21,18,0,0,0,0,0,64,0,-1--1--1,,1|(908,102)|
-10,23,years ahead,1003,246,47,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,24,23,18,1,0,0,0,0,64,0,-1--1--1,,1|(883,174)|
-10,25,idealized commercial revenue indicator,1082,64,66,19,8,3,0,0,0,0,0,0
-10,26,idealized commercial construction time,1022,184,71,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,27,26,25,0,0,0,0,0,64,0,-1--1--1,,1|(1048,131)|
-1,28,23,25,1,0,0,0,0,128,0,-1--1--1,,1|(1130,153)|
-10,29,idealized commercial capital expenses indicator,811,307,81,19,8,3,0,0,-1,0,0,0
-10,30,idealized demo completion time,832,217,55,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,31,30,29,0,0,0,0,0,64,0,-1--1--1,,1|(823,256)|
-1,32,23,29,1,0,0,0,0,128,0,-1--1--1,,1|(876,267)|
-10,33,idealized demo capital expenses indicator,1087,321,70,19,8,3,0,0,0,0,0,0
-10,34,idealized pilot completion time,1243,303,55,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,35,34,33,0,0,0,0,0,64,0,-1--1--1,,1|(1179,311)|
-1,36,23,33,1,0,0,0,0,128,0,-1--1--1,,1|(1056,299)|
-10,37,idealized commercial operating expenses indicator,816,411,66,28,8,131,0,0,0,0,0,0
-10,38,idealized commercial construction time,778,495,71,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,39,38,37,1,0,0,0,0,64,0,-1--1--1,,1|(787,448)|
-1,40,23,37,1,0,0,0,0,128,0,-1--1--1,,1|(896,345)|
-10,41,idealized demo operating expenses indicator,1086,442,79,19,8,3,0,0,0,0,0,0
-10,42,idealized demo completion time,1196,498,55,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,43,42,41,0,0,0,0,0,64,0,-1--1--1,,1|(1147,474)|
-10,44,idealized demo construction time,1195,381,59,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,45,44,41,0,0,0,0,0,64,0,-1--1--1,,1|(1146,409)|
-1,46,23,41,1,0,0,0,0,128,0,-1--1--1,,1|(1033,370)|
-10,47,idealized pilot operating expenses indicator,939,465,75,19,8,3,0,0,0,0,0,0
-10,48,idealized pilot completion time,879,559,55,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,49,48,47,0,0,0,0,0,64,0,-1--1--1,,1|(904,518)|
-10,50,idealized pilot construction time,1051,551,59,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,51,50,47,0,0,0,0,0,64,0,-1--1--1,,1|(1000,513)|
-1,52,23,47,1,0,0,0,0,128,0,-1--1--1,,1|(952,358)|
-10,53,management spending control indicator,515,126,70,19,8,3,0,0,0,0,0,0
-10,54,management runway response,518,203,59,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,55,54,53,1,0,0,0,0,64,0,-1--1--1,,1|(531,165)|
-1,56,12,53,1,0,0,0,0,128,0,-1--1--1,,1|(499,78)|
-1,57,10,53,1,0,0,0,0,128,0,-1--1--1,,1|(447,87)|
-1,58,14,53,1,0,0,0,0,128,0,-1--1--1,,1|(363,82)|
-10,59,research spending control indicator,155,123,57,19,8,3,0,0,0,0,0,0
-1,60,12,59,1,0,0,0,0,128,0,-1--1--1,,1|(329,75)|
-1,61,10,59,1,0,0,0,0,128,0,-1--1--1,,1|(224,81)|
-1,62,14,59,1,0,0,0,0,128,0,-1--1--1,,1|(172,61)|
-10,63,research runway response,53,70,53,19,8,3,0,0,-1,0,0,0
-1,64,63,59,0,0,0,0,0,128,0,-1--1--1,,1|(98,94)|
-1,65,14,63,0,0,0,0,0,128,0,-1--1--1,,1|(164,45)|
-1,66,10,63,1,0,0,0,0,128,0,-1--1--1,,1|(228,62)|
-10,67,actual net income indicator,-285,428,55,19,8,3,0,0,-1,0,0,0
-10,68,Commercial Capital Expense,-131,428,52,25,3,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,69,68,67,0,0,0,0,0,64,0,-1--1--1,,1|(-199,428)|
-10,70,government operating grant amount indicator,-201,528,71,19,8,3,0,0,-1,0,0,0
-10,71,Time,-79,488,26,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,72,71,70,0,0,0,0,0,64,0,-1--1--1,,1|(-117,501)|
-10,73,TIME STEP,-318,482,50,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,74,73,70,0,0,0,0,0,64,0,-1--1--1,,1|(-276,499)|
-10,75,FM positive cash flow,115,718,55,19,8,3,0,0,-1,0,0,0
-10,76,Time,-6,688,26,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,77,76,75,0,0,0,0,0,0,0,-1--1--1,,1|(34,697)|
-10,78,CFS net change of cash and cash equivalents,-29,755,81,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,79,78,75,1,0,0,0,0,64,0,-1--1--1,,1|(80,758)|
-10,80,shared learning from bioproduct production,789,748,56,34,8,131,0,0,-1,0,0,0
-10,81,Cumulative Production,639,699,49,24,3,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,82,81,80,0,0,0,0,0,64,0,-1--1--1,,1|(703,719)|
-10,83,demoing spending indicator,577,451,57,19,8,3,0,0,-1,0,0,0
-10,84,demoing,409,486,37,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,85,84,83,0,0,0,0,0,64,0,-1--1--1,,1|(476,473)|
-10,86,startup demoing,426,442,59,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,87,86,83,0,0,0,0,0,64,0,-1--1--1,,1|(495,446)|
-10,88,redemoing indicator,610,549,34,19,8,3,0,0,0,0,0,0
-10,89,Continuous Demoing Hours,488,610,57,24,3,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,90,89,88,1,0,0,0,0,64,0,-1--1--1,,1|(563,582)|
-10,91,demoing,399,569,37,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,92,91,88,0,0,0,0,0,64,0,-1--1--1,,1|(499,561)|
-10,93,demoing acceptable rate,461,534,54,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,94,93,88,0,0,0,0,0,64,0,-1--1--1,,1|(538,542)|
-10,95,piloting spending indicator,235,458,53,19,8,3,0,0,0,0,0,0
-10,96,piloting,79,438,33,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,97,96,95,0,0,0,0,0,64,0,-1--1--1,,1|(141,447)|
-10,98,startup piloting,70,480,55,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,99,98,95,0,0,0,0,0,64,0,-1--1--1,,1|(147,471)|
-10,100,repiloting indicator,253,549,58,11,8,3,0,0,0,0,0,0
-10,101,Continuous Piloting Hours,107,631,51,26,3,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,102,101,100,1,0,0,0,0,64,0,-1--1--1,,1|(181,599)|
-10,103,piloting,77,581,33,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,104,103,100,0,0,0,0,0,64,0,-1--1--1,,1|(146,568)|
-10,105,piloting acceptable rate,68,530,54,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,106,105,100,0,0,0,0,0,64,0,-1--1--1,,1|(152,539)|
-10,107,bioproduct selling price with green premium,488,711,74,19,8,3,0,0,-1,0,0,0
-10,108,Current Bioproduct Price,293,750,59,26,3,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,109,108,107,0,0,0,0,0,64,0,-1--1--1,,1|(375,733)|
-10,110,feedstock selection check,582,853,49,19,8,3,0,0,-1,0,0,0
-10,111,perennial monthly change in price indicator,230,840,77,19,8,3,0,0,0,0,0,0
-10,112,Time,88,822,26,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,113,112,111,0,0,0,0,0,64,0,-1--1--1,,1|(127,826)|
-10,114,external investor decision,-321,711,52,19,8,3,0,0,-1,0,0,0
-10,115,random stream,-195,772,56,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,116,115,114,1,0,0,0,0,0,0,-1--1--1,,1|(-275,756)|
-10,117,probability of successful investor ask,-151,693,77,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,118,117,114,0,0,0,0,0,64,0,-1--1--1,,1|(-241,702)|
-10,119,lower bound on probability,-70,149,50,19,8,3,0,0,-1,0,0,0
-10,120,upper bound on probability,-70,210,51,19,8,3,0,0,-1,0,0,0
-10,121,NPV at required return,-265,166,58,19,8,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,122,121,119,0,0,0,0,0,64,0,-1--1--1,,1|(-170,159)|
-10,123,payback period,-291,222,59,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,124,123,119,0,0,0,0,0,64,0,-1--1--1,,1|(-195,191)|
-10,125,required payback period,-263,195,87,12,8,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,126,125,119,0,0,0,0,0,64,0,-1--1--1,,1|(-173,174)|
-10,127,strategic value to external investors,-279,129,67,18,8,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,128,127,119,0,0,0,0,0,64,0,-1--1--1,,1|(-172,140)|
-1,129,127,120,0,0,0,0,0,128,0,-1--1--1,,1|(-182,167)|
-1,130,121,120,0,0,0,0,0,128,0,-1--1--1,,1|(-170,188)|
-1,131,125,120,0,0,0,0,0,128,0,-1--1--1,,1|(-155,204)|
-1,132,123,120,0,0,0,0,0,128,0,-1--1--1,,1|(-183,217)|
-10,133,granting decision,-86,592,52,11,8,3,0,0,-1,0,0,0
-10,134,NPV at required return,-208,647,58,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,135,134,133,0,0,0,0,0,64,0,-1--1--1,,1|(-144,618)|
-10,136,payback period,-45,642,59,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,137,136,133,0,0,0,0,0,64,0,-1--1--1,,1|(-60,622)|
-10,138,required payback period,-294,609,61,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,139,138,133,0,0,0,0,0,64,0,-1--1--1,,1|(-192,601)|
-10,140,strategic value to external investors,-281,568,72,19,8,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,141,140,133,0,0,0,0,0,64,0,-1--1--1,,1|(-180,579)|
-10,142,actual piloting rate,156,289,57,11,8,3,0,0,0,0,0,0
-10,143,piloting acceptable rate,247,344,54,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,144,143,142,0,0,0,0,0,64,0,-1--1--1,,1|(202,317)|
-10,145,Piloting Rate,155,382,40,20,3,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,146,145,142,0,0,0,0,0,64,0,-1--1--1,,1|(156,338)|
-10,147,actual demoing rate,496,293,48,19,8,3,0,0,0,0,0,0
-10,148,demoing acceptable rate,602,344,39,31,8,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,149,148,147,0,0,0,0,0,64,0,-1--1--1,,1|(555,323)|
-10,150,Demoing Rate,487,378,40,20,3,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,151,150,147,0,0,0,0,0,64,0,-1--1--1,,1|(490,342)|
-10,152,hours per year,71,342,55,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,153,152,142,0,0,0,0,0,128,0,-1--1--1,,1|(108,320)|
-10,154,hours per year,395,334,55,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,155,154,147,0,0,0,0,0,128,0,-1--1--1,,1|(429,321)|
-10,156,investor ask,-210,71,38,11,8,3,0,0,0,0,0,0
-10,157,investor ask rate,-213,20,67,12,8,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,158,157,156,0,0,0,0,0,64,0,-1--1--1,,1|(-212,40)|
-10,159,Time,-121,95,26,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,160,159,156,0,0,0,0,0,64,0,-1--1--1,,1|(-152,87)|
-10,161,TIME STEP,-325,96,50,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,162,161,156,0,0,0,0,0,64,0,-1--1--1,,1|(-268,85)|
-10,163,investor ask,-186,739,47,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,164,163,114,0,0,0,0,0,128,0,-1--1--1,,1|(-244,727)|
-10,165,commercial construction time,698,203,59,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,166,165,29,0,0,0,0,0,64,0,-1--1--1,,1|(748,251)|
-10,167,one Year,951,354,39,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,168,167,29,0,1,0,0,0,64,0,-1--1--1,,1|(899,337)|
-10,169,demo construction time,1182,246,59,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,170,169,33,0,0,0,0,0,64,0,-1--1--1,,1|(1140,280)|
-1,171,167,33,0,1,0,0,0,64,0,-1--1--1,,1|(996,344)|
-10,172,one Year,-324,59,39,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,173,172,156,0,0,0,0,0,64,0,-1--1--1,,1|(-273,65)|
-10,174,feedstock selector array,412,847,54,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,175,174,110,0,0,0,0,0,64,0,-1--1--1,,1|(492,849)|
-10,176,shared learning threshold for bioproduct production,626,790,68,41,8,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,177,176,80,0,0,0,0,0,128,0,-1--1--1,,1|(706,769)|
-10,178,shared learning from feedstock logistics,1090,658,65,19,8,3,0,0,0,0,0,0
-10,179,shared learning threshold for feedstock logistics,906,626,83,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,180,179,178,0,0,0,0,0,128,0,-1--1--1,,1|(1000,641)|
-10,181,Cumulative Feedstock Consumption,915,698,50,26,3,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,182,181,178,1,0,0,0,0,128,0,-1--1--1,,1|(1009,683)|
-10,183,researching indicator,213,211,36,19,8,3,0,0,0,0,0,0
-10,184,researching,68,197,45,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,185,184,183,0,0,0,0,0,128,0,-1--1--1,,1|(139,204)|
-10,186,internal project on time indicator,-137,839,58,19,8,3,0,0,0,0,0,0
-10,187,required technology readiness level,-300,878,68,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,188,187,186,0,0,0,0,0,64,0,-1--1--1,,1|(-220,858)|
-10,189,technology readiness level,-313,809,51,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,190,189,186,0,0,0,0,0,64,0,-1--1--1,,1|(-235,821)|
-10,191,internal project cancelled indicator,120,884,59,19,8,3,0,0,0,0,0,0
-10,192,number of missed stagegates allowed,-52,900,65,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,193,192,191,0,0,0,0,0,64,0,-1--1--1,,1|(31,892)|
-10,194,Stagegates Missed,-12,838,40,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,195,194,191,0,0,0,0,0,64,0,-1--1--1,,1|(41,855)|
-10,196,incumbent favorability indicator,905,854,65,19,8,3,0,0,0,0,0,0
-10,197,bioproduct favorability indicator,905,905,65,19,8,3,0,0,0,0,0,0
-10,198,Current Incumbent Price,720,855,57,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-10,199,Current Bioproduct Price,719,910,67,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,200,198,197,0,0,0,0,0,128,0,-1--1--1,,1|(801,876)|
-1,201,199,197,0,0,0,0,0,128,0,-1--1--1,,1|(806,907)|
-10,202,bioproduct performance advantage,1053,874,41,28,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,203,202,197,0,0,0,0,0,128,0,-1--1--1,,1|(997,885)|
-10,204,bioproduct market share economic,295,903,64,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-10,205,incumbent price response indicator,469,932,58,19,8,3,0,0,0,0,0,0
-1,206,204,205,0,0,0,0,0,128,0,-1--1--1,,1|(378,916)|
-10,207,incumbent market share target economic,243,946,74,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,208,207,205,0,0,0,0,0,128,0,-1--1--1,,1|(357,939)|
-10,209,incumbent price response magnitude,469,970,68,19,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,210,209,205,0,1,0,0,0,64,0,-1--1--1,,1|(469,951)|
-10,211,abandoning bioproduct indicator,1216,811,65,19,8,3,0,0,0,0,0,0
-10,212,Adopters,1144,908,40,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,213,212,211,1,0,0,0,0,64,0,-1--1--1,,1|(1155,856)|
-10,214,bioproduct offtake agreement,1056,761,64,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,215,214,211,0,0,0,0,0,64,0,-1--1--1,,1|(1128,783)|
-1,216,196,211,0,0,0,0,0,64,0,-1--1--1,,1|(1053,833)|
-10,217,retrofit delay,1225,951,49,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,218,217,211,1,0,0,0,0,64,0,-1--1--1,,1|(1195,889)|
-10,219,bioproduct performance advantage,1288,710,41,28,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,220,219,211,0,0,0,0,0,64,0,-1--1--1,,1|(1253,759)|
-10,221,one Year,578,976,39,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,222,221,205,0,0,0,0,0,64,0,-1--1--1,,1|(539,960)|
-10,223,green premium adjusted,883,985,47,19,8,3,0,0,0,0,0,0
-1,224,198,223,1,0,0,0,0,128,0,-1--1--1,,1|(807,902)|
-1,225,199,223,1,0,0,0,0,128,0,-1--1--1,,1|(746,943)|
-10,226,expected green premium,697,992,54,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,227,226,223,1,0,0,0,0,128,0,-1--1--1,,1|(802,1019)|
-10,228,bioproduct performance advantage,1027,993,41,28,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,229,228,223,0,0,0,0,0,64,0,-1--1--1,,1|(964,989)|
-10,230,green premium adjusted,255,679,52,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,231,230,107,0,0,0,0,0,128,0,-1--1--1,,1|(353,692)|
-10,232,internal investor decision,-328,947,50,19,8,3,0,0,0,0,0,0
-10,233,completing stages,-167,987,40,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,234,233,232,0,0,0,0,0,64,0,-1--1--1,,1|(-235,970)|
-10,235,value threshold,-175,925,56,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,236,235,232,0,0,0,0,0,64,0,-1--1--1,,1|(-247,935)|
-10,237,base external investor ask rate,-62,956,57,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,238,237,232,0,0,0,0,0,64,0,-1--1--1,,1|(-191,951)|
-10,239,expected idealized internal net present value,-144,1040,67,24,8,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,240,239,232,0,0,0,0,0,64,0,-1--1--1,,1|(-234,994)|
-1,241,197,196,0,0,0,0,0,64,0,-1--1--1,,1|(905,886)|
-10,242,bioproduct supply to demand ratio indicator,1038,1069,71,19,8,3,0,0,0,0,0,0
-10,243,Adopters,864,1045,40,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,244,243,242,0,0,0,0,0,64,0,-1--1--1,,1|(928,1053)|
-10,245,bioproduct performance advantage,850,1107,85,21,8,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,246,245,242,1,0,0,0,0,64,0,-1--1--1,,1|(956,1104)|
-10,247,production,840,1070,44,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,248,247,242,0,0,0,0,0,64,0,-1--1--1,,1|(918,1069)|
-10,249,IS equipment depreciation indicator,715,609,69,19,8,3,0,0,0,0,0,0
-10,250,IS Equipment Useful Value,739,554,48,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,251,250,249,0,0,0,0,0,64,0,-1--1--1,,1|(729,575)|
-10,252,one dollar,748,662,41,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,253,252,249,0,0,0,0,0,64,0,-1--1--1,,1|(737,644)|
-10,254,commercial plant capacity,1166,727,59,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,255,254,211,0,0,0,0,0,64,0,-1--1--1,,1|(1186,762)|
+10,1,in business indicator,171,8,41,15,8,131,0,0,0,0,0,0
+10,2,BS equity,120,69,41,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,3,2,1,0,0,0,0,0,64,0,-1--1--1,,1|(139,45)|
+10,4,BS equity threshold,241,71,36,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,5,4,1,0,0,0,0,0,64,0,-1--1--1,,1|(208,42)|
+10,6,profitability indicator,366,9,47,18,8,131,0,0,0,0,0,0
+10,7,hypothetical net margin,366,79,55,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,8,7,6,0,0,0,0,0,64,0,-1--1--1,,1|(366,50)|
+10,9,pilot and demo spending control indicator,756,-142,82,22,8,131,0,0,0,0,0,0
+10,10,actual spending,792,-239,40,22,8,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,11,10,9,1,0,0,0,0,64,0,-1--1--1,,1|(776,-198)|
+10,12,allowable spending,923,-224,35,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,13,12,9,1,0,0,0,0,64,0,-1--1--1,,1|(842,-195)|
+10,14,conserve spending,667,-245,34,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,15,14,9,1,0,0,0,0,64,0,-1--1--1,,1|(721,-201)|
+10,16,pilot and demo runway response,772,-60,59,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,17,16,9,1,0,0,0,0,64,0,-1--1--1,,1|(749,-75)|
+10,18,idealized demo revenue indicator,1268,-213,55,19,8,3,0,0,0,0,0,0
+10,19,idealized demo completion time,1148,-150,55,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,20,19,18,0,0,0,0,0,64,0,-1--1--1,,1|(1201,-179)|
+10,21,idealized demo construction time,1387,-136,59,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,22,21,18,0,0,0,0,0,64,0,-1--1--1,,1|(1333,-171)|
+10,23,years ahead,1428,-26,47,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,24,23,18,1,0,0,0,0,64,0,-1--1--1,,1|(1308,-98)|
+10,25,idealized commercial revenue indicator,1507,-208,66,19,8,3,0,0,0,0,0,0
+10,26,idealized commercial construction time,1447,-88,71,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,27,26,25,0,0,0,0,0,64,0,-1--1--1,,1|(1473,-142)|
+1,28,23,25,1,0,0,0,0,128,0,-1--1--1,,1|(1555,-119)|
+10,29,idealized commercial capital expenses indicator,1236,35,81,19,8,3,0,0,-1,0,0,0
+10,30,idealized demo completion time,1257,-55,55,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,31,30,29,0,0,0,0,0,64,0,-1--1--1,,1|(1248,-17)|
+1,32,23,29,1,0,0,0,0,128,0,-1--1--1,,1|(1301,-5)|
+10,33,idealized demo capital expenses indicator,1512,49,70,19,8,3,0,0,0,0,0,0
+10,34,idealized pilot completion time,1668,31,55,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,35,34,33,0,0,0,0,0,64,0,-1--1--1,,1|(1604,37)|
+1,36,23,33,1,0,0,0,0,128,0,-1--1--1,,1|(1481,27)|
+10,37,idealized commercial operating expenses indicator,1241,139,66,28,8,131,0,0,0,0,0,0
+10,38,idealized commercial construction time,1203,223,71,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,39,38,37,1,0,0,0,0,64,0,-1--1--1,,1|(1212,176)|
+1,40,23,37,1,0,0,0,0,128,0,-1--1--1,,1|(1321,73)|
+10,41,idealized demo operating expenses indicator,1511,170,79,19,8,3,0,0,0,0,0,0
+10,42,idealized demo completion time,1621,226,55,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,43,42,41,0,0,0,0,0,64,0,-1--1--1,,1|(1572,201)|
+10,44,idealized demo construction time,1620,109,59,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,45,44,41,0,0,0,0,0,64,0,-1--1--1,,1|(1571,136)|
+1,46,23,41,1,0,0,0,0,128,0,-1--1--1,,1|(1458,98)|
+10,47,idealized pilot operating expenses indicator,1364,193,75,19,8,3,0,0,0,0,0,0
+10,48,idealized pilot completion time,1304,287,55,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,49,48,47,0,0,0,0,0,64,0,-1--1--1,,1|(1329,245)|
+10,50,idealized pilot construction time,1476,279,59,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,51,50,47,0,0,0,0,0,64,0,-1--1--1,,1|(1425,240)|
+1,52,23,47,1,0,0,0,0,128,0,-1--1--1,,1|(1377,86)|
+10,53,management spending control indicator,940,-146,70,19,8,3,0,0,0,0,0,0
+10,54,management runway response,943,-69,59,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,55,54,53,1,0,0,0,0,64,0,-1--1--1,,1|(956,-107)|
+1,56,12,53,1,0,0,0,0,128,0,-1--1--1,,1|(924,-194)|
+1,57,10,53,1,0,0,0,0,128,0,-1--1--1,,1|(872,-185)|
+1,58,14,53,1,0,0,0,0,128,0,-1--1--1,,1|(788,-190)|
+10,59,research spending control indicator,580,-149,57,19,8,3,0,0,0,0,0,0
+1,60,12,59,1,0,0,0,0,128,0,-1--1--1,,1|(754,-197)|
+1,61,10,59,1,0,0,0,0,128,0,-1--1--1,,1|(649,-191)|
+1,62,14,59,1,0,0,0,0,128,0,-1--1--1,,1|(597,-211)|
+10,63,research runway response,478,-202,53,19,8,3,0,0,-1,0,0,0
+1,64,63,59,0,0,0,0,0,128,0,-1--1--1,,1|(522,-179)|
+1,65,14,63,0,0,0,0,0,128,0,-1--1--1,,1|(588,-229)|
+1,66,10,63,1,0,0,0,0,128,0,-1--1--1,,1|(653,-210)|
+10,67,actual net income indicator,140,156,55,19,8,3,0,0,-1,0,0,0
+10,68,Commercial Capital Expense,294,156,52,25,3,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,69,68,67,0,0,0,0,0,64,0,-1--1--1,,1|(225,156)|
+10,70,government operating grant amount indicator,224,256,71,19,8,3,0,0,-1,0,0,0
+10,71,Time,346,216,26,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,72,71,70,0,0,0,0,0,64,0,-1--1--1,,1|(307,228)|
+10,73,TIME STEP,107,210,50,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,74,73,70,0,0,0,0,0,64,0,-1--1--1,,1|(147,226)|
+10,75,FM positive cash flow,540,446,55,19,8,3,0,0,-1,0,0,0
+10,76,Time,419,416,26,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,77,76,75,0,0,0,0,0,0,0,-1--1--1,,1|(458,425)|
+10,78,CFS net change of cash and cash equivalents,396,483,81,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,79,78,75,1,0,0,0,0,64,0,-1--1--1,,1|(505,486)|
+10,80,shared learning from bioproduct production,1214,476,56,34,8,131,0,0,-1,0,0,0
+10,81,Cumulative Production,1064,427,49,24,3,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,82,81,80,0,0,0,0,0,64,0,-1--1--1,,1|(1128,447)|
+10,83,demoing spending indicator,1002,179,57,19,8,3,0,0,-1,0,0,0
+10,84,demoing,834,214,37,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,85,84,83,0,0,0,0,0,64,0,-1--1--1,,1|(901,200)|
+10,86,startup demoing,851,170,59,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,87,86,83,0,0,0,0,0,64,0,-1--1--1,,1|(920,173)|
+10,88,redemoing indicator,1035,277,34,19,8,3,0,0,0,0,0,0
+10,89,Continuous Demoing Hours,913,338,57,24,3,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,90,89,88,1,0,0,0,0,64,0,-1--1--1,,1|(988,310)|
+10,91,demoing,824,297,37,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,92,91,88,0,0,0,0,0,64,0,-1--1--1,,1|(924,287)|
+10,93,demoing acceptable rate,886,262,54,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,94,93,88,0,0,0,0,0,64,0,-1--1--1,,1|(963,269)|
+10,95,piloting spending indicator,660,186,53,19,8,3,0,0,0,0,0,0
+10,96,piloting,504,166,33,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,97,96,95,0,0,0,0,0,64,0,-1--1--1,,1|(565,173)|
+10,98,startup piloting,495,208,55,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,99,98,95,0,0,0,0,0,64,0,-1--1--1,,1|(571,197)|
+10,100,repiloting indicator,678,277,58,11,8,3,0,0,0,0,0,0
+10,101,Continuous Piloting Hours,532,359,51,26,3,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,102,101,100,1,0,0,0,0,64,0,-1--1--1,,1|(606,327)|
+10,103,piloting,502,309,33,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,104,103,100,0,0,0,0,0,64,0,-1--1--1,,1|(570,296)|
+10,105,piloting acceptable rate,493,258,54,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,106,105,100,0,0,0,0,0,64,0,-1--1--1,,1|(576,266)|
+10,107,bioproduct selling price with green premium,913,439,74,19,8,3,0,0,-1,0,0,0
+10,108,Current Bioproduct Price,718,478,59,26,3,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,109,108,107,0,0,0,0,0,64,0,-1--1--1,,1|(800,461)|
+10,110,feedstock selection check,1007,581,49,19,8,3,0,0,-1,0,0,0
+10,111,perennial monthly change in price indicator,655,568,77,19,8,3,0,0,0,0,0,0
+10,112,Time,513,550,26,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,113,112,111,0,0,0,0,0,64,0,-1--1--1,,1|(551,554)|
+10,114,external investor decision,104,439,52,19,8,3,0,0,-1,0,0,0
+10,115,random stream,230,500,56,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,116,115,114,1,0,0,0,0,0,0,-1--1--1,,1|(150,484)|
+10,117,probability of successful investor ask,274,421,77,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,118,117,114,0,0,0,0,0,64,0,-1--1--1,,1|(183,430)|
+10,119,lower bound on probability,355,-123,50,19,8,3,0,0,-1,0,0,0
+10,120,upper bound on probability,355,-62,51,19,8,3,0,0,-1,0,0,0
+10,121,NPV at required return,160,-106,58,19,8,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,122,121,119,0,0,0,0,0,64,0,-1--1--1,,1|(254,-115)|
+10,123,payback period,134,-50,59,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,124,123,119,0,0,0,0,0,64,0,-1--1--1,,1|(229,-82)|
+10,125,required payback period,162,-77,87,12,8,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,126,125,119,0,0,0,0,0,64,0,-1--1--1,,1|(251,-99)|
+10,127,strategic value to external investors,146,-143,67,18,8,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,128,127,119,0,0,0,0,0,64,0,-1--1--1,,1|(252,-134)|
+1,129,127,120,0,0,0,0,0,128,0,-1--1--1,,1|(241,-106)|
+1,130,121,120,0,0,0,0,0,128,0,-1--1--1,,1|(254,-86)|
+1,131,125,120,0,0,0,0,0,128,0,-1--1--1,,1|(269,-70)|
+1,132,123,120,0,0,0,0,0,128,0,-1--1--1,,1|(241,-57)|
+10,133,granting decision,339,320,52,11,8,3,0,0,-1,0,0,0
+10,134,NPV at required return,217,375,58,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,135,134,133,0,0,0,0,0,64,0,-1--1--1,,1|(280,346)|
+10,136,payback period,380,370,59,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,137,136,133,0,0,0,0,0,64,0,-1--1--1,,1|(363,350)|
+10,138,required payback period,131,337,61,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,139,138,133,0,0,0,0,0,64,0,-1--1--1,,1|(232,329)|
+10,140,strategic value to external investors,144,296,72,19,8,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,141,140,133,0,0,0,0,0,64,0,-1--1--1,,1|(244,307)|
+10,142,actual piloting rate,581,17,57,11,8,3,0,0,0,0,0,0
+10,143,piloting acceptable rate,672,72,54,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,144,143,142,0,0,0,0,0,64,0,-1--1--1,,1|(626,44)|
+10,145,Piloting Rate,580,110,40,20,3,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,146,145,142,0,0,0,0,0,64,0,-1--1--1,,1|(580,66)|
+10,147,actual demoing rate,921,21,48,19,8,3,0,0,0,0,0,0
+10,148,demoing acceptable rate,1027,72,39,31,8,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,149,148,147,0,0,0,0,0,64,0,-1--1--1,,1|(980,50)|
+10,150,Demoing Rate,912,106,40,20,3,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,151,150,147,0,0,0,0,0,64,0,-1--1--1,,1|(915,69)|
+10,152,hours per year,496,70,55,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,153,152,142,0,0,0,0,0,128,0,-1--1--1,,1|(532,47)|
+10,154,hours per year,820,62,55,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,155,154,147,0,0,0,0,0,128,0,-1--1--1,,1|(854,48)|
+10,156,investor ask,215,-201,38,11,8,3,0,0,0,0,0,0
+10,157,investor ask rate,212,-252,67,12,8,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,158,157,156,0,0,0,0,0,64,0,-1--1--1,,1|(212,-233)|
+10,159,Time,304,-177,26,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,160,159,156,0,0,0,0,0,64,0,-1--1--1,,1|(272,-186)|
+10,161,TIME STEP,100,-176,50,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,162,161,156,0,0,0,0,0,64,0,-1--1--1,,1|(156,-188)|
+10,163,investor ask,239,467,47,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,164,163,114,0,0,0,0,0,128,0,-1--1--1,,1|(180,455)|
+10,165,commercial construction time,1123,-69,59,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,166,165,29,0,0,0,0,0,64,0,-1--1--1,,1|(1173,-22)|
+10,167,one Year,1376,82,39,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,168,167,29,0,1,0,0,0,64,0,-1--1--1,,1|(1324,64)|
+10,169,demo construction time,1607,-26,59,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,170,169,33,0,0,0,0,0,64,0,-1--1--1,,1|(1565,7)|
+1,171,167,33,0,1,0,0,0,64,0,-1--1--1,,1|(1421,70)|
+10,172,one Year,101,-213,39,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,173,172,156,0,0,0,0,0,64,0,-1--1--1,,1|(151,-208)|
+10,174,feedstock selector array,837,575,54,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,175,174,110,0,0,0,0,0,64,0,-1--1--1,,1|(917,577)|
+10,176,shared learning threshold for bioproduct production,1051,518,68,41,8,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,177,176,80,0,0,0,0,0,128,0,-1--1--1,,1|(1131,497)|
+10,178,shared learning from feedstock logistics,1515,386,65,19,8,3,0,0,0,0,0,0
+10,179,shared learning threshold for feedstock logistics,1331,354,83,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,180,179,178,0,0,0,0,0,128,0,-1--1--1,,1|(1425,369)|
+10,181,Cumulative Feedstock Consumption,1340,426,50,26,3,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,182,181,178,1,0,0,0,0,128,0,-1--1--1,,1|(1434,411)|
+10,183,researching indicator,638,-61,36,19,8,3,0,0,0,0,0,0
+10,184,researching,493,-75,45,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,185,184,183,0,0,0,0,0,128,0,-1--1--1,,1|(563,-69)|
+10,186,internal project on time indicator,288,567,58,19,8,3,0,0,0,0,0,0
+10,187,required technology readiness level,125,606,68,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,188,187,186,0,0,0,0,0,64,0,-1--1--1,,1|(204,586)|
+10,189,technology readiness level,112,537,51,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,190,189,186,0,0,0,0,0,64,0,-1--1--1,,1|(189,549)|
+10,191,internal project cancelled indicator,545,612,59,19,8,3,0,0,0,0,0,0
+10,192,number of missed stagegates allowed,373,628,65,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,193,192,191,0,0,0,0,0,64,0,-1--1--1,,1|(455,620)|
+10,194,Stagegates Missed,413,566,40,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,195,194,191,0,0,0,0,0,64,0,-1--1--1,,1|(464,583)|
+10,196,incumbent favorability indicator,1344,552,65,19,8,3,0,0,0,0,0,0
+10,197,bioproduct favorability indicator,1330,633,65,19,8,3,0,0,0,0,0,0
+10,198,Current Incumbent Price,1145,583,57,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,199,Current Bioproduct Price,1144,638,67,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,200,198,197,0,0,0,0,0,128,0,-1--1--1,,1|(1226,604)|
+1,201,199,197,0,0,0,0,0,128,0,-1--1--1,,1|(1231,635)|
+10,202,bioproduct performance advantage,1478,602,41,28,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,203,202,197,0,0,0,0,0,128,0,-1--1--1,,1|(1422,613)|
+10,204,bioproduct market share economic,720,631,64,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,205,incumbent price response indicator,894,660,58,19,8,3,0,0,0,0,0,0
+1,206,204,205,0,0,0,0,0,128,0,-1--1--1,,1|(803,644)|
+10,207,incumbent market share target economic,668,674,74,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,208,207,205,0,0,0,0,0,128,0,-1--1--1,,1|(782,667)|
+10,209,incumbent price response magnitude,894,698,68,19,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,210,209,205,0,1,0,0,0,64,0,-1--1--1,,1|(894,679)|
+10,211,abandoning bioproduct indicator,1641,539,65,19,8,3,0,0,0,0,0,0
+10,212,Adopters,1569,636,40,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,213,212,211,1,0,0,0,0,64,0,-1--1--1,,1|(1580,584)|
+10,214,bioproduct offtake agreement,1481,489,64,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,215,214,211,0,0,0,0,0,64,0,-1--1--1,,1|(1553,511)|
+1,216,196,211,0,0,0,0,0,64,0,-1--1--1,,1|(1485,545)|
+10,217,retrofit delay,1650,679,49,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,218,217,211,1,0,0,0,0,64,0,-1--1--1,,1|(1620,617)|
+10,219,bioproduct performance advantage,1713,438,41,28,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,220,219,211,0,0,0,0,0,64,0,-1--1--1,,1|(1678,487)|
+10,221,one Year,1003,704,39,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,222,221,205,0,0,0,0,0,64,0,-1--1--1,,1|(964,688)|
+10,223,green premium adjusted,1308,713,47,19,8,3,0,0,0,0,0,0
+1,224,198,223,1,0,0,0,0,128,0,-1--1--1,,1|(1232,630)|
+1,225,199,223,1,0,0,0,0,128,0,-1--1--1,,1|(1171,671)|
+10,226,expected green premium,1122,720,54,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,227,226,223,1,0,0,0,0,128,0,-1--1--1,,1|(1227,747)|
+10,228,bioproduct performance advantage,1452,721,41,28,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,229,228,223,0,0,0,0,0,64,0,-1--1--1,,1|(1389,717)|
+10,230,green premium adjusted,680,407,52,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,231,230,107,0,0,0,0,0,128,0,-1--1--1,,1|(778,420)|
+10,232,internal investor decision,97,675,50,19,8,3,0,0,0,0,0,0
+10,233,completing stages,258,715,40,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,234,233,232,0,0,0,0,0,64,0,-1--1--1,,1|(189,698)|
+10,235,value threshold,250,653,56,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,236,235,232,0,0,0,0,0,64,0,-1--1--1,,1|(177,663)|
+10,237,base external investor ask rate,363,684,57,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,238,237,232,0,0,0,0,0,64,0,-1--1--1,,1|(233,679)|
+10,239,expected idealized internal net present value,281,768,67,24,8,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,240,239,232,0,0,0,0,0,64,0,-1--1--1,,1|(190,722)|
+1,241,197,196,0,0,0,0,0,64,0,-1--1--1,,1|(1335,599)|
+10,242,bioproduct supply to demand ratio indicator,1463,797,71,19,8,3,0,0,0,0,0,0
+10,243,Adopters,1289,773,40,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,244,243,242,0,0,0,0,0,64,0,-1--1--1,,1|(1353,781)|
+10,245,bioproduct performance advantage,1275,835,85,21,8,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,246,245,242,1,0,0,0,0,64,0,-1--1--1,,1|(1381,832)|
+10,247,production,1265,798,44,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,248,247,242,0,0,0,0,0,64,0,-1--1--1,,1|(1343,797)|
+10,249,IS equipment depreciation indicator,1140,337,69,19,8,3,0,0,0,0,0,0
+10,250,IS Equipment Useful Value,1164,282,48,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,251,250,249,0,0,0,0,0,64,0,-1--1--1,,1|(1154,303)|
+10,252,one dollar,1173,390,41,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,253,252,249,0,0,0,0,0,64,0,-1--1--1,,1|(1162,373)|
+10,254,commercial plant capacity,1591,455,59,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,255,254,211,0,0,0,0,0,64,0,-1--1--1,,1|(1611,490)|
 \\\---/// Sketch information - do not modify anything except names
 V300  Do not put anything below this section - it will be ignored
 *Development Stages
@@ -6665,11 +6741,11 @@ $192-192-192,0,Times New Roman|12||0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|96,96,1
 22:Day,Days
 23:0
 15:0,0,0,0,0,0
-19:100,18
+19:100,19
 27:0,
 34:0,
 4:Time
-5:Current Bioproduct Price
+5:feedstock selection check
 35:Date
 36:YYYY-MM-DD
 37:2000
