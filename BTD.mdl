@@ -2807,7 +2807,9 @@ Current Bioproduct Price= INTEG (
 	change in bioproduct selling price,
 		bioproduct long term price)
 	~	USD/tonProduct [0,?]
-	~		|
+	~	Bioproduct selling price updated every time step according to random-walk \
+		model.
+	|
 
 change in bioproduct selling price=
 	(bioproduct long term price - supply to demand ratio price impact * Current Bioproduct Price\
@@ -2816,7 +2818,9 @@ change in bioproduct selling price=
 	bioproduct price fluctuations * bioproduct long term price * RANDOM NORMAL( -3 , 3 ,\
 		 0 , 1 , random stream ) / TIME STEP
 	~	USD/tonProduct/year
-	~		|
+	~	Calculates random changes to the bioproduct selling price according to the \
+		specified fluctuation, reversion time and long term price.
+	|
 
 incumbent price response indicator=
 	IF THEN ELSE(SMOOTH(1 - bioproduct market share economic, 0.5 * one Year ) <= 
@@ -2832,7 +2836,8 @@ incumbent price response indicator=
 incumbent price response=
 	incumbent price response magnitude * incumbent price response indicator * Current Incumbent Price
 	~	USD/tonIncumbent [0,?]
-	~		|
+	~	Calculates the price response to market share loss
+	|
 
 incumbent monthly change in price=
 	( incumbent price trend - Current Incumbent Price ) / incumbent reversion time
@@ -2843,7 +2848,8 @@ incumbent monthly change in price=
 	                  incumbent maximum fluctuation,
 	                  random stream) / TIME STEP
 	~	USD/tonIncumbent/year
-	~		|
+	~	Random fluctuations in incumbent price around the long term price trend.
+	|
 
 incumbent price response magnitude=
 	0.2
@@ -2861,7 +2867,9 @@ incumbent price trend=
 		) ) * (Time - INITIAL TIME)
 	- incumbent price response
 	~	USD/tonIncumbent [0,?]
-	~		|
+	~	Calculates the average incumbent price trend over the model running time, \
+		based on specified starting price and long term price trend.
+	|
 
 incumbent reversion time=
 	0.1
@@ -2879,14 +2887,15 @@ incumbent starting price=
 incumbent long term price trend=
 	0.1
 	~	Dmnl [-10,10,0.05]
-	~	Fraction increase or decrease in the incumbent starting price that is \
-		expected, on average, over the model running time.
+	~	Annual fractional increase or decrease in the incumbent starting price \
+		that is expected, on average, over the model running time.
 	|
 
 changing incumbent price=
 	incumbent monthly change in price
 	~	USD/tonIncumbent/year
-	~		|
+	~	Implements the random price fluctations and long term price trend
+	|
 
 incumbent maximum fluctuation=
 	0.05
@@ -2898,19 +2907,26 @@ Current Incumbent Price= INTEG (
 	changing incumbent price,
 		incumbent starting price)
 	~	USD/tonIncumbent [0,?]
-	~		|
+	~	Incumbent price that is updated every time step according to the random \
+		walk model
+	|
 
 expected green premium=
 	0
 	~	Dmnl [0,1,0.01]
 	~	Percentage by which the bioproduct selling price can be increased to \
-		reflect the value to purchaser of a "green" product
+		reflect the value to purchaser of a "green" product. If this value is set \
+		too high and causes the bioproduct to be cost disadvantaged, the effective \
+		premium will be adjusted downward to eliminate the cost disadvantage. \
+		Default value is zero.
 	|
 
 custom feedstock periodic fluctuation magnitude=
 	3.5
 	~	USD/tonFeedstock [0,?]
-	~		|
+	~	Size of seasonal fluctuations in feedstock price. If there are no expected \
+		seasonal fluctations, leave as zero for a non-periodic random walk model.
+	|
 
 custom feedstock price trend=
 	( custom feedstock starting price + 
@@ -2919,22 +2935,27 @@ custom feedstock price trend=
 	 INITIAL TIME) +
 	  custom feedstock periodic fluctuation magnitude * SIN(2*Time/one Year) )
 	~	USD/tonFeedstock
-	~		|
+	~	Calculates the long term feedstock price trend, including any periodicity.
+	|
 
 custom feedstock reversion time=
 	1
 	~	year [0,?]
-	~		|
+	~	Time for the feedstock price to return to its long-term trend after a \
+		fluctuation.
+	|
 
 change in custom feedstock price=
 	custom feedstock monthly change in price
 	~	USD/(year*tonFeedstock)
-	~		|
+	~	Equal to the random fluctuation in feedstock price.
+	|
 
 custom feedstock starting price=
 	70
 	~	USD/tonFeedstock [0,?]
-	~		|
+	~	Average feedstock market price at model start time.
+	|
 
 custom feedstock monthly change in price=
 	( custom feedstock price trend - Current Custom Feedstock Price ) / custom feedstock reversion time
@@ -2944,23 +2965,29 @@ custom feedstock monthly change in price=
 	                0,
 	                0.1*custom feedstock maximum fluctuation magnitude, random stream)/TIME STEP
 	~	USD/(year*tonFeedstock)
-	~		|
+	~	Calculates a random fluctuation in feedstock price.
+	|
 
 custom feedstock maximum fluctuation magnitude=
 	0.475
 	~	Dmnl [0,?]
-	~		|
+	~	Expected maximum fluctuation in feedstock price.
+	|
 
 custom feedstock long term price change=
 	0
 	~	Dmnl [0,?]
-	~		|
+	~	Expected long term change in feedstock price. For a constant long term \
+		price, set to zero.
+	|
 
 Current Custom Feedstock Price= INTEG (
 	change in custom feedstock price,
 		custom feedstock starting price)
 	~	USD/tonFeedstock [0,?]
-	~		|
+	~	Calculates the feedstock price in each time step according to the random \
+		walk model.
+	|
 
 feedstock price array[corn]=
 	Current Corn Price ~~|
@@ -2977,13 +3004,15 @@ feedstock price array[generic fossil]=
 feedstock price array[custom]=
 	Current Custom Feedstock Price
 	~	USD/tonFeedstock
-	~		|
+	~	Assembles individual feedstock prices into an array for selection.
+	|
 
 feedstock price=
 	feedstock selection check * 
 	SUM( feedstock price array[feedstock!] * feedstock selector array[feedstock!] )
 	~	USD/tonFeedstock [0,?]
-	~		|
+	~	Selects one feedstock price model for use elsewhere in the model.
+	|
 
 feedstock selector array[feedstock]=
 	0, 0, 0, 1, 0, 0, 0
@@ -2993,7 +3022,7 @@ feedstock selector array[feedstock]=
 		warning.
 		Element order is as follows: [corn, corn stover, soybean, commodity sugar, generic \
 		perennial, generic fossil, custom]
-		Commodity sugar is the defaul feedstock; enter 0, 0, 0, 1, 0, 0, 0
+		Commodity sugar is the default feedstock; enter 0, 0, 0, 1, 0, 0, 0
 	|
 
 feedstock:
@@ -3004,7 +3033,8 @@ feedstock:
 soybean starting price=
 	11.387
 	~	USD/Bushel [0,?]
-	~		|
+	~	Average market price for soybean feedstock at model start time.
+	|
 
 soybean price trend=
 	( soybean starting price + 
@@ -3012,13 +3042,17 @@ soybean price trend=
 		) ) * (Time - INITIAL TIME) +
 	  soybean periodic fluctuation magnitude * SIN(2*Time/one Year) ) / soybean bushel to ton
 	~	USD/tonFeedstock
-	~		|
+	~	Calculates the long term price trend for soybeans, including seasonal \
+		variations
+	|
 
 Current Corn Price= INTEG (
 	change in corn price,
 		corn starting price / corn bushel to ton)
 	~	USD/tonFeedstock [0,?]
-	~		|
+	~	Calculates the corn feedstock price in each time step, according to the \
+		random walk model.
+	|
 
 corn price trend=
 	( corn starting price + 
@@ -3026,45 +3060,56 @@ corn price trend=
 		* (Time - INITIAL TIME) +
 	  corn periodic fluctuation magnitude * SIN(2*Time/one Year) ) / corn bushel to ton
 	~	USD/tonFeedstock
-	~		|
+	~	Calculates the long term price trend for corn, including seasonal \
+		variations.
+	|
 
 Current Soybean Price= INTEG (
 	change in soybean price,
 		soybean starting price / soybean bushel to ton)
 	~	USD/tonFeedstock [0,?]
-	~		|
+	~	Calculates the feedstock price in each time step according to the random \
+		walk model.
+	|
 
 soybean periodic fluctuation magnitude=
 	3.5
 	~	USD/Bushel [0,?]
-	~		|
+	~	Average magnitude of seasonal fluctuations in soybean price. If there are \
+		no expected seasonal fluctuations, leave as zero for a non-periodic random \
+		walk model.
+	|
 
 bioproduct long term price=
 	5000
 	~	USD/tonProduct [0,10000,10]
-	~		|
+	~	Expected bioproduct price in the long term (10+ years).
+	|
 
 corn stover starting price=
 	60
 	~	USD/tonFeedstock [0,?]
-	~	Reasonable value based on Corn Stover Pricer tool from Iowa State \
-		University
+	~	Average market price for corn stover at model start time. Default value is \
+		based on Corn Stover Pricer tool from Iowa State University
 	|
 
 change in corn stover price=
 	corn stover monthly change in price
 	~	USD/tonFeedstock/year
-	~		|
+	~	Equal to the random fluctuation in feedstock price.
+	|
 
 corn stover long term price change=
 	0.25
 	~	Dmnl [0,?]
-	~		|
+	~	Expected long term trend in corn stover prices.
+	|
 
 corn stover maximum fluctuation magnitude=
 	0.1
 	~	Dmnl [0,?]
-	~		|
+	~	Expected maximum fluctuation in corn stover price (short term)
+	|
 
 corn stover monthly change in price=
 	( corn stover price trend - Current Corn Stover Price ) / corn stover reversion time
@@ -3075,12 +3120,16 @@ corn stover monthly change in price=
 	                corn stover maximum fluctuation magnitude,
 	                random stream)/TIME STEP
 	~	USD/(tonFeedstock*year)
-	~		|
+	~	Calculates a random variation in corn stover price
+	|
 
 corn stover periodic fluctuation magnitude=
 	1.4
 	~	USD/tonFeedstock [0,?]
-	~		|
+	~	Average magnitude of seasonal fluctuations in corn stover price. If there \
+		are no expected seasonal fluctuations, leave as zero for a non-periodic \
+		random walk model.
+	|
 
 corn stover price trend=
 	corn stover starting price + 
@@ -3088,18 +3137,23 @@ corn stover price trend=
 		) ) * (Time - INITIAL TIME) +
 	corn stover periodic fluctuation magnitude * SIN(2*Time/one Year)
 	~	USD/tonFeedstock
-	~		|
+	~	Long term trend for corn stover price, including seasonal variations
+	|
 
 corn stover reversion time=
 	1
 	~	year [0,?]
-	~		|
+	~	Expected time for corn stover price to return to the long term trend after \
+		a fluctuation
+	|
 
 Current Corn Stover Price= INTEG (
 	change in corn stover price,
 		corn stover starting price)
 	~	USD/tonFeedstock [0,?]
-	~		|
+	~	Calculates the feedstock price in each time step according to the random \
+		walk model.
+	|
 
 perennial monthly change in price=
 	( perennial price trend - Current Perennial Price ) / perennial reversion time 
@@ -3111,7 +3165,8 @@ perennial monthly change in price=
 	                random stream)/TIME STEP
 	+ perennial price trend * perennial annual fluctuation magnitude / one Year * perennial monthly change in price indicator
 	~	USD/(year*tonFeedstock)
-	~		|
+	~	Calculates a random fluctuation in perennial price
+	|
 
 corn monthly change in price=
 	( corn price trend - Current Corn Price ) / corn reversion time
@@ -3122,7 +3177,8 @@ corn monthly change in price=
 	                corn maximum fluctuation magnitude,
 	                random stream)/TIME STEP
 	~	USD/(year*tonFeedstock)
-	~		|
+	~	Calculates a random fluctuation in corn price
+	|
 
 perennial price trend=
 	perennial starting price + 
@@ -3135,32 +3191,41 @@ perennial price trend=
 corn maximum fluctuation magnitude=
 	0.1
 	~	Dmnl [0,?]
-	~		|
+	~	Expected maximum fluctuation in corn price (short term)
+	|
 
 change in corn price=
 	corn monthly change in price
 	~	USD/(year*tonFeedstock)
-	~		|
+	~	Equal to the random fluctuation in feedstock price.
+	|
 
 corn periodic fluctuation magnitude=
 	1.4
 	~	USD/Bushel [0,?]
-	~		|
+	~	Average magnitude of seasonal fluctuations in corn price. If there are no \
+		expected seasonal fluctuations, leave as zero for a non-periodic random \
+		walk model.
+	|
 
 corn reversion time=
 	1
 	~	year [0,?]
-	~		|
+	~	Expected time for the corn price to return to the long term trend after a \
+		fluctuation
+	|
 
 corn starting price=
 	4.66
 	~	USD/Bushel [0,?]
-	~		|
+	~	Average market price for corn feedstock at model start time.
+	|
 
 corn long term price change=
 	0.25
 	~	Dmnl [0,?]
-	~		|
+	~	Expected long term trend in corn prices.
+	|
 
 soybean monthly change in price=
 	( soybean price trend - Current Soybean Price ) / soybean reversion time
@@ -3170,101 +3235,127 @@ soybean monthly change in price=
 	                0,
 	                0.1*soybean maximum fluctuation magnitude, random stream)/TIME STEP
 	~	USD/(year*tonFeedstock)
-	~		|
+	~	Calculates a random fluctuation in soybean price
+	|
 
 change in soybean price=
 	soybean monthly change in price
 	~	USD/(year*tonFeedstock)
-	~		|
+	~	Equal to the random fluctuation in feedstock price.
+	|
 
 soybean maximum fluctuation magnitude=
 	0.475
 	~	Dmnl [0,?]
-	~		|
+	~	Expected maximum fluctuation in soybean price (short term)
+	|
 
 soybean reversion time=
 	1
 	~	year [0,?]
-	~		|
+	~	Expected time for the soybean price to return to the long term trend after \
+		a fluctuation
+	|
 
 soybean long term price change=
 	0
 	~	Dmnl [0,?]
-	~		|
+	~	Expected long term trend in soybean prices.
+	|
 
 perennial starting price=
 	136
 	~	USD/tonFeedstock [0,?]
-	~		|
+	~	Average market price for perennial feedstock at model start time.
+	|
 
 change in perennial price=
 	perennial monthly change in price
 	~	USD/(year*tonFeedstock)
-	~		|
+	~	Equal to the random fluctuation in feedstock price.
+	|
 
 perennial maximum fluctuation magnitude=
 	0.1875
 	~	Dmnl [0,?]
-	~		|
+	~	Expected maximum fluctuation in perennial feedstock price (short term)
+	|
 
 Current Perennial Price= INTEG (
 	change in perennial price,
 		perennial starting price)
 	~	USD/tonFeedstock [0,?]
-	~		|
+	~	Calculates the feedstock price in each time step according to the random \
+		walk model.
+	|
 
 perennial annual fluctuation magnitude=
 	RANDOM NORMAL(0.1, 0.68, 0.3, 0.19, random stream)
 	~	Dmnl [0,?]
-	~		|
+	~	Separate parameter for generating random fluctuations in perennial price.
+	|
 
 perennial long term price change=
 	0.29
 	~	Dmnl [0,?]
-	~		|
+	~	Expected long term trend in perennial feedstock prices.
+	|
 
 perennial periodic fluctuation magnitude=
 	6.75
 	~	USD/tonFeedstock [0,?]
-	~		|
+	~	Average magnitude of seasonal fluctuations in perennial feedstock price. \
+		If there are no expected seasonal fluctuations, leave as zero for a \
+		non-periodic random walk model.
+	|
 
 perennial reversion time=
 	1
 	~	year [0,?]
-	~		|
+	~	Expected time for the feedstock price to return to the long term trend \
+		after a fluctuation
+	|
 
 Current Fossil Feedstock Price= INTEG (
 	change in fossil feedstock price,
 		fossil feedstock starting price)
 	~	USD/tonFeedstock [0,?]
-	~		|
+	~	Calculates the feedstock price in each time step according to the random \
+		walk model.
+	|
 
 fossil feedstock maximum fluctuation magnitude=
 	0.05
 	~	Dmnl [0,?]
-	~		|
+	~	Expected maximum fluctuation in fossil feedstock price (short term)
+	|
 
 change in fossil feedstock price=
 	fossil feedstock monthly change in price
 	~	USD/tonFeedstock/year
-	~		|
+	~	Equal to the random fluctuation in feedstock price.
+	|
 
 fossil feedstock price trend=
 	fossil feedstock starting price + 
 	( fossil feedstock long term price change*fossil feedstock starting price / (FINAL TIME\
 		 - INITIAL TIME) ) * (Time - INITIAL TIME)
 	~	USD/tonFeedstock
-	~		|
+	~	Long term price trend for fossil feedstock
+	|
 
 fossil feedstock long term price change=
 	0.0625
 	~	Dmnl [0,?]
-	~		|
+	~	Expected long term trend in fossil feedstock prices.
+	|
 
 fossil feedstock reversion time=
 	0.1
 	~	year [0,?]
-	~		|
+	~	Expected time for the feedstock price to return to the long term trend \
+		after a fluctuation
+	|
 
 fossil feedstock monthly change in price=
 	( fossil feedstock price trend - Current Fossil Feedstock Price ) / fossil feedstock reversion time
@@ -3275,27 +3366,32 @@ fossil feedstock monthly change in price=
 	                fossil feedstock maximum fluctuation magnitude,
 	                random stream)/TIME STEP
 	~	USD/(year*tonFeedstock)
-	~		|
+	~	Calculates a random fluctuation in fossil feedstock price
+	|
 
 fossil feedstock starting price=
 	1600
 	~	USD/tonFeedstock [0,?]
-	~		|
+	~	Average market price for fossil feedstock at model start time.
+	|
 
 change in commodity sugar price=
 	commodity sugar monthly change in price
 	~	USD/(year*tonFeedstock)
-	~		|
+	~	Equal to the random fluctuation in feedstock price.
+	|
 
 commodity sugar long term price change=
 	0.4
 	~	Dmnl [0,?]
-	~		|
+	~	Expected long term trend in commodity sugar prices.
+	|
 
 commodity sugar maximum fluctuation magnitude=
 	0.1625
 	~	Dmnl [0,?]
-	~		|
+	~	Expected maximum fluctuation in commodity sugar price (short term)
+	|
 
 commodity sugar monthly change in price=
 	( commodity sugar price trend - Current Commodity Sugar Price ) / commodity sugar reversion time
@@ -3306,7 +3402,8 @@ commodity sugar monthly change in price=
 	                0.1*commodity sugar maximum fluctuation magnitude,
 	                random stream)/TIME STEP
 	~	USD/(year*tonFeedstock)
-	~		|
+	~	Calculates a random fluctuation in commodity sugar price
+	|
 
 commodity sugar price trend=
 	commodity sugar starting price + 
@@ -3314,34 +3411,43 @@ commodity sugar price trend=
 		 - INITIAL TIME) ) * (Time
 	 - INITIAL TIME)
 	~	USD/tonFeedstock
-	~		|
+	~	Long term trend in commodity sugar feedstock price
+	|
 
 commodity sugar reversion time=
 	0.375
 	~	year [0,?]
-	~		|
+	~	Expected time for the commodity sugar price to return to the long term \
+		trend after a fluctuation
+	|
 
 commodity sugar starting price=
 	426
 	~	USD/tonFeedstock [0,?]
-	~	2008 price from USDA ERS
+	~	Average market price for commodity sugar feedstock at model start time. \
+		Default value is 2008 price from USDA ERS
 	|
 
 Current Commodity Sugar Price= INTEG (
 	change in commodity sugar price,
 		commodity sugar starting price)
 	~	USD/tonFeedstock [0,?]
-	~		|
+	~	Calculates the feedstock price in each time step according to the random \
+		walk model.
+	|
 
 bioproduct price fluctuations=
 	0
 	~	Dmnl [0,0.05,0.001]
-	~		|
+	~	Magnitude  of typical fluctuations in bioproduct price.
+	|
 
 bioproduct price reversion time=
 	1
 	~	year [0.1,5,0.1]
-	~		|
+	~	Average time for the bioproduct price to recover from a price fluctuation \
+		of typical magnitude.
+	|
 
 ********************************************************
 	.commercial
@@ -5620,10 +5726,10 @@ Generic Fossil
 1,77,78,75,100,0,0,22,0,0,0,-1--1--1,,1|(408,1913)|
 11,78,48,451,1913,6,8,34,3,0,0,1,0,0,0
 10,79,change in perennial price,451,1940,47,19,40,3,0,0,-1,0,0,0
-10,80,perennial maximum fluctuation magnitude,190,1815,67,19,8,131,0,2,0,0,0,0,0-0-0,0-0-0,|12||128-128-0
+10,80,perennial maximum fluctuation magnitude,195,1829,67,19,8,131,0,2,0,0,0,0,0-0-0,0-0-0,|12||128-128-0
 10,81,perennial reversion time,189,1780,45,19,8,3,0,2,0,0,0,0,0-0-0,0-0-0,|12||128-128-0
 10,82,perennial monthly change in price,452,1828,56,19,8,3,0,0,0,0,0,0
-1,83,80,82,0,0,0,0,0,128,0,-1--1--1,,1|(319,1821)|
+1,83,80,82,0,0,0,0,0,128,0,-1--1--1,,1|(322,1828)|
 1,84,81,82,0,0,0,0,0,128,0,-1--1--1,,1|(308,1801)|
 1,85,74,82,1,0,0,0,0,128,0,-1--1--1,,1|(490,1878)|
 10,86,TIME STEP,277,1770,51,11,8,130,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
@@ -5689,11 +5795,11 @@ Soybean
 10,144,corn maximum fluctuation magnitude,205,1028,67,19,8,131,0,2,0,0,0,0,0-0-0,0-0-0,|12||128-128-0
 10,145,corn reversion time,259,996,60,11,8,3,0,2,0,0,0,0,0-0-0,0-0-0,|12||128-128-0
 10,146,corn monthly change in price,477,1019,48,19,8,3,0,0,0,0,0,0
-1,147,144,146,0,0,0,0,0,128,0,-1--1--1,,1|(343,1023)|
-1,148,145,146,0,0,0,0,0,128,0,-1--1--1,,1|(367,1006)|
-1,149,138,146,0,0,0,0,0,128,0,-1--1--1,,1|(547,1057)|
+1,147,144,146,0,0,0,0,0,128,0,-1--1--1,,1|(343,1024)|
+1,148,145,146,0,0,0,0,0,128,0,-1--1--1,,1|(367,1008)|
+1,149,138,146,0,0,0,0,0,128,0,-1--1--1,,1|(547,1058)|
 10,150,TIME STEP,374,969,50,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,151,150,146,0,1,0,0,0,64,0,-1--1--1,,1|(410,986)|
+1,151,150,146,0,1,0,0,0,64,0,-1--1--1,,1|(410,987)|
 10,152,corn starting price,592,962,56,11,8,3,0,2,0,0,0,0,0-0-0,0-0-0,|12||128-128-0
 1,153,152,138,1,0,0,0,0,128,1,-1--1--1,,1|(660,1008)|
 10,154,corn long term price change,587,892,46,19,8,131,0,2,0,0,0,0,0-0-0,0-0-0,|12||128-128-0
@@ -5701,19 +5807,19 @@ Soybean
 10,156,FINAL TIME,254,906,55,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
 1,157,156,155,1,1,0,0,0,64,0,-1--1--1,,1|(406,913)|
 10,158,INITIAL TIME,253,931,60,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,159,158,155,0,1,0,0,0,64,0,-1--1--1,,1|(336,925)|
-1,160,154,155,0,0,0,0,0,64,0,-1--1--1,,1|(514,903)|
-1,161,152,155,0,0,0,0,0,64,0,-1--1--1,,1|(514,942)|
+1,159,158,155,0,1,0,0,0,64,0,-1--1--1,,1|(336,926)|
+1,160,154,155,0,0,0,0,0,64,0,-1--1--1,,1|(514,904)|
+1,161,152,155,0,0,0,0,0,64,0,-1--1--1,,1|(514,943)|
 10,162,Time,251,881,26,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
 1,163,162,155,1,1,0,0,0,64,0,-1--1--1,,1|(386,897)|
-1,164,146,143,0,0,0,0,0,128,0,-1--1--1,,1|(475,1064)|
-1,165,155,146,0,0,0,0,0,128,0,-1--1--1,,1|(444,958)|
+1,164,146,143,0,0,0,0,0,128,0,-1--1--1,,1|(475,1065)|
+1,165,155,146,0,0,0,0,0,128,0,-1--1--1,,1|(444,959)|
 10,166,corn periodic fluctuation magnitude,594,840,67,19,8,131,0,2,0,0,0,0,0-0-0,0-0-0,|12||128-128-0
 1,167,166,155,1,0,0,0,0,128,0,-1--1--1,,1|(483,861)|
 12,168,0,316,809,108,15,3,135,0,8,-1,0,0,0,-1--1--1,0-0-0,|18||0-0-0
 Corn
 10,169,one Year,255,957,39,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,170,169,155,0,1,0,0,0,128,0,-1--1--1,,1|(327,941)|
+1,170,169,155,0,1,0,0,0,128,0,-1--1--1,,1|(327,942)|
 10,171,one Year,227,1729,39,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
 1,172,171,91,0,1,0,0,0,128,0,-1--1--1,,1|(302,1728)|
 10,173,one Year,315,1276,39,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
@@ -5735,11 +5841,11 @@ Corn
 10,189,corn stover maximum fluctuation magnitude,969,1045,68,19,8,131,0,2,0,0,0,0,0-0-0,0-0-0,|12||128-128-0
 10,190,corn stover reversion time,1001,977,45,19,8,3,0,2,0,0,0,0,0-0-0,0-0-0,|12||128-128-0
 10,191,corn stover monthly change in price,1199,1033,63,19,8,3,0,0,0,0,0,0
-1,192,189,191,0,0,0,0,0,128,0,-1--1--1,,1|(1079,1039)|
-1,193,190,191,0,0,0,0,0,128,0,-1--1--1,,1|(1084,1000)|
-1,194,183,191,0,0,0,0,0,128,0,-1--1--1,,1|(1267,1078)|
+1,192,189,191,0,0,0,0,0,128,0,-1--1--1,,1|(1079,1040)|
+1,193,190,191,0,0,0,0,0,128,0,-1--1--1,,1|(1084,1001)|
+1,194,183,191,0,0,0,0,0,128,0,-1--1--1,,1|(1267,1079)|
 10,195,TIME STEP,1014,1086,50,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,196,195,191,0,1,0,0,0,64,0,-1--1--1,,1|(1087,1064)|
+1,196,195,191,0,1,0,0,0,64,0,-1--1--1,,1|(1087,1066)|
 10,197,corn stover starting price,1311,987,41,19,8,3,0,0,0,0,0,0
 1,198,197,183,1,0,0,0,0,128,1,-1--1--1,,1|(1379,1033)|
 10,199,corn stover long term price change,1306,917,68,19,8,131,0,2,0,0,0,0,0-0-0,0-0-0,|12||128-128-0
@@ -5747,19 +5853,19 @@ Corn
 10,201,FINAL TIME,970,912,55,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
 1,202,201,200,1,1,0,0,0,64,0,-1--1--1,,1|(1127,934)|
 10,203,INITIAL TIME,959,932,60,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,204,203,200,0,1,0,0,0,64,0,-1--1--1,,1|(1046,935)|
-1,205,199,200,0,0,0,0,0,64,0,-1--1--1,,1|(1223,928)|
-1,206,197,200,0,0,0,0,0,64,0,-1--1--1,,1|(1239,967)|
+1,204,203,200,0,1,0,0,0,64,0,-1--1--1,,1|(1046,936)|
+1,205,199,200,0,0,0,0,0,64,0,-1--1--1,,1|(1223,929)|
+1,206,197,200,0,0,0,0,0,64,0,-1--1--1,,1|(1239,968)|
 10,207,Time,1076,892,28,10,8,130,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
 1,208,207,200,1,1,0,0,0,64,0,-1--1--1,,1|(1125,920)|
-1,209,191,188,0,0,0,0,0,128,0,-1--1--1,,1|(1196,1083)|
-1,210,200,191,0,0,0,0,0,128,0,-1--1--1,,1|(1165,981)|
+1,209,191,188,0,0,0,0,0,128,0,-1--1--1,,1|(1196,1084)|
+1,210,200,191,0,0,0,0,0,128,0,-1--1--1,,1|(1165,982)|
 10,211,corn stover periodic fluctuation magnitude,1313,865,67,19,8,131,0,2,0,0,0,0,0-0-0,0-0-0,|12||128-128-0
 1,212,211,200,1,0,0,0,0,128,0,-1--1--1,,1|(1201,884)|
 12,213,0,990,809,100,18,3,135,0,8,-1,0,0,0,-1--1--1,0-0-0,|18||0-0-0
 Corn Stover
 10,214,one Year,926,957,39,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,215,214,200,0,1,0,0,0,128,0,-1--1--1,,1|(1019,950)|
+1,215,214,200,0,1,0,0,0,128,0,-1--1--1,,1|(1019,952)|
 10,216,Current Corn Stover Price,1405,269,58,23,3,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
 10,217,bioproduct long term price,532,339,54,19,8,3,0,18,0,0,0,0,0-0-0,0-0-0,|12|B|128-128-0
 10,218,TIME STEP,178,705,50,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
@@ -5768,11 +5874,11 @@ Corn Stover
 10,221,random stream,376,311,56,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
 1,222,221,7,0,0,0,0,0,64,0,-1--1--1,,1|(378,295)|
 10,223,random stream,958,1013,56,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,224,223,191,0,0,0,0,0,64,0,-1--1--1,,1|(1068,1021)|
+1,224,223,191,0,0,0,0,0,64,0,-1--1--1,,1|(1068,1022)|
 10,225,random stream,356,1884,56,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
 1,226,225,82,0,0,0,0,0,64,0,-1--1--1,,1|(390,1863)|
 10,227,random stream,267,1057,56,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
-1,228,227,146,0,0,0,0,0,64,0,-1--1--1,,1|(369,1038)|
+1,228,227,146,0,0,0,0,0,64,0,-1--1--1,,1|(369,1039)|
 10,229,random stream,415,1457,56,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
 1,230,229,115,0,0,0,0,0,64,0,-1--1--1,,1|(452,1434)|
 1,231,225,105,0,0,0,0,0,128,0,-1--1--1,,1|(285,1880)|
@@ -5828,7 +5934,7 @@ Corn Stover
 10,275,custom feedstock price trend,1283,609,56,19,8,3,0,0,0,0,0,0
 1,276,274,275,0,0,0,0,0,64,0,-1--1--1,,1|(1378,599)|
 1,277,272,275,1,0,0,0,0,64,0,-1--1--1,,1|(1392,626)|
-1,278,268,265,0,0,0,0,0,128,0,-1--1--1,,1|(1120,688)|
+1,278,268,265,0,0,0,0,0,128,0,-1--1--1,,1|(1120,689)|
 1,279,275,268,1,0,0,0,0,128,0,-1--1--1,,1|(1187,604)|
 10,280,custom feedstock periodic fluctuation magnitude,1529,535,86,22,8,131,0,2,0,0,0,0,0-0-0,0-0-0,|12||128-128-0
 1,281,280,275,1,0,0,0,0,128,0,-1--1--1,,1|(1361,579)|
@@ -6515,11 +6621,11 @@ $192-192-192,0,Times New Roman|12||0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|96,96,1
 22:Day,Days
 23:0
 15:0,0,0,0,0,0
-19:5,16
+19:100,18
 27:0,
 34:0,
 4:Time
-5:biofuel feedstock[feedstock]
+5:Current Bioproduct Price
 35:Date
 36:YYYY-MM-DD
 37:2000
