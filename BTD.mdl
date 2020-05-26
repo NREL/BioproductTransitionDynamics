@@ -20,6 +20,50 @@ Round = INTEGER(Input) + IF THEN ELSE(Input - INTEGER(Input) >= 0.5, 1, 0)
 
 :END OF MACRO:
 ********************************************************
+	.financial metrics
+********************************************************~
+	|
+
+FM return on investor equity=
+	IS net income / (BS Cumulative Equity from Investors + 1e-05)
+	~	1/year
+	~	The return on investor equity (net income divided by cumulative equity).
+	~	:SUPPLEMENTARY 
+	|
+
+FM return on total equity=
+	IS net income / (BS equity + 1e-05)
+	~	1/year
+	~	The return on total equity (net income over equity).
+	~	:SUPPLEMENTARY 
+	|
+
+FM gross margin=
+	IS taxable income / (IS revenues + 1e-05)
+	~	Dmnl
+	~	The gross margin (income divided by revenue).
+	~	:SUPPLEMENTARY 
+	|
+
+FM earliest positive cash flow=
+	MIN(FM last positive cash flow, FM positive cash flow)
+	~	year
+	~	The first year with positive cash flow.
+	|
+
+FM last positive cash flow= DELAY FIXED (
+	FM earliest positive cash flow, TIME STEP, 9999)
+	~	year
+	~	The last year with positive cash flow.
+	|
+
+FM positive cash flow=
+	IF THEN ELSE( CFS net change of cash and cash equivalents > 0 , Time , 9999 )
+	~	year
+	~	Whether the cash flow is positive.
+	|
+
+********************************************************
 	.commercialcosts
 ********************************************************~
 	|
@@ -555,13 +599,6 @@ demoing spending indicator=
 	~	Dmnl [0,1]
 	~	Returns 1 when the demo plant is incurring expenses either by construction \
 		or operating, and 0 otherwise.
-	|
-
-FM positive cash flow=
-	IF THEN ELSE( CFS net change of cash and cash equivalents > 0 , Time , 9999 )
-	~	year
-	~	Returns the current model Time when the bioproduct project is experiencing \
-		a positive cash flow, and 9999 otherwise.
 	|
 
 government operating grant amount indicator=
@@ -1919,7 +1956,8 @@ BS imbalance=
 BS accumulating equity=
 	MAX(CFS net issuance of equity, 0)
 	~	USD/year [0,?]
-	~		|
+	~	How much equity is being accumulated on the balance-sheet.
+	|
 
 BS assets=
 	BS Cumulative Cash
@@ -1928,7 +1966,8 @@ BS assets=
 	+
 	IS Tax Loss Carry Forward
 	~	USD [0,?]
-	~		|
+	~	The total assets on the balance sheet.
+	|
 
 BS balance=
 	BS assets
@@ -1937,37 +1976,44 @@ BS balance=
 	-
 	BS liabilities
 	~	USD
-	~		|
+	~	Assets less equity and liabilities on the balance sheet, which should be \
+		exactly zero.
+	|
 
 BS Cumulative Cash= INTEG (
 	CFS net change of cash and cash equivalents,
 		0)
 	~	USD
-	~		|
+	~	The accumulated cash on the balance sheet.
+	|
 
 BS Cumulative Depreciation= INTEG (
 	CFS equipment depreciation,
 		0)
 	~	USD [0,?]
-	~		|
+	~	The accumulated depreciation of equipment on the balance sheet.
+	|
 
 BS Cumulative Equity from Capital Incentives= INTEG (
 	CFS receipt of capital incentives,
 		0)
 	~	USD [0,?]
-	~		|
+	~	The accumulated equity from captial incentives on the balance sheet.
+	|
 
 BS Cumulative Equity from Investors= INTEG (
 	BS accumulating equity,
 		0)
 	~	USD [0,?]
-	~		|
+	~	The accumulated equity from investors on the balance sheet.
+	|
 
 BS Cumulative Property Plant Equipment= INTEG (
 	CFS net cash provided by investing activities,
 		0)
 	~	USD [0,?]
-	~		|
+	~	The accumulated property, plant, and equipment (PPE) on the balance sheet.
+	|
 
 BS equity=
 	BS Cumulative Equity from Capital Incentives
@@ -1978,29 +2024,36 @@ BS equity=
 	+
 	IS Tax Loss Carry Forward
 	~	USD [0,?]
-	~		|
+	~	The total equity on the balance sheet.
+	|
 
 BS liabilities=
 	0
 	~	USD [0,?]
-	~	There would be liabilities if there were debt financing.
+	~	The total liabilities on the balance sheet.
+		
+		There would be liabilities if there were debt financing.
 	|
 
 BS net property plant equipment=
 	BS Cumulative Property Plant Equipment - BS Cumulative Depreciation
 	~	USD
-	~		|
+	~	The net property, plant, and equipment (PPE) on the balance sheet.
+	|
 
 BS Retained Earnings= INTEG (
 	BS retaining earnings,
 		0)
 	~	USD
-	~		|
+	~	The accumulated retained earning on the balance sheet.
+	|
 
 BS retaining earnings=
 	IS net income + MIN(0, CFS net issuance of equity)
 	~	USD/year
-	~		|
+	~	The value of earning being retained on the balance sheet; namely, the net \
+		income and the issuance of equity.
+	|
 
 ********************************************************
 	.cash flow statement
@@ -2014,45 +2067,39 @@ CFS net issuance of equity=
 	-
 	CFS receipt of capital incentives
 	~	USD/year [0,?]
-	~		|
-
-FM earliest positive cash flow=
-	MIN(FM last positive cash flow, FM positive cash flow)
-	~	year
-	~		|
-
-FM last positive cash flow= DELAY FIXED (
-	FM earliest positive cash flow, TIME STEP, 9999)
-	~	year
-	~		|
-
-FM return on total equity=
-	IS net income / (BS equity + 1e-05)
-	~	1/year
-	~		~	:SUPPLEMENTARY 
+	~	The net amount of equity issued on the cash-flow statement: namely, the \
+		capital grants and the new investment, less the receipt of capital \
+		incentives.
 	|
 
 CFS net cash provided by investing activities=
 	IS purchasing equipment
 	~	USD/year [0,?]
-	~		|
+	~	The net cash being provided by investing activities on the cash-flow \
+		statement; namely, the purchasing of equipment.
+	|
 
 CFS equipment depreciation=
 	IS equipment depreciation
 	~	USD/year [0,?]
-	~		|
+	~	The rate of equipment depreciation on the cash-flow statement.
+	|
 
 CFS net cash=
 	IS net income + CFS equipment depreciation
 	~	USD/year
-	~		|
+	~	The net cash from income and equipment depreciation on the cash-flow \
+		statement.
+	|
 
 CFS net cash used in financing activities=
 	BS accumulating equity
 	+
 	CFS receipt of capital incentives
-	~	USD/year
-	~		|
+	~	USD/year [0,?]
+	~	The net amount of cash used in financing activities on the cash-flow \
+		statement: namely, the total of the new equity and capital incentives.
+	|
 
 CFS net change of cash and cash equivalents=
 	CFS net cash
@@ -2061,12 +2108,16 @@ CFS net change of cash and cash equivalents=
 	+
 	CFS net cash used in financing activities
 	~	USD/year
-	~		|
+	~	The net change in cash and cash equivalents on the cash-flow statement; \
+		namely, the net cash and financing not used in investing.
+	|
 
 CFS receipt of capital incentives=
 	pilot capital granting + demo capital granting + commercial capital granting
 	~	USD/year [0,?]
-	~		|
+	~	The value of capital incentives being received for pilot, demo, or \
+		commercial plants.
+	|
 
 ********************************************************
 	.income statement
@@ -2080,17 +2131,20 @@ IS variable costs=
 	feedstock price / commercial process yield input * production
 	)
 	~	USD/year [0,?]
-	~		|
+	~	Value of variable costs on the income statement.
+	|
 
 IS fixed costs=
 	commercial plant operation * commercial fixed operating cost
 	~	USD/year [0,?]
-	~		|
+	~	Value of fixed costs on the income statement.
+	|
 
 IS sales=
 	bioproduct selling price with green premium * production
 	~	USD/year [0,?]
-	~		|
+	~	Value of sales on the income statement.
+	|
 
 IS purchasing equipment=
 	pilot capital expenditure
@@ -2099,18 +2153,8 @@ IS purchasing equipment=
 	+
 	commercial capital expenditure
 	~	USD/year [0,?]
-	~		|
-
-FM gross margin=
-	IS taxable income / (IS revenues + 1e-05)
-	~	Dmnl
-	~		~	:SUPPLEMENTARY 
-	|
-
-FM return on investor equity=
-	IS net income / (BS Cumulative Equity from Investors + 1e-05)
-	~	1/year
-	~		~	:SUPPLEMENTARY 
+	~	The total capital expenditures from pilot, demo, and commercail plants on \
+		the income statement.
 	|
 
 IS operating expenses=
@@ -2122,12 +2166,15 @@ IS operating expenses=
 	+
 	IS fixed costs + IS variable costs
 	~	USD/year [0,?]
-	~		|
+	~	Total operating expenses on the income statement.
+	|
 
 IS earnings before interest taxes depreciation=
 	IS revenues - IS operating expenses
 	~	USD/year
-	~		|
+	~	Earnings before interest, taxes, and depreciation (EBITD) on the income \
+		statement: namely, the excess of revenue beyond expenses.
+	|
 
 IS equipment depreciation=
 	IF THEN ELSE(
@@ -2137,60 +2184,80 @@ IS equipment depreciation=
 	0
 	)
 	~	USD/year [0,?]
-	~		|
+	~	The depreciation of the useful value of equipment on the income statement.
+	|
 
 one dollar=
 	1
 	~	USD
-	~		|
+	~	One dollar.
+	|
 
 recent max IS Equipment Useful Value=
 	IS equipment depreciation indicator *
 	MAX(IS Equipment Useful Value, last recent max IS Equipment Useful Value)
 	~	USD
-	~		|
+	~	The maximum useful value of equipment recently recorded, since equipment \
+		began depreciation. This is for internal bookkeeping needed for linear \
+		depreciation computations.
+	|
 
 last recent max IS Equipment Useful Value= DELAY FIXED (
 	recent max IS Equipment Useful Value, TIME STEP , 0)
 	~	USD
-	~		|
+	~	The value of `recent max IS Equipment Useful Value` delayed by one time \
+		step. This is for internal bookkeeping needed for linear depreciation \
+		computations.
+	|
 
 IS equipment useful lifetime=
 	20
 	~	year [0,?]
-	~		|
+	~	The useful lifetime of capital equipment.
+	|
 
 IS Equipment Useful Value= INTEG (
 	IS purchasing equipment-IS equipment depreciation,
 		0)
 	~	USD [-1000,?]
-	~		|
+	~	The estimated useful value, for depreciation purposes, remaining for \
+		capital equipment on the income statement.
+	|
 
 IS net income=
 	IS taxable income - IS taxes due
 	~	USD/year
-	~		|
+	~	The net income on the incomes statement; namely, the taxable income in \
+		excess of taxes due.
+	|
 
 IS production incentive=
 	government production incentive * production
 	~	USD/year [0,?]
-	~		|
+	~	Value of the production incentive on the income statement.
+	|
 
 IS revenues=
 	IS sales + IS production incentive
 	~	USD/year [0,?]
-	~		|
+	~	Total revenues on the income statement.
+	|
 
 IS Tax Loss Carry Forward= INTEG (
 	IS tax loss current - IS tax loss used or lost,
 		0)
 	~	USD [0,?]
-	~		|
+	~	The value of past tax losses that can still be carried forward to future \
+		years on the income statement. Tax losses can be deferred to offset later \
+		taxes due.
+	|
 
 IS tax loss current=
 	MAX(0, - IS taxes before deferment)
 	~	USD/year [0,?]
-	~		|
+	~	The tax loss on the income statement; namely, the absolute value of taxes \
+		due if that is negative. Tax losses can be offset taxes in future years.
+	|
 
 IS tax loss used or lost=
 	MAX(
@@ -2198,34 +2265,45 @@ IS tax loss used or lost=
 	MIN(IS taxes before deferment, IS Tax Loss Carry Forward / TIME STEP)
 	)
 	~	USD/year [0,?]
-	~	The factor of 1.4 in the second line is a part of an exponential \
+	~	The tax losses that were carried forward, but are either lost because of the \
+		carry-forward period or used to offset current taxes due.
+		
+		The factor of 1.4 in the second line is a part of an exponential \
 		approximation to the linear decrease in carryover.
 	|
 
 IS carry forward period=
 	7
 	~	year
-	~		|
+	~	The amount of time that tax losses can be carried forward on the income \
+		statement.
+	|
 
 IS tax rate=
 	0.3
 	~	Dmnl [0,1]
-	~		|
+	~	The tax rate on the income statement.
+	|
 
 IS taxable income=
 	IS earnings before interest taxes depreciation - IS equipment depreciation
 	~	USD/year
-	~		|
+	~	The taxable income on the income statement; namely, the EBITD in excess of \
+		equipment depreciation.
+	|
 
 IS taxes before deferment=
 	IS tax rate * IS taxable income
 	~	USD/year
-	~		|
+	~	The taxes that would have to be paid if none are deferred on the income \
+		statement.
+	|
 
 IS taxes due=
 	MAX(0, IS taxes before deferment - IS Tax Loss Carry Forward / TIME STEP)
 	~	USD/year [0,?]
-	~		|
+	~	The taxes due on the income statement.
+	|
 
 ********************************************************
 	.sharedlearning
@@ -4315,7 +4393,7 @@ Internal Investor Decisions
 10,76,stagegate length,1372,498,57,11,8,131,0,18,0,0,0,0,0-0-0,0-0-0,|12|B|128-128-0
 1,77,79,75,4,0,0,22,0,0,0,-1--1--1,,1|(1393,656)|
 1,78,79,74,100,0,0,22,0,0,0,-1--1--1,,1|(1303,656)|
-11,79,5084,1348,656,6,8,34,3,0,0,1,0,0,0
+11,79,5244,1348,656,6,8,34,3,0,0,1,0,0,0
 10,80,completing stages,1348,675,55,11,40,3,0,0,-1,0,0,0
 1,81,76,79,1,0,0,0,0,128,0,-1--1--1,,1|(1384,569)|
 10,82,number of stages to complete,1138,463,62,19,8,3,0,0,0,0,0,0
@@ -4385,7 +4463,7 @@ V300  Do not put anything below this section - it will be ignored
 *Investor Computations
 $192-192-192,0,Times New Roman|12||0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|96,96,100,0
 10,1,Working Capital,848,555,52,11,0,3,0,0,0,0,0,0
-11,2,1148,957,562,6,8,38,3,0,0,3,0,0,0
+11,2,1404,957,562,6,8,38,3,0,0,3,0,0,0
 10,3,actual spending,957,529,37,25,40,131,0,0,-1,0,0,0
 10,4,hypothetical net income,1642,139,80,11,8,3,0,0,0,0,0,0
 1,5,4,6,1,0,0,0,0,64,0,-1--1--1,,1|(1665,364)|
@@ -4795,7 +4873,7 @@ $192-192-192,0,Times New Roman|12||0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|96,96,1
 10,7,Completed Piloting,5,258,40,20,3,3,0,0,0,0,0,0
 1,8,10,7,4,0,0,22,0,0,0,-1--1--1,,1|(-60,260)|
 1,9,10,1,100,0,0,22,0,0,0,-1--1--1,,1|(-123,260)|
-11,10,7644,-91,260,6,8,34,3,0,0,1,0,0,0
+11,10,7660,-91,260,6,8,34,3,0,0,1,0,0,0
 10,11,piloting,-91,279,24,11,40,3,0,0,-1,0,0,0
 10,12,target pilot hours,-280,338,59,11,8,3,0,18,0,0,0,0,0-0-0,0-0-0,|12|B|128-128-0
 1,13,1,5,1,0,0,0,0,128,0,-1--1--1,,1|(-218,294)|
@@ -4812,7 +4890,7 @@ $192-192-192,0,Times New Roman|12||0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|96,96,1
 10,24,redemoing,684,393,34,11,40,3,0,0,-1,0,0,0
 1,25,27,19,4,0,0,22,0,0,0,-1--1--1,,1|(759,306)|
 1,26,27,18,100,0,0,22,0,0,0,-1--1--1,,1|(698,306)|
-11,27,7244,729,306,6,8,34,3,0,0,1,0,0,0
+11,27,7260,729,306,6,8,34,3,0,0,1,0,0,0
 10,28,demoing,729,325,28,11,40,3,0,0,-1,0,0,0
 1,29,18,23,1,0,0,0,0,128,0,-1--1--1,,1|(604,350)|
 10,30,Pilot Capital Expense,21,-73,48,29,3,131,0,0,0,0,0,0
@@ -4840,7 +4918,7 @@ $192-192-192,0,Times New Roman|12||0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|96,96,1
 10,52,Startup Piloting Hours,-121,176,40,24,3,131,0,0,0,0,0,0
 1,53,55,7,4,0,0,22,0,0,0,-1--1--1,,1|(16,210)|
 1,54,55,52,100,0,0,22,0,0,0,-1--1--1,,1|(-36,175)|
-11,55,828,16,175,6,8,34,3,0,0,4,0,0,0
+11,55,1100,16,175,6,8,34,3,0,0,4,0,0,0
 10,56,startup piloting,68,175,46,11,40,3,0,0,-1,0,0,0
 10,57,startup piloting period,-155,89,53,19,8,131,0,18,0,0,0,0,0-0-0,0-0-0,|12|B|128-128-0
 1,58,57,52,1,0,0,0,0,128,1,-1--1--1,,1|(-161,133)|
@@ -4850,7 +4928,7 @@ $192-192-192,0,Times New Roman|12||0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|96,96,1
 10,62,Startup Demoing Hours,662,196,40,25,3,131,0,0,0,0,0,0
 1,63,65,19,4,0,0,22,0,0,0,-1--1--1,,1|(824,242)|
 1,64,65,62,100,0,0,22,0,0,0,-1--1--1,,1|(760,191)|
-11,65,780,824,191,6,8,34,3,0,0,4,0,0,0
+11,65,1052,824,191,6,8,34,3,0,0,4,0,0,0
 10,66,startup demoing,881,191,50,11,40,3,0,0,-1,0,0,0
 10,67,startup demoing period,677,97,57,19,8,131,0,18,0,0,0,0,0-0-0,0-0-0,|12|B|128-128-0
 1,68,67,62,1,0,0,0,0,128,1,-1--1--1,,1|(654,136)|
@@ -5170,11 +5248,11 @@ Dynamic Market Share Calculation
 10,34,New Market Participants,598,596,59,35,3,131,0,0,0,0,0,0
 1,35,37,31,4,0,0,22,0,0,0,-1--1--1,,1|(500,328)|
 1,36,37,30,100,0,0,22,0,0,0,-1--1--1,,1|(411,328)|
-11,37,4940,456,328,6,8,34,3,0,0,1,0,0,0
+11,37,5100,456,328,6,8,34,3,0,0,1,0,0,0
 10,38,overcoming inertia,456,347,57,11,40,3,0,0,-1,0,0,0
 1,39,41,32,4,0,0,22,0,0,0,-1--1--1,,1|(785,328)|
 1,40,41,31,100,0,0,22,0,0,0,-1--1--1,,1|(695,328)|
-11,41,4684,740,328,6,8,34,3,0,0,1,0,0,0
+11,41,4860,740,328,6,8,34,3,0,0,1,0,0,0
 10,42,deciding to adopt,740,347,55,11,40,3,0,0,-1,0,0,0
 12,43,48,586,737,10,8,0,3,0,0,-1,0,0,0
 1,44,46,34,4,0,0,22,0,0,0,-1--1--1,,1|(586,656)|
@@ -5183,11 +5261,11 @@ Dynamic Market Share Calculation
 10,47,market growing,643,687,49,11,40,3,0,0,-1,0,0,0
 1,48,50,30,4,0,0,22,0,0,0,-1--1--1,,1|(314,475)|
 1,49,50,34,100,0,0,22,0,0,0,-1--1--1,,1|(429,596)|
-11,50,4924,314,596,6,8,34,3,0,0,1,0,0,0
+11,50,5084,314,596,6,8,34,3,0,0,1,0,0,0
 10,51,new nonadopters,314,615,54,11,40,3,0,0,-1,0,0,0
 1,52,54,32,4,0,0,22,0,0,0,-1--1--1,,1|(883,475)|
 1,53,54,34,100,0,0,22,0,0,0,-1--1--1,,1|(767,596)|
-11,54,4668,883,596,6,8,34,3,0,0,1,0,0,0
+11,54,4844,883,596,6,8,34,3,0,0,1,0,0,0
 10,55,new adopters,883,615,43,11,40,3,0,0,-1,0,0,0
 10,56,bioproduct offtake agreement,986,471,65,19,8,3,0,18,0,0,0,0,0-0-0,0-0-0,|12|B|128-128-0
 1,57,56,32,1,0,0,0,0,128,1,-1--1--1,,1|(937,422)|
@@ -5255,7 +5333,7 @@ Dynamic Market Share Calculation
 10,119,incumbent market share target economic,10,762,78,19,8,3,0,18,0,0,0,0,0-0-0,0-0-0,|12|B|128-128-0
 1,120,122,30,4,0,0,22,0,0,0,-1--1--1,,1|(314,111)|
 1,121,122,32,100,0,0,22,0,0,0,-1--1--1,,1|(883,111)|
-11,122,4716,592,111,6,8,34,3,0,0,3,0,0,0
+11,122,4892,592,111,6,8,34,3,0,0,3,0,0,0
 10,123,abandoning bioproduct,592,84,37,19,40,3,0,0,-1,0,0,0
 10,124,supply to demand ratio price impact,992,60,57,19,8,3,0,0,0,0,0,0
 10,125,abandoning bioproduct indicator,633,188,69,19,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
@@ -6730,7 +6808,7 @@ $192-192-192,0,Times New Roman|12||0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|96,96,1
 :L<%^E!@
 1:latest-commit-3-local.vdf
 1:latest-commit-local.vdf
-9:latest-commit-3-local
+9:latest-commit-local
 22:$,Dollar,Dollars,$s
 22:Hour,Hours
 22:Month,Months
