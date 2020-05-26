@@ -1846,7 +1846,8 @@ BS imbalance=
 BS accumulating equity=
 	MAX(CFS net issuance of equity, 0)
 	~	USD/year [0,?]
-	~		|
+	~	How much equity is being accumulated on the balance-sheet.
+	|
 
 BS assets=
 	BS Cumulative Cash
@@ -1855,7 +1856,8 @@ BS assets=
 	+
 	IS Tax Loss Carry Forward
 	~	USD [0,?]
-	~		|
+	~	The total assets on the balance sheet.
+	|
 
 BS balance=
 	BS assets
@@ -1864,37 +1866,44 @@ BS balance=
 	-
 	BS liabilities
 	~	USD
-	~		|
+	~	Assets less equity and liabilities on the balance sheet, which should be \
+		exactly zero.
+	|
 
 BS Cumulative Cash= INTEG (
 	CFS net change of cash and cash equivalents,
 		0)
 	~	USD
-	~		|
+	~	The accumulated cash on the balance sheet.
+	|
 
 BS Cumulative Depreciation= INTEG (
 	CFS equipment depreciation,
 		0)
 	~	USD [0,?]
-	~		|
+	~	The accumulated depreciation of equipment on the balance sheet.
+	|
 
 BS Cumulative Equity from Capital Incentives= INTEG (
 	CFS receipt of capital incentives,
 		0)
 	~	USD [0,?]
-	~		|
+	~	The accumulated equity from captial incentives on the balance sheet.
+	|
 
 BS Cumulative Equity from Investors= INTEG (
 	BS accumulating equity,
 		0)
 	~	USD [0,?]
-	~		|
+	~	The accumulated equity from investors on the balance sheet.
+	|
 
 BS Cumulative Property Plant Equipment= INTEG (
 	CFS net cash provided by investing activities,
 		0)
 	~	USD [0,?]
-	~		|
+	~	The accumulated property, plant, and equipment (PPE) on the balance sheet.
+	|
 
 BS equity=
 	BS Cumulative Equity from Capital Incentives
@@ -1905,29 +1914,43 @@ BS equity=
 	+
 	IS Tax Loss Carry Forward
 	~	USD [0,?]
-	~		|
+	~	The total equity on the balance sheet.
+	|
 
 BS liabilities=
 	0
 	~	USD [0,?]
-	~	There would be liabilities if there were debt financing.
+	~	The total liabilities on the balance sheet.
+		
+		There would be liabilities if there were debt financing.
 	|
 
 BS net property plant equipment=
 	BS Cumulative Property Plant Equipment - BS Cumulative Depreciation
 	~	USD
-	~		|
+	~	The net property, plant, and equipment (PPE) on the balance sheet.
+	|
 
 BS Retained Earnings= INTEG (
 	BS retaining earnings,
 		0)
 	~	USD
-	~		|
+	~	The accumulated retained earning on the balance sheet.
+	|
 
 BS retaining earnings=
 	IS net income + MIN(0, CFS net issuance of equity)
 	~	USD/year
-	~		|
+	~	The value of earning being retained on the balance sheet; namely, the net \
+		income and the issuance of equity.
+	|
+
+FM return on investor equity=
+	IS net income / (BS Cumulative Equity from Investors + 1e-05)
+	~	1/year
+	~	The return on investor equity (net income divided by cumulative equity).
+	~	:SUPPLEMENTARY 
+	|
 
 ********************************************************
 	.cash flow statement
@@ -1941,7 +1964,10 @@ CFS net issuance of equity=
 	-
 	CFS receipt of capital incentives
 	~	USD/year [0,?]
-	~		|
+	~	The net amount of equity issued on the cash-flow statement: namely, the \
+		capital grants and the new investment, less the receipt of capital \
+		incentives.
+	|
 
 FM earliest positive cash flow=
 	MIN(FM last positive cash flow, FM positive cash flow)
@@ -1956,13 +1982,16 @@ FM last positive cash flow= DELAY FIXED (
 FM return on total equity=
 	IS net income / (BS equity + 1e-05)
 	~	1/year
-	~		~	:SUPPLEMENTARY 
+	~	The return on total equity (net income over equity).
+	~	:SUPPLEMENTARY 
 	|
 
 CFS net cash provided by investing activities=
 	IS purchasing equipment
 	~	USD/year [0,?]
-	~		|
+	~	The net cash being provided by investing activities on the cash-flow \
+		statement; namely, the purchasing of equipment.
+	|
 
 CFS equipment depreciation=
 	IS equipment depreciation
@@ -1972,14 +2001,18 @@ CFS equipment depreciation=
 CFS net cash=
 	IS net income + CFS equipment depreciation
 	~	USD/year
-	~		|
+	~	The net cash from income and equipment depreciation on the cash-flow \
+		statement.
+	|
 
 CFS net cash used in financing activities=
 	BS accumulating equity
 	+
 	CFS receipt of capital incentives
-	~	USD/year
-	~		|
+	~	USD/year [0,?]
+	~	The net amount of cash used in financing activities on the cash-flow \
+		statement: namely, the total of the new equity and capital incentives.
+	|
 
 CFS net change of cash and cash equivalents=
 	CFS net cash
@@ -1988,12 +2021,16 @@ CFS net change of cash and cash equivalents=
 	+
 	CFS net cash used in financing activities
 	~	USD/year
-	~		|
+	~	The net change in cash and cash equivalents on the cash-flow statement; \
+		namely, the net cash and financing not used in investing.
+	|
 
 CFS receipt of capital incentives=
 	pilot capital granting + demo capital granting + commercial capital granting
 	~	USD/year [0,?]
-	~		|
+	~	The value of capital incentives being received for pilot, demo, or \
+		commercial plants.
+	|
 
 ********************************************************
 	.income statement
@@ -2037,13 +2074,6 @@ FM gross margin=
 	IS taxable income / (IS revenues + 1e-05)
 	~	Dmnl
 	~	The gross margin (income divided by revenue).
-	~	:SUPPLEMENTARY 
-	|
-
-FM return on investor equity=
-	IS net income / (BS Cumulative Equity from Investors + 1e-05)
-	~	1/year
-	~	The return on investor equity (net income divided by cumulative equity).
 	~	:SUPPLEMENTARY 
 	|
 
