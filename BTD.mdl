@@ -2007,17 +2007,20 @@ IS variable costs=
 	feedstock price / commercial process yield input * production
 	)
 	~	USD/year [0,?]
-	~		|
+	~	Value of variable costs on the income statement.
+	|
 
 IS fixed costs=
 	commercial plant operation * commercial fixed operating cost
 	~	USD/year [0,?]
-	~		|
+	~	Value of fixed costs on the income statement.
+	|
 
 IS sales=
 	bioproduct selling price with green premium * production
 	~	USD/year [0,?]
-	~		|
+	~	Value of sales on the income statement.
+	|
 
 IS purchasing equipment=
 	pilot capital expenditure
@@ -2026,18 +2029,22 @@ IS purchasing equipment=
 	+
 	commercial capital expenditure
 	~	USD/year [0,?]
-	~		|
+	~	The total capital expenditures from pilot, demo, and commercail plants on \
+		the income statement.
+	|
 
 FM gross margin=
 	IS taxable income / (IS revenues + 1e-05)
 	~	Dmnl
-	~		~	:SUPPLEMENTARY 
+	~	The gross margin (income divided by revenue).
+	~	:SUPPLEMENTARY 
 	|
 
 FM return on investor equity=
 	IS net income / (BS Cumulative Equity from Investors + 1e-05)
 	~	1/year
-	~		~	:SUPPLEMENTARY 
+	~	The return on investor equity (net income divided by cumulative equity).
+	~	:SUPPLEMENTARY 
 	|
 
 IS operating expenses=
@@ -2049,12 +2056,15 @@ IS operating expenses=
 	+
 	IS fixed costs + IS variable costs
 	~	USD/year [0,?]
-	~		|
+	~	Total operating expenses on the income statement.
+	|
 
 IS earnings before interest taxes depreciation=
 	IS revenues - IS operating expenses
 	~	USD/year
-	~		|
+	~	Earnings before interest, taxes, and depreciation (EBITD) on the income \
+		statement: namely, the excess of revenue beyond expenses.
+	|
 
 IS equipment depreciation=
 	IF THEN ELSE(
@@ -2064,60 +2074,80 @@ IS equipment depreciation=
 	0
 	)
 	~	USD/year [0,?]
-	~		|
+	~	The depreciation of the useful value of equipment on the income statement.
+	|
 
 one dollar=
 	1
 	~	USD
-	~		|
+	~	One dollar.
+	|
 
 recent max IS Equipment Useful Value=
 	IS equipment depreciation indicator *
 	MAX(IS Equipment Useful Value, last recent max IS Equipment Useful Value)
 	~	USD
-	~		|
+	~	The maximum useful value of equipment recently recorded, since equipment \
+		began depreciation. This is for internal bookkeeping needed for linear \
+		depreciation computations.
+	|
 
 last recent max IS Equipment Useful Value= DELAY FIXED (
 	recent max IS Equipment Useful Value, TIME STEP , 0)
 	~	USD
-	~		|
+	~	The value of `recent max IS Equipment Useful Value` delayed by one time \
+		step. This is for internal bookkeeping needed for linear depreciation \
+		computations.
+	|
 
 IS equipment useful lifetime=
 	20
 	~	year [0,?]
-	~		|
+	~	The useful lifetime of capital equipment.
+	|
 
 IS Equipment Useful Value= INTEG (
 	IS purchasing equipment-IS equipment depreciation,
 		0)
 	~	USD [-1000,?]
-	~		|
+	~	The estimated useful value, for depreciation purposes, remaining for \
+		capital equipment on the income statement.
+	|
 
 IS net income=
 	IS taxable income - IS taxes due
 	~	USD/year
-	~		|
+	~	The net income on the incomes statement; namely, the taxable income in \
+		excess of taxes due.
+	|
 
 IS production incentive=
 	government production incentive * production
 	~	USD/year [0,?]
-	~		|
+	~	Value of the production incentive on the income statement.
+	|
 
 IS revenues=
 	IS sales + IS production incentive
 	~	USD/year [0,?]
-	~		|
+	~	Total revenues on the income statement.
+	|
 
 IS Tax Loss Carry Forward= INTEG (
 	IS tax loss current - IS tax loss used or lost,
 		0)
 	~	USD [0,?]
-	~		|
+	~	The value of past tax losses that can still be carried forward to future \
+		years on the income statement. Tax losses can be deferred to offset later \
+		taxes due.
+	|
 
 IS tax loss current=
 	MAX(0, - IS taxes before deferment)
 	~	USD/year [0,?]
-	~		|
+	~	The tax loss on the income statement; namely, the absolute value of taxes \
+		due if that is negative. Tax losses can be offset taxes in future years.
+	|
 
 IS tax loss used or lost=
 	MAX(
@@ -2125,34 +2155,45 @@ IS tax loss used or lost=
 	MIN(IS taxes before deferment, IS Tax Loss Carry Forward / TIME STEP)
 	)
 	~	USD/year [0,?]
-	~	The factor of 1.4 in the second line is a part of an exponential \
+	~	The tax losses that were carried forward, but are either lost because of the \
+		carry-forward period or used to offset current taxes due.
+		
+		The factor of 1.4 in the second line is a part of an exponential \
 		approximation to the linear decrease in carryover.
 	|
 
 IS carry forward period=
 	7
 	~	year
-	~		|
+	~	The amount of time that tax losses can be carried forward on the income \
+		statement.
+	|
 
 IS tax rate=
 	0.3
 	~	Dmnl [0,1]
-	~		|
+	~	The tax rate on the income statement.
+	|
 
 IS taxable income=
 	IS earnings before interest taxes depreciation - IS equipment depreciation
 	~	USD/year
-	~		|
+	~	The taxable income on the income statement; namely, the EBITD in excess of \
+		equipment depreciation.
+	|
 
 IS taxes before deferment=
 	IS tax rate * IS taxable income
 	~	USD/year
-	~		|
+	~	The taxes that would have to be paid if none are deferred on the income \
+		statement.
+	|
 
 IS taxes due=
 	MAX(0, IS taxes before deferment - IS Tax Loss Carry Forward / TIME STEP)
 	~	USD/year [0,?]
-	~		|
+	~	The taxes due on the income statement.
+	|
 
 ********************************************************
 	.sharedlearning
