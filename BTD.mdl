@@ -20,6 +20,50 @@ Round = INTEGER(Input) + IF THEN ELSE(Input - INTEGER(Input) >= 0.5, 1, 0)
 
 :END OF MACRO:
 ********************************************************
+	.financial metrics
+********************************************************~
+	|
+
+FM return on investor equity=
+	IS net income / (BS Cumulative Equity from Investors + 1e-05)
+	~	1/year
+	~	The return on investor equity (net income divided by cumulative equity).
+	~	:SUPPLEMENTARY 
+	|
+
+FM return on total equity=
+	IS net income / (BS equity + 1e-05)
+	~	1/year
+	~	The return on total equity (net income over equity).
+	~	:SUPPLEMENTARY 
+	|
+
+FM gross margin=
+	IS taxable income / (IS revenues + 1e-05)
+	~	Dmnl
+	~	The gross margin (income divided by revenue).
+	~	:SUPPLEMENTARY 
+	|
+
+FM earliest positive cash flow=
+	MIN(FM last positive cash flow, FM positive cash flow)
+	~	year
+	~	The first year with positive cash flow.
+	|
+
+FM last positive cash flow= DELAY FIXED (
+	FM earliest positive cash flow, TIME STEP, 9999)
+	~	year
+	~	The last year with positive cash flow.
+	|
+
+FM positive cash flow=
+	IF THEN ELSE( CFS net change of cash and cash equivalents > 0 , Time , 9999 )
+	~	year
+	~	Whether the cash flow is positive.
+	|
+
+********************************************************
 	.commercialcosts
 ********************************************************~
 	|
@@ -517,11 +561,6 @@ demoing spending indicator=
 	             1,
 	             0)
 	~	Dmnl [0,1]
-	~		|
-
-FM positive cash flow=
-	IF THEN ELSE( CFS net change of cash and cash equivalents > 0 , Time , 9999 )
-	~	year
 	~		|
 
 government operating grant amount indicator=
@@ -1945,13 +1984,6 @@ BS retaining earnings=
 		income and the issuance of equity.
 	|
 
-FM return on investor equity=
-	IS net income / (BS Cumulative Equity from Investors + 1e-05)
-	~	1/year
-	~	The return on investor equity (net income divided by cumulative equity).
-	~	:SUPPLEMENTARY 
-	|
-
 ********************************************************
 	.cash flow statement
 ********************************************************~
@@ -1969,23 +2001,6 @@ CFS net issuance of equity=
 		incentives.
 	|
 
-FM earliest positive cash flow=
-	MIN(FM last positive cash flow, FM positive cash flow)
-	~	year
-	~		|
-
-FM last positive cash flow= DELAY FIXED (
-	FM earliest positive cash flow, TIME STEP, 9999)
-	~	year
-	~		|
-
-FM return on total equity=
-	IS net income / (BS equity + 1e-05)
-	~	1/year
-	~	The return on total equity (net income over equity).
-	~	:SUPPLEMENTARY 
-	|
-
 CFS net cash provided by investing activities=
 	IS purchasing equipment
 	~	USD/year [0,?]
@@ -1996,7 +2011,8 @@ CFS net cash provided by investing activities=
 CFS equipment depreciation=
 	IS equipment depreciation
 	~	USD/year [0,?]
-	~		|
+	~	The rate of equipment depreciation on the cash-flow statement.
+	|
 
 CFS net cash=
 	IS net income + CFS equipment depreciation
@@ -2068,13 +2084,6 @@ IS purchasing equipment=
 	~	USD/year [0,?]
 	~	The total capital expenditures from pilot, demo, and commercail plants on \
 		the income statement.
-	|
-
-FM gross margin=
-	IS taxable income / (IS revenues + 1e-05)
-	~	Dmnl
-	~	The gross margin (income divided by revenue).
-	~	:SUPPLEMENTARY 
 	|
 
 IS operating expenses=
