@@ -991,8 +991,8 @@ idealized operating expenses[forecast year]=
 	~	USD/year [0,?]
 	~	This variable tracks the anticipated operating expenses in future years \
 		for pilot-, demo-, and commercial-plant operations and for research \
-		activities. It exclused the portion of research operating expenses that \
-		are expected to be paid accordint to government policy, so it represents \
+		activities. It excludes the portion of research operating expenses that \
+		are expected to be paid according to government policy, so it represents \
 		costs that the firm and investors would bear.
 	|
 
@@ -1928,7 +1928,8 @@ smoothed NPV deviation=
 investor history=
 	5
 	~	year [0,?]
-	~		|
+	~	How far back in the project history an external investor looks to evaluate NPV history and smoothness.
+	|
 
 expected hypothetical net income=
 	commercial plant capacity * (bioproduct selling price with green premium + government production incentive\
@@ -1976,7 +1977,8 @@ government operating grant amount=
 actual net income=
 	hypothetical net income * actual net income indicator
 	~	USD/year
-	~		~	:SUPPLEMENTARY 
+	~	Calculates the hypothetical net income as actual income once the first commercial scale plant begins operation
+	~	:SUPPLEMENTARY 
 	|
 
 Government Commercial Capital Grant= INTEG (
@@ -2967,7 +2969,7 @@ demo capital cost scaling factor=
 		it is more expensive per capacity unit than commercial plants. It should \
 		be lower than the commercial capital cost scaling factor, however, higher \
 		than the “pilot capital cost scaling factor.” The lower the number the \
-		more expensive it is to run a demo plant than a commercial one.
+		more expensive it is to run a demo plant than a commercial one relative to capacity.
 		|
 
 demo fixed operating cost=
@@ -2993,7 +2995,7 @@ demo fixed operating cost scaling factor=
 demo capacity=
 	170079
 	~	tonProduct/year [0,?]
-	~	The total production per year of a fully functional demo plant. Default value is equal to 60% of the large-scale commodity sugar SA plant.
+	~	The total production per year of a fully functional demo plant. Default value is equal to 60% of the default first commercial plant capacity.
 	|
 
 ********************************************************
@@ -3262,7 +3264,7 @@ pilot fixed operating cost scaling factor=
 	~	Dmnl [0,1]
 	~	The factor which scales the cost of fixed piloting capital costs according \
 		to how much more expensive they are than commercial capital costs. Default \
-		is 1 as to say there is no difference in costs.A number less than 1 \
+		is 1 as to say there is no difference in costs. A number less than 1 \
 		indicates pilot fixed capital costs are more expensive than commercial \
 		fixed capital costs.
 		|
@@ -3704,7 +3706,8 @@ perennial price trend=
 		) ) * (Time - INITIAL TIME) +
 	perennial periodic fluctuation magnitude * SIN(2*Time/one Year)
 	~	USD/tonFeedstock
-	~		|
+	~	Overall trend in perennial prices including increase or decrease over time and seasonal (periodic) fluctuations
+	|
 
 corn maximum fluctuation magnitude=
 	0.1
@@ -4196,7 +4199,7 @@ internal project cancelled indicator=
 	             0)
 	~	Dmnl [0,1]
 	~	Returns a 1 if an internal project has missed more stagegates than allowed \
-		and is cancelled, and 0 otherwise.
+		and is canceled, and 0 otherwise.
 	~	:SUPPLEMENTARY 
 	|
 
@@ -4218,9 +4221,9 @@ number of missed stagegates allowed=
 	3
 	~	stages [0,10]
 	~	Gives the number of times an internal project can fail to meet the goals \
-		of a stagegate before it is cancelled. A higher number indicates a more \
+		of a stagegate before it is canceled. A higher number indicates a more \
 		lenient funding entity and will allow the project to fall further behind \
-		its initial timeline before being cancelled.
+		its initial timeline before being canceled.
 	|
 
 number of stages to complete= INITIAL(
@@ -4318,7 +4321,7 @@ required payback period=
 	payback period multiplier * required payback period trend
 	~	year
 	~	The required payback period is the shortest acceptable time (in years) for \
-		an investor to breakeven. It is determined by the required payback period \
+		an investor to break even. It is determined by the required payback period \
 		trend, which sets acceptable time periods by stage, and a payback period \
 		multiplier, which can be used to scale the trend up or down.
 	|
