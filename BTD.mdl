@@ -2662,42 +2662,66 @@ unit operation:
 initial TRL=
 	6
 	~	TRL [0,12]
-	~		|
+	~	Initial technology readiness level an indicator of the readiness of bioproduct \
+		plant operations to operate smoothly and efficiently. Default is set to 6 \
+		TRL which indicates that the technology is ready to be demonstrated in an integrated pilot plant setting.
+		|
 
 demoing delta TRL=
 	2
 	~	TRL [0,12]
-	~		|
+	~	The degree to which progress made through demoing increases the readiness \
+		of proceeding (commercial) production processes to operate smoothly and \
+		efficiently. A default value of 2 means that for every unit of progress \
+		made through demoing, TRL is increased by 2 units.
+		|
 
 demoing progress=
 	MIN( ( target demo hours - Continuous Demoing Hours ) / target demo hours , 1 )
 	~	Dmnl [0,?]
-	~		|
+	~	Estimated amount of progress made in streamlining demo production \
+		processes to run smoothly and without failure. Based off the number of \
+		hours in uninterrupted demo operation and the target number of demo hours.
+		|
 
 technology readiness level=
 	initial TRL + TRL from piloting + TRL from demoing
 	~	TRL [0,?]
-	~		|
+	~	an indicator of the readiness of bioproduct plant operations to operate \
+		smoothly and efficiently. The higher the TRL, the more ready plant \
+		operations are to perform.
+		|
 
 TRL from demoing=
 	demoing progress * demoing delta TRL
 	~	TRL [0,?]
-	~		|
+	~	An indicator of the readiness of proceeding plant operations (commercial) \
+		to operate smoothly and efficiently.
+		|
 
 TRL from piloting=
 	piloting progress * piloting delta TRL
 	~	TRL [0,?]
-	~		|
+	~	An indicator of the degree to which piloting has increased the readiness \
+		of proceeding plant operations to operate smoothly and efficiently.
+		|
 
 piloting progress=
 	MIN( ( target pilot hours - Continuous Piloting Hours ) / target pilot hours , 1 )
 	~	Dmnl [0,1]
-	~		|
+	~	Estimated amount of progress made in streamlining production processes to \
+		run smoothly and without failure. Based off the number of hours in \
+		uninterrupted pilot operation and the target number of piloting hours.
+		|
 
 piloting delta TRL=
 	1
 	~	TRL [0,12]
-	~		|
+	~	The degree to which progress made through piloting increases the readiness \
+		of the production process to operate smoothly and efficiently. A default \
+		value of 1 means a linear increase in TRL from increases in piloting \
+		progress.
+		|
 
 ********************************************************
 	.demo
