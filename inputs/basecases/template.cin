@@ -1,11 +1,111 @@
-:C MARKET SIZE: NICHE OR COMMODITY
+:C DEVELOPER DECISIONS
 
+advertising budget
+advertising start time
+base external investor ask rate
+business as usual runway
+commercial plant capacity
+commercial plant capacity input
+commercial plant startup period
+demo capacity
+demoing acceptable rate
+demoing failure default recovery time
+demoing failure distribution max
+demoing management overhead
+management response time
+max management runway response
+minimum runway
+pilot and demo response time
+pilot capacity
+piloting acceptable rate
+piloting failure default recovery time
+piloting failure distribution max
+piloting management overhead
+regulatory process starting point
+startup demoing period
+startup demoing rate
+startup piloting period
+startup piloting rate
+target demo hours
+target pilot hours
+
+
+:C EXTERNAL AND INTERNAL INVESTOR DECISIONS
+
+aversion to NPV deviation
+expected continuity of government policy
+investor history
+investor optimism
+number of missed stagegates allowed
+payback period multiplier
+required internal return
+required return multiplier
+stagegate length
+strategic value to external investors
+
+
+:C GOVERNMENT DECISIONS
+
+government capital cost share
+government operating cost share
+government operating grant period
+government production incentive
+government research cost share
+
+
+:C MARKET CHARACTERISTICS
+
+bioproduct offtake agreement
+duration of intellectual property
+elasticity of demand
+elasticity of supply
+expected green premium
+
+:C Niche or commodity market
 initial market size = 1e+06                   :C tonProduct/year
 market growth rate = 0.01                     :C percent/year
+long term market size
 
 
-:C BIOPRODUCT TYPE: DIRECT REPLACEMENT OR PERFORMANCE ADVANTAGED
+:C BIOPRODUCT CHARACTERISTICS
 
-bioproduct performance advantage = 1          :C tonProduct/tonIncumbent
-retrofit delay = 0                            :C years
+commercial capital cost input
+commercial fixed operating cost input
+commercial process yield input
+commercial variable operating cost input
+bioproduct long term price
+
+bioproduct price fluctuations
+bioproduct price reversion time
+custom feedstock long term price change
+custom feedstock maximum fluctuation magnitude
+custom feedstock periodic fluctuation magnitude
+custom feedstock reversion time
+custom feedstock starting price
+feedstock approval maximum cost
+feedstock approval maximum time
+feedstock approval required switch
+feedstock selector array[custom]
+incumbent long term price trend
 incumbent market share target economic = 0.4  :C unitless
+incumbent maximum fluctuation
+incumbent price response magnitude
+incumbent reversion time
+incumbent starting price
+pathway approval maximum cost
+pathway approval maximum time
+pathway approval required switch
+product approval maximum cost
+product approval maximum time
+product approval required switch
+
+:C Performance advantaged or direct replacement
+bioproduct performance advantage = 1 :C
+retrofit delay = 0                            :C years
+
+
+:C MISCELLANEOUS
+
+random stream
+researching impact on demoing
+researching impact on piloting
