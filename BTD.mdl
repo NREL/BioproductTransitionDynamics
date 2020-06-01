@@ -3902,7 +3902,9 @@ bioproduct price reversion time=
 commercial capital expenditure=
 	commercial plant construction * commercial capital expenditure damper
 	~	USD/year [0,?]
-	~		|
+	~	The rate of expenses being paid towards the construction of a commercial \
+		plant. Occurs during the commercial plant construction phase.
+		|
 
 production=
 	profitability indicator * commercial plant is built 
@@ -3911,8 +3913,9 @@ production=
 	         commercial plant startup period)
 	+ demoing production
 	~	tonProduct/year [0,?]
-	~	demoing production is only non-zero if demo plant production is being \
-		counted as marketable production
+	~	The rate of bioproduct production from commercial and demo plants per \
+		year. Demoing production is only non-zero if demo plant production is being \
+		counted as marketable production.
 	|
 
 commercial plant startup period=
@@ -3926,36 +3929,46 @@ Commercial Capital Expense= INTEG (
 	-commercial capital expenditure,
 		commercial capital cost)
 	~	USD [0,?]
-	~		|
+	~	The total of expenses paid towards the construction of a commercial plant.
+	|
 
 commercial construction time=
 	2
 	~	year [1,5]
-	~		|
+	~	Time to complete construction of the first commercial scale plant.
+	|
 
 piloting production=
 	 pilot capacity * piloting * ( 1 / hours per year )
 	~	tonProduct/year [0,?]
-	~		|
+	~	Total production of bioproduct from pilot plants.
+	|
 
 demoing production=
 	include demo in cumulative production * 
 	demo capacity * 
 	demoing * ( 1 / hours per year )
 	~	tonProduct/year [0,?]
-	~		|
+	~	This flow adds to the total demo production that is to be counted towards \
+		cumulative production.
+		|
 
 Cumulative Demoing Production= INTEG (
 	demoing production,
 		0)
 	~	tonProduct [0,?]
-	~		~	:SUPPLEMENTARY 
+	~	The total demo production that is to be counted towards cumulative \
+		production.
+	~	:SUPPLEMENTARY 
 	|
 
 feedstock consumption=
 	( production + piloting production ) * ( 1 / commercial process yield input )
 	~	tonFeedstock/year [0,?]
-	~		|
+	~	The rate of feedstock consumption in the production of bioproduct across \
+		all plants including pilot, demo, and commercial. Estimates are based off \
+		the conversion yields from commercial production.
+		|
 
 include demo in cumulative production=
 	1
@@ -3966,7 +3979,9 @@ Cumulative Feedstock Consumption= INTEG (
 	feedstock consumption,
 		0)
 	~	tonFeedstock [0,?]
-	~		|
+	~	The total consumption of feedstocks by all plants including pilot, demo, \
+		and commercial over the course of the simulation.
+		|
 
 cumulative gross revenue from product sales=
 	Cumulative Production * bioproduct selling price with green premium
@@ -3978,31 +3993,9 @@ Cumulative Production= INTEG (
 	production,
 		0)
 	~	tonProduct [0,?]
-	~		|
-
-capital cost maturity factor=
-	1
-	~	Dmnl [0.1,2]
-	~		~	:SUPPLEMENTARY 
+	~	The total production of bioproduct over the course of the simulation.
 	|
 
-fixed operating cost maturity factor=
-	1
-	~	Dmnl [0.1,2]
-	~		~	:SUPPLEMENTARY 
-	|
-
-variable operating cost maturity factor=
-	1
-	~	Dmnl [0.1,2]
-	~		~	:SUPPLEMENTARY 
-	|
-
-process yield maturity factor=
-	1
-	~	Dmnl [0.1,2]
-	~		~	:SUPPLEMENTARY 
-	|
 
 ********************************************************
 	.research
@@ -7126,6 +7119,7 @@ $192-192-192,0,Times New Roman|12||0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|96,96,1
 :VAR idealized demo completion time
 :VAR idealized commercial construction time
 :L<%^E!@
+1:latest-commit-local.vdf
 9:latest-commit-local
 22:$,Dollar,Dollars,$s
 22:Hour,Hours
