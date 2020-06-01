@@ -1,26 +1,33 @@
 :C FEEDSTOCK SELECTION
 
-feedstock selector array[corn] =              0
+feedstock selector array[corn] =              1
 feedstock selector array[corn stover] =       0
 feedstock selector array[soybean] =           0
-feedstock selector array[commodity sugar] =   1
+feedstock selector array[commodity sugar] =   0
 feedstock selector array[generic perennial] = 0
 feedstock selector array[generic fossil] =    0
 feedstock selector array[custom] =            0
 
 
+:C BIOPRODUCT PRICE
+
+bioproduct long term price = 1652
+
+
 :C TECHNO-ECONOMIC DATA
 
-commercial plant capacity = 28627.368
-commercial capital cost input = 401248126.3
-commercial fixed operating cost input = 11400000
-commercial variable operating cost input = 1219.113123
-commercial process yield = 0.77
+commercial plant capacity input = 263990
+commercial plant capacity = 263990
+commercial capital cost input = 802190000
+commercial variable operating cost input = 72914038
+commercial fixed operating cost input = 30913229
+commercial process yield input = 0.184
 
 
 :C PILOT PLANT PARAMETERS
 
-pilot capacity = 900
+pilot capacity = 2640
+target pilot hours = 1500
 pilot capital cost scaling factor = 0.3
 pilot fixed operating cost scaling factor = 1
 pilot construction time = 1.5
@@ -28,7 +35,8 @@ pilot construction time = 1.5
 
 :C DEMO PLANT PARAMETERS
 
-demo capacity = 438288
+demo capacity = 158394
+target demo hours = 10000
 demo capital cost scaling factor = 0.5
 demo fixed operating cost scaling factor = 0.55
 demo construction time = 2

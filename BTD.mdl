@@ -4073,6 +4073,39 @@ Cumulative Production= INTEG (
 	~	The total production of bioproduct over the course of the simulation.
 	|
 
+commercial total operating cost=
+	commercial fixed operating cost + commercial variable operating cost + commercial feedstock cost
+	~	USD/year [0,?]
+	~		~	:SUPPLEMENTARY 
+	|
+
+commercial plant capacity=
+	730480
+	~	tonProduct/year [0,?]
+	~	If this value differs from "commercial plant capacity input", the commercial capital \
+		and operating costs will be scaled up or down to match this plant \
+		capacity. If this value is the same as "commercial plant capacity input", \
+		then the capital and operating cost input parameters will be used in \
+		downstream calculations as-is.
+		
+		This parameter can be used to quickly explore the impact of small changes \
+		to the commercial plant capacity without needing to re-enter the various \
+		cost components.
+	|
+
+commercial capital cost input=
+	1.25338e+09
+	~	USD [0,2e+09]
+	~	Plant capacity is 730480 tonProduct/year
+	|
+
+commercial variable operating cost input=
+	756.113
+	~	USD/tonProduct [0,2000]
+	~	2.03e+008 / (5.91893e+008 / 2204.62)
+		Plant capacity is 730480 tonProduct/year
+	|
+
 
 ********************************************************
 	.research
