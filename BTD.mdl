@@ -2851,29 +2851,40 @@ demo capacity=
 piloting failure default recovery time=
 	0.45
 	~	year [0.25,3]
-	~		|
+	~	The default value representing the amount of time required to begin \
+		piloting anew following a failure.
+		|
 
 piloting failure recovery time=
 	piloting failure default recovery time * (1 - researching indicator * researching impact on piloting\
 		)
 	~	year [0,3]
-	~		|
+	~	The time required to recover from a piloting failure and begin operations \
+		anew. The lower the failure recovery time, the lower the impact of a \
+		failure on piloting rate.
+		|
 
 researching impact on piloting=
 	0.25
 	~	Dmnl [0,0.95]
-	~		|
+	~	The effect of research on the piloting failure rate. The lower the \
+		research impact value, the lower the effect of a failure on piloting rates.
+		|
 
 pilot capital expenditure=
 	pilot plant construction * piloting capital expenditure damper
 	~	USD/year [0,?]
-	~		|
+	~	The flow of money per year being spent on pilot capital. These expenses \
+		occur when pilot plants are under construction.
+		|
 
 startup piloting=
 	pilot and demo spending control * pilot plant is built *
 	startup piloting damper
 	~	hours/year [0,8766]
-	~		|
+	~	The flow of completed startup piloting hours towards completed piloting. \
+		Startup piloting hours count towards completed piloting hours in total.
+		|
 
 piloting=
 	pilot and demo spending control * startup piloting complete * piloting damper
@@ -2887,8 +2898,12 @@ pilot staff salaries=
 	piloting ongoing * pilot and demo spending control * INTEGER( staff sent to pilot * \
 		total staff ) * researcher average salary
 	~	USD/year
-	~	Piloting must be begun (ongoing) and the plant must be operating (spending \
-		control) for the plant to have staff
+	~	Piloting must have begun (as indicated by the piloting ongoing variable \
+		equaling 1) and the plant must be operating (as indicated by the spending \
+		control parameter dictating it is time for pilot operation) for the plant \
+		to have staff. The salary of pilot staff is the same as it is for any \
+		researcher, and the percentage of total staff sent to piloting determine \
+		total money spent on pilot staff salaries.
 	|
 
 one hour=
@@ -2902,33 +2917,48 @@ piloting spending=
 	pilot staff salaries +
 	piloting spending indicator * management spending control * piloting management overhead
 	~	USD/year [0,?]
-	~		|
+	~	The total spending associated with running a pilot plant once it has begun \
+		operation. Computed from the hourly pilot operating expenses, the fixed, \
+		and the variable operating costs.
+		|
 
 pilot feedstock cost=
 	pilot capacity * (1 / commercial process yield input) * feedstock price
 	~	USD/year [0,?]
-	~		|
+	~	The total costs associated with the purchase of feedstocks for pilot plant \
+		production. Computed from amount of feedstock required to run at a certain \
+		capacity and the feedstock price.
+		|
 
 pilot variable operating cost=
 	commercial variable operating cost input * pilot capacity
 	~	USD/year [0,?]
-	~		|
+	~	The costs that vary in accordance with operating throughput. Pilot \
+		variable costs are assumed to be consistent with commercial costs and are \
+		scaled by pilot capacity in comparison to commercial capacity. Examples \
+		include electricity and feedstock costs.
+		|
 
 remaining piloting duration=
 	( Startup Piloting Hours + Continuous Piloting Hours ) * ( 1 / hours per year )
 	~	year [0,?]
-	~		|
+	~	The time in years required to complete the piloting phase of scale-up.
+	|
 
 Continuous Piloting Hours= INTEG (
 	repiloting-piloting,
 		target pilot hours)
 	~	hours [0,?]
-	~		|
+	~	The total amount of piloting hours accumulated in the current run. 1000 \
+		hours must be accumulated in a single continuous run to complete the \
+		piloting phase and move to the demoing phase.
+		|
 
 piloting failure distribution max=
 	5
 	~	Dmnl [0,10]
-	~	0.1
+	~	The upper bound of the distribution of numbers which may randomly lead to \
+		a failure in production. 0.1
 	|
 
 piloting failure random=
@@ -2938,110 +2968,151 @@ piloting failure random=
 	                0.1*piloting failure distribution max , 
 	                random stream )
 	~	Dmnl
-	~		|
+	~	A stream of randomized failures in piloting as to represent issues with \
+		the real world piloting processes causing plant failure.
+		|
 
 staff sent to pilot=
 	0.5
 	~	Dmnl [0,1]
-	~		|
+	~	The percentage of the total staff that are being directed towards piloting \
+		plants if the spending control parameter indicates piloting is taking \
+		place.
+		|
 
 piloting management overhead=
 	1e+06
 	~	USD/year [0,?]
-	~		|
+	~	The total yearly costs associated with paying piloting management.
+	|
 
 Piloting Rate= INTEG (
 	piloting rate delta,
 		piloting acceptable rate)
 	~	hours/year
-	~		|
+	~	The rate, in hours per year, at which a pilot plant operates. As a batch, \
+		this rate is affected by failures, recovery time, and research impacts on piloting.
+		|
 
 piloting rate delta=
 	(piloting acceptable rate - Piloting Rate)/piloting failure recovery time + (piloting acceptable rate\
 		 * piloting failure random)/TIME STEP
 	~	hours/year/year
-	~		|
+	~	A goal-gap formulation where the rate of change in the piloting rate is \
+		adjusted according to the acceptable piloting rate, the current piloting \
+		rate, and the piloting failure recovery time.
+		|
 
 pilot opex=
 	pilot feedstock cost + pilot fixed operating cost + pilot variable operating cost
 	~	USD/year [0,?]
-	~		|
+	~	The total operating expense associated with running a pilot plant. \
+		Computed as the total of feedstock costs, fixed operating costs, and \
+		variable operating costs of the pilot plant.
+		|
 
 piloting acceptable rate=
 	7500
 	~	hours/year [1,8766]
-	~		|
+	~	The acceptable rate at which pilot plants operate per year. Management \
+		adjusts piloting rates according to this number in order to meet minimum \
+		requirements.
+		|
 
 startup piloting period=
 	500
 	~	hours [0,1000]
-	~		|
+	~	The length of time in hours required to complete the “startup \
+		piloting” stage of the piloting process.
+		|
 
 startup piloting rate=
 	200
 	~	hours/year [0,8772]
-	~		|
+	~	The number of hours a pilot plant must have operated per year in order to \
+		complete the startup piloting phase.
+		|
 
 Startup Piloting Hours= INTEG (
 	-startup piloting,
 		startup piloting period)
 	~	hours [0,?]
-	~		|
+	~	The total time pilot plants have operated in the startup piloting phase.
+	|
 
 repiloting=
 	repiloting indicator * MAX( 0 ,
 	                            (target pilot hours - Continuous Piloting Hours) / TIME STEP\
 		 )
 	~	hours/year [0,?]
-	~		|
+	~	A flow that resets the continuous piloting hours when the piloting rate drops below the acceptable rate, and as long as the target for continuous piloting \
+		hours has not been met and the piloting plant is still in operation.
+		|
 
 Completed Piloting= INTEG (
 	piloting+startup piloting,
 		0)
 	~	hours [0,?]
-	~		~	:SUPPLEMENTARY 
+	~	The total hours accumulated in the piloting process. Because a certain \
+		amount of continuous piloting hours must be reached, it is possible for \
+		the completed piloting hours to exceed the target.
+		~	:SUPPLEMENTARY 
 	|
 
 Pilot Capital Expense= INTEG (
 	-pilot capital expenditure,
 		pilot capital cost)
 	~	USD [0,?]
-	~		|
+	~	The total expenses paid towards pilot capital over the course of pilot \
+		plant construction.
+		|
 
 pilot construction time=
 	1.5
 	~	year [0,3]
-	~		|
+	~	The time in years to build a pilot plant.
+	|
 
 target pilot hours=
 	3000
 	~	hours [0,100000]
-	~		|
+	~	The total desired number of hours to be spent in continuous pilot operation.
+	|
 
 pilot capital cost=
 	commercial capital cost input * ( pilot capacity / commercial plant capacity input )\
 		 ^ pilot capital cost scaling factor
 	~	USD [0,?]
-	~		|
+	~	Cost to build the pilot plant. Default is based on scaling down the default first commercial plant capital cost.
+		|
 
 pilot capital cost scaling factor=
 	0.3
 	~	Dmnl [0,1]
-	~	This value should be lower than the commercial-scale capital scaling \
-		factor, to represent that pilot plants are more expensive per capacity \
-		unit than are commercial plants.
+	~	This parameter scales the cost of the pilot capital according to its value \
+		as to represent that pilot plants are more expensive per capacity unit \
+		than commercial plants. It should be lower than the commercial capital \
+		cost scaling factor.
 	|
 
 pilot fixed operating cost=
 	commercial fixed operating cost input * ( pilot capacity / commercial plant capacity input\
 		 ) ^ pilot fixed operating cost scaling factor
 	~	USD/year [0,?]
-	~		|
+	~	The total costs associated with running a pilot plant that can be \
+		anticipated accurately as they do not change. Examples could include \
+		payroll, benefits, insurance, rent, utilities, and payments on capital.
+		|
 
 pilot fixed operating cost scaling factor=
 	1
 	~	Dmnl [0,1]
-	~		|
+	~	The factor which scales the cost of fixed piloting capital costs according \
+		to how much more expensive they are than commercial capital costs. Default \
+		is 1 as to say there is no difference in costs.A number less than 1 \
+		indicates pilot fixed capital costs are more expensive than commercial \
+		fixed capital costs.
+		|
 
 pilot capacity=
 	900
