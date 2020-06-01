@@ -4066,7 +4066,8 @@ feedstock consumption=
 include demo in cumulative production=
 	1
 	~	Dmnl [0,1]
-	~		|
+	~	Set to 1 to account for demo scale production in cumulative production, and 0 otherwise.
+	|
 
 Cumulative Feedstock Consumption= INTEG (
 	feedstock consumption,
@@ -4079,7 +4080,8 @@ Cumulative Feedstock Consumption= INTEG (
 cumulative gross revenue from product sales=
 	Cumulative Production * bioproduct selling price with green premium
 	~	USD [0,?]
-	~		~	:SUPPLEMENTARY 
+	~	Keeps track of total gross revenue from bioproduct sales
+	~	:SUPPLEMENTARY 
 	|
 
 Cumulative Production= INTEG (
@@ -7211,7 +7213,6 @@ $192-192-192,0,Times New Roman|12||0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|96,96,1
 :VAR idealized demo completion time
 :VAR idealized commercial construction time
 :L<%^E!@
-1:latest-commit-local.vdf
 9:latest-commit-local
 22:$,Dollar,Dollars,$s
 22:Hour,Hours
@@ -7227,7 +7228,7 @@ $192-192-192,0,Times New Roman|12||0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|96,96,1
 27:0,
 34:0,
 4:Time
-5:researching impact on demoing
+5:pilot capital expenditure
 35:Date
 36:YYYY-MM-DD
 37:2000
