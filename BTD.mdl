@@ -2657,41 +2657,57 @@ piloting delta TRL=
 demoing failure default recovery time=
 	0.65
 	~	year [0.25,3]
-	~		|
+	~	The default amount of time required to begin \
+		demoing following a failure.	|
 
 demoing failure recovery time=
 	demoing failure default recovery time * (1 - researching indicator * researching impact on demoing\
 		)
 	~	year [0,3]
-	~		|
+	~	The time required to begin demoing following a failure. Research \
+		investments reduce this time.
+		|
 
 researching impact on demoing=
 	0.2
 	~	Dmnl [0,0.95]
-	~		|
+	~	The effect of research on the demoing failure rate. The lower the research \
+		impact value, the lower the effect of a failure on yearly demoing rates.
+		|
 
 demoing=
 	pilot and demo spending control * startup demoing completed * demoing damper
 	~	hours/year [0,8766]
-	~	damper variable prevents Continuous Demoing Hours from going negative.
+	~	 The flow of continuous demoing hours towards completed piloting hours. \
+		When the demoing phase has been initiated, and while it is active, the \
+		continuous demoing hours accumulate the completed demoing stock. The \
+		damper variable prevents Continuous Demoing Hours from going negative.
 	|
 
 startup demoing=
 	pilot and demo spending control * demo plant is built * startup demoing damper
 	~	hours/year [0,8766]
-	~		|
+	~	The flow of completed startup demoing hours towards completed demoing. \
+		Startup demoing hours count towards completed demoing hours in total.
+		|
 
 demo capital expenditure=
 	demo plant construction * demoing capital expenditure damper
 	~	USD/year [0,?]
-	~		|
+	~	The flow of money per year being spent on demo capital. These expenses \
+		occur when demonstration plants are under construction.
+		|
 
 demo staff salaries=
 	demoing ongoing * pilot and demo spending control * INTEGER( staff sent to demo * total staff\
 		 ) * researcher average salary
 	~	USD/year
-	~	Demoing must have begun (ongoing) and the plant be operating (spending \
-		control) for the plant to have staff
+	~	Demoing must have begun (as indicated by the demoing ongoing variable \
+		equaling 1) and the plant must be operating (as indicated by the spending \
+		control parameter dictating it is time for demo operation) for the demo \
+		plant to have staff. The salary of demo staff is the same as it is for any \
+		researcher, and the percentage of total staff sent to demoing determine \
+		total money spent on pilot staff salaries.
 	|
 
 demoing spending=
@@ -2699,44 +2715,63 @@ demoing spending=
 	demo staff salaries +
 	demoing spending indicator * management spending control * demoing management overhead
 	~	USD/year [0,?]
-	~	Spending and cumulative cost do NOT include the initial capital expenditure
+	~	The total spending associated with running a demo plant once it has begun \
+		operation, however, does not include initial capital expenditures. \
+		Computed from the hourly fixed, and the variable operating costs.
 	|
 
 demo feedstock cost=
 	demo capacity * (1 / commercial process yield input) * feedstock price
 	~	USD/year [0,?]
-	~		|
+	~	The total costs associated with purchasing feedstocks for demo plant \
+		production. Computed from amount of feedstock required to run at a certain \
+		capacity and the feedstock price.
+		|
 
 demo variable operating cost=
 	commercial variable operating cost input * demo capacity
 	~	USD/year [0,?]
-	~		|
+	~	The costs that vary in accordance with operating throughput. Demo variable \
+		costs are assumed to be consistent with commercial costs and are scaled by \
+		demo capacity in comparison to commercial capacity. Examples include \
+		electricity and feedstock costs.
+		|
 
 Continuous Demoing Hours= INTEG (
 	redemoing-demoing,
 		target demo hours)
 	~	hours [0,?]
-	~		|
+	~	The accumulation of demoing hours concurrently. When an interruption \
+		occurs, demoing stops, and 1000 demoing hours must be reached again.
+		|
 
 remaining demoing duration=
 	( Startup Demoing Hours + Continuous Demoing Hours ) * (1 / hours per year)
 	~	year [0,?]
-	~		|
+	~	The time in years required to complete the demoing phase of scale-up.
+	|
 
 staff sent to demo=
 	0.75
 	~	Dmnl [0,1]
-	~		|
+	~	The percentage of staff being directed towards the demoing plant. Demoing \
+		is occurring if the spending control parameter dictates it is time for the \
+		demoing process and the demoing ongoing variable equals 1.
+		|
 
 demo opex=
 	demo variable operating cost + demo fixed operating cost + demo feedstock cost
 	~	USD/year [0,?]
-	~		|
+	~	The total operating expense associated with running a demo plant. Computed \
+		as the total of feedstock costs, fixed operating costs, and variable \
+		operating costs of the demo plant.
+		|
 
 demoing failure distribution max=
 	5
 	~	Dmnl [0,10]
-	~	0.005
+	~	The upper limit of the sample which introduces random failures into the \
+		demoing process.
 	|
 
 demoing failure random=
@@ -2746,101 +2781,145 @@ demoing failure random=
 	                0.1*demoing failure distribution max , 
 	                random stream )
 	~	Dmnl
-	~		|
+	~	 A random distribution that simulates unpredicted issues when demoing that \
+		cause production failures.
+		|
 
 demoing management overhead=
 	1.5e+06
 	~	USD/year [0,1e+09]
-	~		|
+	~	The total yearly costs associated with paying demoing management and expenses associated with travel and pitching investors. Default is 1.5e+06 dollars per year.
+	|
 
 Demoing Rate= INTEG (
 	demoing rate delta,
 		demoing acceptable rate)
 	~	hours/year
-	~		|
+	~	The current average of the demoing rate, which is the hours a demo plant \
+		runs per year. As a batch, this rate is changed with the “piloting rate \
+		delta.
+		|
 
 demoing rate delta=
 	(demoing acceptable rate - Demoing Rate)/demoing failure recovery time + (demoing acceptable rate\
 		 * demoing failure random)/TIME STEP
 	~	hours/year/year
-	~		|
+	~	Rate of change of the demoing rate, calculated according to failures and the current rate.
+	|
 
 demoing acceptable rate=
 	8411
 	~	hours/year [0,8766]
-	~		|
+	~	The acceptable rate at which demo plants operate per year. Management \
+		adjusts demoing rates according to this number in order to meet minimum \
+		requirements.
+		|
 
 Startup Demoing Hours= INTEG (
 	-startup demoing,
 		startup demoing period)
 	~	hours [0,?]
-	~		|
+	~	The total time demo plants have operated in the startup demoing phase.
+	|
 
 startup demoing period=
 	1000
 	~	hours [0,?]
-	~		|
+	~	The length of time in hours required to complete the “startup demoing” \
+		stage of the demoing process.
+		|
 
 startup demoing rate=
 	300
 	~	hours/year [0,?]
-	~		|
+	~	The number of hours a demo plant must have operated per year in order to \
+		complete the startup demoing phase.
+		|
 
 redemoing=
 	redemoing indicator 
 	* MAX( 0 , (target demo hours - MIN(target demo hours, Continuous Demoing Hours))) /\
 		 TIME STEP
 	~	hours/year [0,?]
-	~		|
+	~	This flow adds to the continuous demoing hours stock. As demoing occurs, \
+		hours are being added to the continuous piloting hours. 5000 demoing hours \
+		must concurrently accumulate in order to demonstrate demo plant success.
+		|
 
 Completed Demoing= INTEG (
 	demoing+startup demoing,
 		0)
 	~	hours [0,?]
-	~		|
+	~	The total hours accumulated in the demoing process. Because a certain \
+		amount of continuous demoing hours must be reached, it is possible for the \
+		completed demoing hours to exceed the target.
+		|
 
 demo construction time=
 	2
 	~	year [0,5]
-	~		|
+	~	The time in years to build a demo plant. Demos are larger than pilots but \
+		smaller than commercial plants, and thus require a medium amount of time \
+		to construct.
+		|
 
 Demo Capital Expense= INTEG (
 	-demo capital expenditure,
 		demo capital cost)
 	~	USD [0,?]
-	~		|
+	~	The total expenses paid towards demo capital over the course of demo plant \
+		construction.
+		|
 
 target demo hours=
 	5000
 	~	hours [0,100000]
-	~		|
+	~	The amount of demo hours desired to be completed concurrently. Default is \
+		set to 5000 hours. This ensures a plant can demonstrate that production \
+		can run smoothly and ensures confidence in building a commercial plant.
+		|
 
 demo capital cost=
 	commercial capital cost input * ( demo capacity / commercial plant capacity input ) \
 		^ demo capital cost scaling factor
 	~	USD [0,?]
-	~		|
+	~	Cost to build the demo plant, calculated by scaling down the capital cost for the first commercial scale plant.
+	|
 
 demo capital cost scaling factor=
 	0.5
 	~	Dmnl [0,1]
-	~		|
+	~	This parameter scales the cost of demo capital according to the logic that \
+		it is more expensive per capacity unit than commercial plants. It should \
+		be lower than the commercial capital cost scaling factor, however, higher \
+		than the “pilot capital cost scaling factor.” The lower the number the \
+		more expensive it is to run a demo plant than a commercial one.
+		|
 
 demo fixed operating cost=
 	commercial fixed operating cost input * ( demo capacity / commercial plant capacity input\
 		 ) ^ demo fixed operating cost scaling factor
 	~	USD/year [0,?]
-	~		|
+	~	The total costs associated with running a demo plant that can be \
+		anticipated accurately as they do not change with output or immediate \
+		market fluctuations. Examples could include payroll, benefits, insurance, \
+		rent, and payments on capital.
+		|
 
 demo fixed operating cost scaling factor=
 	1
 	~	Dmnl [0,1]
-	~		|
+	~	The factor which scales the cost of fixed demoing capital costs according \
+		to how much more expensive they are than commercial capital costs. Default \
+		is 1 as to say there is no difference in costs. A number less than 1 \
+		indicates demo fixed capital costs are more expensive than commercial \
+		fixed capital costs.
+		|
 
 demo capacity=
 	170079
 	~	tonProduct/year [0,?]
-	~	Arbitrary value equal to 60% of the large-scale commodity sugar SA plant
+	~	The total production per year of a fully functional demo plant. Default value is equal to 60% of the large-scale commodity sugar SA plant.
 	|
 
 ********************************************************
@@ -7058,11 +7137,11 @@ $192-192-192,0,Times New Roman|12||0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|96,96,1
 22:Day,Days
 23:0
 15:0,0,0,0,0,0
-19:100,2
+19:100,7
 27:0,
 34:0,
 4:Time
-5:stage in progress
+5:researching impact on demoing
 35:Date
 36:YYYY-MM-DD
 37:2000
@@ -7071,13 +7150,9 @@ $192-192-192,0,Times New Roman|12||0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|96,96,1
 40:0
 41:0
 42:0
-72:0
-73:0
 24:2015
 25:2050
 26:2050
-75:
-43:
 6:corn
 6:FY00
 6:onsite lignocellulosic biomass processing
