@@ -3866,45 +3866,66 @@ number of researchers=
 	 - demoing ongoing * pilot and demo spending control * INTEGER( staff sent to demo *\
 		 total staff )
 	~	Person [1,50]
-	~	For staff to be transferred to the pilot/demo plant, piloting/demoing must \
-		be ongoing (has begun and the target continuous hours not yet met) and the \
-		pilot/demo plants must be operating according to the spending control. If \
-		the spending control parameter forces the plants to shut down, staff is \
-		brought back to the research team.
+	~	The total number of researchers at the present time, as defined by the \
+		amount of money being spent on research and the agreed upon researcher \
+		salaries. When piloting and demoing is ongoing, total staff are diverted \
+		to operate piloting and/or demoing plants. When the plants are closed, \
+		staff are diverted back to research. The spending control parameter \
+		defines whether total money is being directed towards either \
+		piloting/demoing or research.
 	|
 
 researching=
 	research rate
 	~	USD/year [0,?]
-	~		|
+	~	As equivalent to the research rate, the flow of research being completed \
+		adds to the total research associated with bioproduct development. As with \
+		the research rate, the flow of research is defined by the money being \
+		spent on researchers and managing researchers.
+		|
 
 research rate=
 	( management spending control * researching management overhead + 
 	  research spending control * number of researchers * researcher average salary )
 	~	USD/year [0,1e+07]
-	~		|
+	~	The amount of money being spent on research at any point defines the \
+		progress on research. It can be assumed that the more money spent on \
+		managing research and the more money spent on paying researchers, the more \
+		research completed.
+		|
 
 total staff=
 	15
 	~	Person [1,100]
-	~		|
+	~	Total staff throughout the simulation associated with bioproduct \
+		development. Staff can be directed towards either piloting, demoing, or \
+		research.
+		|
 
 Completed Research= INTEG (
 	researching,
 		0)
 	~	USD [0,?]
-	~		~	:SUPPLEMENTARY 
+	~	The total amount of research having been paid for. The more money spent on \
+		research, the greater the research rate, and the greater the total \
+		completed research. More research is completed as more is paid for, and \
+		when none is being paid for, the total amount of research completed stays \
+		the same.
+		~	:SUPPLEMENTARY 
 	|
 
 researcher average salary=
 	100000
 	~	USD/Person/year [50000,150000]
-	~		|
+	~	The average salary per year of each individual researcher
+	|
 
 researching management overhead=
 	500000
 	~	USD/year [50000,2e+06]
-	~		|
+	~	The total costs (in dollars per year), associated with paying research \
+		management and various expenses for traveling and pitching investors.
+		|
 
 ********************************************************
 	.investment
