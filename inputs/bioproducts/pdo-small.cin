@@ -11,21 +11,22 @@ feedstock selector array[custom] =            0
 
 :C BIOPRODUCT PRICE
 
-bioproduct long term selling price = 1652
+bioproduct long term price = 1652
 
 
 :C TECHNO-ECONOMIC DATA
 
-commercial plant capacity = 263990
-commercial capital cost input = 802190000
-commercial fixed operating cost input = 30913229
-commercial variable operating cost input = 72914038
-commercial process yield = 0.184
+commercial plant capacity input = 132000
+commercial plant capacity = 132000
+commercial capital cost input = 536650000
+commercial variable operating cost input = 36458400
+commercial fixed operating cost input = 25555200
+commercial process yield input = 0.184
 
 
 :C PILOT PLANT PARAMETERS
 
-pilot capacity = 2640
+pilot capacity = 1320
 target pilot hours = 1500
 pilot capital cost scaling factor = 0.3
 pilot fixed operating cost scaling factor = 1
@@ -34,7 +35,7 @@ pilot construction time = 1.5
 
 :C DEMO PLANT PARAMETERS
 
-demo capacity = 158394
+demo capacity = 79200
 target demo hours = 10000
 demo capital cost scaling factor = 0.5
 demo fixed operating cost scaling factor = 0.55
