@@ -1498,14 +1498,20 @@ supply to demand ratio price impact= WITH LOOKUP (
 	bioproduct supply to demand ratio indicator,
 		([(0,0)-(10,10)],(0,1.5),(0.5,1.2),(1,1),(1.5,0.8),(2,0.8),(10,0.8) ))
 	~	Dmnl [0,10]
-	~		|
+	~	A non-linear function that changes the price of the bioproduct over time \
+		according to the supply/demand ratio. When demand vastly outpaces supply, \
+		prices are raised. When demand is less than the supply, bioproduct price \
+		is lowered to a price within the bounds of fiscal possibility.
+		|
 
 Adopters= INTEG (
 	deciding to adopt+new adopters-abandoning bioproduct,
 		bioproduct offtake agreement * commercial plant capacity / bioproduct performance advantage\
 		)
 	~	tonIncumbent/year [0,?]
-	~		|
+	~	The current market size, in terms of volume of product sold, that have \
+		chosen the bioproduct.
+		|
 
 long term selling price without green premium after market entry=
 	(Current Bioproduct Price + minimum selling price without green premium) / 2
@@ -1530,7 +1536,11 @@ minimum selling price without green premium=
 abandoning bioproduct=
 	abandoning bioproduct indicator * abandonment rate * Adopters
 	~	tonIncumbent/year/year [0,?]
-	~		|
+	~	If conditions are not favorable for the bioproduct, such as product \
+		reliability or price, then abandonment of the bioproduct will begin to \
+		occur. This flow takes product sales away from bioproduct and adds them to \
+		the incumbent product.
+		|
 
 abandonment rate=
 	0.2
@@ -1546,7 +1556,11 @@ NonAdopters= INTEG (
 		(initial market size - bioproduct offtake agreement * commercial plant capacity) / \
 		bioproduct performance advantage)
 	~	tonIncumbent/year [0,?]
-	~		|
+	~	The stock of the market, in terms of product, that will not adopt the \
+		bioproduct. Purchasers that abandon the bioproduct add to this stock along \
+		with those which enter the market anew and will purchase the incumbent \
+		product.
+		|
 
 incumbent market share target economic=
 	0.4
@@ -1582,7 +1596,11 @@ word of mouth impact=
 	    * ( NonAdopters / (NonAdopters + Potential Adopters + Adopters) ) / one Year,
 	    NonAdopters / TIME STEP)
 	~	tonIncumbent/year/year [0,?]
-	~		|
+	~	The amount of product that may possibly be sold due to the referencing of \
+		bioproduct availability and favorability in conversation. The strength of \
+		persuasiveness from conversation and the rate at which conversations occur \
+		influence this flow.
+		|
 
 advertising effectiveness=
 	1e-07
@@ -1597,12 +1615,16 @@ advertising impact=
 	MIN(advertising effectiveness * advertising spending * NonAdopters,
 	    NonAdopters / TIME STEP)
 	~	tonIncumbent/year/year [0,?]
-	~		|
+	~	The degree to which spending in advertising may yield increased possible \
+		sales.
+		|
 
 bioproduct market share economic=
 	Adopters * bioproduct performance advantage * Current Bioproduct Price / current market size economic
 	~	Dmnl [0,1]
-	~		|
+	~	The ratio of the market, in terms of dollars per year, that the bioproduct \
+		company holds to the total market including the incumbent one.
+		|
 
 bioproduct market share mass=
 	Adopters / current market size mass
@@ -1615,43 +1637,65 @@ bioproduct market share mass=
 market growth rate=
 	0.01
 	~	1/year [0,5]
-	~		|
+	~	The rate at which the total incumbent plus bioproduct market grows per year. The default 0.01 1/year leads to a 1% growth of the market.
+		|
 
 current market size economic=
 	(NonAdopters + Potential Adopters) * Current Incumbent Price
 	+ Adopters * bioproduct performance advantage * Current Bioproduct Price
 	~	USD/year [0,?]
-	~		|
+	~	The total market size, in terms of dollars per year, of the incumbent and \
+		bioproduct market.
+		|
 
 new nonadopters=
 	incumbent favorability indicator * market growing
 	~	tonIncumbent/year/year [0,?]
-	~		|
+	~	The flow of new purchasers entering the market (in terms of product sold) \
+		choosing the incumbent product. The volume of product sold to new entries \
+		into the market and the favorability of the incumbent product make this \
+		flow stronger.
+		|
 
 market growing=
 	market growth rate * current market size mass
 	~	tonIncumbent/year/year [0,?]
-	~		|
+	~	The growth of the market, in terms of product that can be sold per year, \
+		to either incumbent or bioproduct.
+		|
 
 overcoming inertia=
 	advertising impact + word of mouth impact
 	~	tonIncumbent/year/year [0,?]
-	~		|
+	~	The flow of nonadopters towards theoretical potential adopters. As \
+		NonAdopers are exposed to world of mouth and advertisements regarding \
+		bioproduct favorability, there is potential for a switch.
+		|
 
 word of mouth effectiveness=
 	0.4
 	~	Dmnl [0,1]
-	~		|
+	~	The effectiveness of conversations regarding bioproduct \
+		favorability/availability in leading to bioproduct sales. The higher the \
+		effectiveness ratio, the greater the sales of bioproducts resulting from \
+		world of mouth.
+		|
 
 word of mouth contact rate=
 	1000
 	~	tonIncumbent/year [0,?]
-	~		|
+	~	The rate at which conversations occur and reference bioproduct \
+		favorability. Measured in terms of volume of bioproduct that may be sold \
+		as a result of these conversations.
+		|
 
 new adopters=
 	bioproduct favorability indicator * market growing
 	~	tonIncumbent/(year*year) [0,?]
-	~		|
+	~	The flow of new purchasers entering the market (in terms of product sold) \
+		choosing the bioproduct. The volume of product sold to new entries into \
+		the market and the favorability of the bioproduct make this flow stronger.
+		|
 
 bioproduct performance advantage=
 	1
@@ -1692,19 +1736,25 @@ New Market Participants= INTEG (
 	market growing-new adopters-new nonadopters,
 		0)
 	~	tonIncumbent/year [0,?]
-	~		~	:SUPPLEMENTARY 
+	~	The accumulation of entrants to the market (in terms of volumes of \
+		possible product to be sold), that has not yet chosen either the incumbent \
+		or bioproduct.
+		~	:SUPPLEMENTARY 
 	|
 
 Potential Adopters= INTEG (
 	overcoming inertia-deciding to adopt,
 		0)
 	~	tonIncumbent/year [0,?]
-	~		|
+	~	The accumulation of the potential for nonadopters to become adopters of \
+		bioproducts through word of mouth and advertisements.
+		|
 
 initial market size=
 	1e+06
 	~	tonProduct/year [0,?]
-	~	Incumbent product market size at model run start.
+	~	Incumbent product market size, in terms of incumbent product sold per \
+		year, at model run start.
 	|
 
 long term market value=
