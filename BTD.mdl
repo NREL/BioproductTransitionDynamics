@@ -98,7 +98,7 @@ commercial fixed operating cost=
 	|
 
 commercial plant capacity input=
-	730480
+	28627
 	~	tonProduct/year [0,?]
 	~	Production capacity of first commercial scale plant.
 	|
@@ -119,7 +119,7 @@ commercial total operating cost=
 	|
 
 commercial plant capacity=
-	730480
+	28627
 	~	tonProduct/year [0,?]
 	~	If this value differs from "commercial plant capacity input", the commercial capital \
 		and operating costs will be scaled up or down to match this plant \
@@ -1805,10 +1805,10 @@ elasticity of supply=
 	|
 
 long term market size=
-	30000
+	44000
 	~	tonProduct/year [0,?]
-	~	Default value is a rough estimate for succinic  acid calculated as 1.5e8 \
-		USD/year divided by 5000 USD/tonProduct
+	~	Default value is a rough estimate for the succinic acid market in 2025, \
+		calculated from $217.6 million (USD) divided by 5000 USD/tonProduct
 	|
 
 value of intellectual property=
@@ -4066,7 +4066,8 @@ feedstock consumption=
 include demo in cumulative production=
 	1
 	~	Dmnl [0,1]
-	~	Set to 1 to account for demo scale production in cumulative production, and 0 otherwise.
+	~	Set to 1 to account for demo scale production in cumulative production, \
+		and 0 otherwise.
 	|
 
 Cumulative Feedstock Consumption= INTEG (
@@ -7213,6 +7214,7 @@ $192-192-192,0,Times New Roman|12||0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|96,96,1
 :VAR idealized demo completion time
 :VAR idealized commercial construction time
 :L<%^E!@
+1:latest-commit-local.vdf
 9:latest-commit-local
 22:$,Dollar,Dollars,$s
 22:Hour,Hours
@@ -7224,11 +7226,11 @@ $192-192-192,0,Times New Roman|12||0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|96,96,1
 22:Day,Days
 23:0
 15:0,0,0,0,0,0
-19:100,7
+19:5,9
 27:0,
 34:0,
 4:Time
-5:pilot capital expenditure
+5:commercial plant capacity
 35:Date
 36:YYYY-MM-DD
 37:2000
