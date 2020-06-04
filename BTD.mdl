@@ -99,8 +99,10 @@ commercial fixed operating cost=
 
 commercial plant capacity input=
 	28627
-	~	tonProduct/year [0,?]
-	~	Production capacity of first commercial scale plant.
+	~	tonProduct/year [1,5e+06]
+	~	Production capacity of first commercial scale plant. This value cannot be \
+		set to zero because a divide-by-zero error will result. The upper limit is \
+		arbitrary and can be violated if necessary.
 	|
 
 commercial variable operating cost=
@@ -120,7 +122,7 @@ commercial total operating cost=
 
 commercial plant capacity=
 	28627
-	~	tonProduct/year [0,?]
+	~	tonProduct/year [1,5e+06]
 	~	If this value differs from "commercial plant capacity input", the commercial capital \
 		and operating costs will be scaled up or down to match this plant \
 		capacity. If this value is the same as "commercial plant capacity input", \
