@@ -3005,9 +3005,10 @@ demo fixed operating cost scaling factor=
 
 demo capacity=
 	170079
-	~	tonProduct/year [0,?]
+	~	tonProduct/year [1,1e+06]
 	~	The total production per year of a fully functional demo plant. Default \
-		value is equal to 60% of the default first commercial plant capacity.
+		value is equal to 60% of the default first commercial plant capacity. \
+		Maximum value is arbitrary and can be violated if necessary.
 	|
 
 ********************************************************
@@ -3288,10 +3289,10 @@ pilot fixed operating cost scaling factor=
 
 pilot capacity=
 	900
-	~	tonProduct/year [0,?]
+	~	tonProduct/year [1,1e+06]
 	~	Arbitrary pilot capacity is 900 tons per year - back-calculated from "a \
 		few hundred pounds an hour" scaled up to one year assuming constant \
-		production.
+		production. Maximum value is arbitrary and can be violated if necessary.
 	|
 
 ********************************************************
@@ -7228,11 +7229,11 @@ $192-192-192,0,Times New Roman|12||0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|96,96,1
 22:Day,Days
 23:0
 15:0,0,0,0,0,0
-19:5,10
+19:5,6
 27:0,
 34:0,
 4:Time
-5:commercial plant startup period
+5:pilot capacity
 35:Date
 36:YYYY-MM-DD
 37:2000
