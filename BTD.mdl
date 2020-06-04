@@ -2894,10 +2894,10 @@ demoing rate delta=
 
 demoing acceptable rate=
 	8411
-	~	hours/year [0,8766]
+	~	hours/year [168,8766]
 	~	The acceptable rate at which demo plants operate per year. Management \
 		adjusts demoing rates according to this number in order to meet minimum \
-		requirements.
+		requirements. Minimum value is one week of operation per year.
 	|
 
 Startup Demoing Hours= INTEG (
@@ -3182,10 +3182,10 @@ pilot opex=
 
 piloting acceptable rate=
 	7500
-	~	hours/year [1,8766]
+	~	hours/year [168,8766]
 	~	The acceptable rate at which pilot plants operate per year. Management \
 		adjusts piloting rates according to this number in order to meet minimum \
-		requirements.
+		requirements. Minimum value is one week of operation per year.
 	|
 
 startup piloting period=
@@ -7229,11 +7229,11 @@ $192-192-192,0,Times New Roman|12||0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|96,96,1
 22:Day,Days
 23:0
 15:0,0,0,0,0,0
-19:5,6
+19:100,7
 27:0,
 34:0,
 4:Time
-5:pilot capacity
+5:demoing acceptable rate
 35:Date
 36:YYYY-MM-DD
 37:2000
