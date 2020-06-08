@@ -1,58 +1,84 @@
 advertising budget
-aversion to NPV deviation
+advertising start time
 base external investor ask rate
-bioproduct long term price
-bioproduct offtake agreement
-bioproduct performance advantage
-bioproduct price fluctuations
-bioproduct price reversion time
-commercial capital cost input
-commercial fixed operating cost input
+business as usual runway
 commercial plant capacity
 commercial plant capacity input
 commercial plant startup period
-commercial process yield input
-commercial variable operating cost input
-custom feedstock long term price change
-custom feedstock maximum fluctuation magnitude
-custom feedstock periodic fluctuation magnitude
-custom feedstock reversion time
-custom feedstock starting price
-elasticity of demand
-elasticity of supply
+demo capacity
+demoing acceptable rate
+demoing failure default recovery time
+demoing failure distribution max
+demoing management overhead
+management response time
+max management runway response
+minimum runway
+pilot and demo response time
+pilot capacity
+piloting acceptable rate
+piloting failure default recovery time
+piloting failure distribution max
+piloting management overhead
+regulatory process starting point
+startup demoing period
+startup demoing rate
+startup piloting period
+startup piloting rate
+target demo hours
+target pilot hours
+aversion to NPV deviation
 expected continuity of government policy
-expected green premium
-feedstock approval maximum cost
-feedstock approval maximum time
-feedstock approval required switch
+investor history
+investor optimism
+number of missed stagegates allowed
+payback period multiplier
+required internal return
+required return multiplier
+stagegate length
+strategic value to external investors
 government capital cost share
 government operating cost share
 government operating grant period
 government production incentive
 government research cost share
+bioproduct offtake agreement
+duration of intellectual property
+effectiveness of intellectual property
+elasticity of demand
+elasticity of supply
+expected green premium
+initial market size
+long term market size
+market growth rate
+commercial capital cost input
+commercial fixed operating cost input
+commercial process yield input
+commercial variable operating cost input
+bioproduct long term price
+bioproduct performance advantage
+bioproduct price fluctuations
+bioproduct price reversion time
+custom feedstock long term price change
+custom feedstock maximum fluctuation magnitude
+custom feedstock periodic fluctuation magnitude
+custom feedstock reversion time
+custom feedstock starting price
+feedstock approval maximum cost
+feedstock approval maximum time
+feedstock approval required switch
 incumbent long term price trend
 incumbent market share target economic
 incumbent maximum fluctuation
 incumbent price response magnitude
 incumbent reversion time
 incumbent starting price
-initial market size
-investor optimism
-long term market size
-market growth rate
 pathway approval maximum cost
 pathway approval maximum time
 pathway approval required switch
-payback period multiplier
 product approval maximum cost
 product approval maximum time
 product approval required switch
 random stream
-regulatory process starting point
-required internal return
-required return multiplier
+researching impact on demoing
+researching impact on piloting
 retrofit delay
-stagegate length
-strategic value to external investors
-target demo hours
-target pilot hours
