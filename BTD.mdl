@@ -1797,13 +1797,13 @@ effectiveness of intellectual property=
 
 elasticity of demand=
 	1
-	~	Dmnl
+	~	Dmnl [0.1,10]
 	~	Elasticity of demand for the whole market.
 	|
 
 elasticity of supply=
 	1
-	~	Dmnl
+	~	Dmnl [0.1,10]
 	~	Elasticity of supply for all other firms in the market.
 	|
 
@@ -7231,11 +7231,11 @@ $192-192-192,0,Times New Roman|12||0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|96,96,1
 22:Day,Days
 23:0
 15:0,0,0,0,0,0
-19:100,2
+19:100,18
 27:0,
 34:0,
 4:Time
-5:government research cost share
+5:expected green premium
 35:Date
 36:YYYY-MM-DD
 37:2000
