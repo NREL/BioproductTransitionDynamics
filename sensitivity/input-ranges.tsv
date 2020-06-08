@@ -32,12 +32,12 @@ expected continuity of government policy	Dmnl	Float	0	1	1	0.6	1.6	1
 expected green premium	Dmnl	Float	0	1	0	0	1	0
 feedstock approval maximum cost	USD	Float	0	?	1e+06	600000	1600000	1e+06
 feedstock approval maximum time	year	Float	0	10	5	3	8	5
-feedstock approval required switch	Dmnl	Integer	0	1	1	0.6	1.6	1
-government capital cost share	Dmnl	Float	0	1	1	0.6	1.6	1
-government operating cost share	Dmnl	Float	0	1	0.5	0.3	0.8	0.5
+feedstock approval required switch	Dmnl	Boolean	0	1	1	0	1	1
+government capital cost share	Dmnl	Float	0	1	1	0	1	1
+government operating cost share	Dmnl	Float	0	1	0.5	0	1	0.5
 government operating grant period	year	Float	0.5	5	1.5	0.9	2.4	1.5
 government production incentive	USD/tonProduct	Float	0	10000	0	0	10000	0
-government research cost share	Dmnl	Float	0	1	0.5	0.3	0.8	0.5
+government research cost share	Dmnl	Float	0	1	0.5	0	1	0.5
 incumbent long term price trend	Dmnl	Float	-10	10	0.1	0.06	0.16	0.1
 incumbent market share target economic	Dmnl	Float	0	1	0.4	0.24	0.64	0.4
 incumbent maximum fluctuation	Dmnl	Float	0	5	0.05	0.03	0.08	0.05
@@ -55,7 +55,7 @@ minimum runway	year	Float	0.1	5	0.3	0.18	0.48	0.3
 number of missed stagegates allowed	stages	Float	0	10	3	1.8	4.8	3
 pathway approval maximum cost	USD	Float	0	?	1e+06	600000	1600000	1e+06
 pathway approval maximum time	year	Float	0	10	5	3	8	5
-pathway approval required switch	Dmnl	Integer	0	1	1	0.6	1.6	1
+pathway approval required switch	Dmnl	Boolean	0	1	1	0	1	1
 payback period multiplier	Dmnl	Float	0	?	1	0.6	1.6	1
 pilot and demo response time	year	Float	0	5	0.25	0.15	0.4	0.25
 pilot capacity	tonProduct/year	Float	0	?	900	540	1440	900
@@ -65,9 +65,9 @@ piloting failure distribution max	Dmnl	Float	0	10	5	3	8	5
 piloting management overhead	USD/year	Float	0	?	1e+06	600000	1600000	1e+06
 product approval maximum cost	USD	Float	0	?	1e+06	600000	1600000	1e+06
 product approval maximum time	year	Float	0	10	5	3	8	5
-product approval required switch	Dmnl	Integer	0	1	1	0.6	1.6	1
-random stream	Dmnl	Float	0	?	0	0	24	0
-regulatory process starting point	Dmnl	Integer	0	1	0.75	0.45	1.2	0.75
+product approval required switch	Dmnl	Boolean	0	1	1	0	1	1
+random stream	Dmnl	Integer	0	?	0	0	24	0
+regulatory process starting point	Dmnl	Boolean	0	1	0.75	0.45	1.2	0.75
 required internal return	1/year	Float	0	5	0.08	0.048	0.128	0.08
 required return multiplier	Dmnl	Float	0	?	1	0.6	1.6	1
 researching impact on demoing	Dmnl	Float	0	0.95	0.2	0.12	0.32	0.2
