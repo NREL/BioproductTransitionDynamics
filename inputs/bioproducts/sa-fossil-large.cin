@@ -29,7 +29,7 @@ pilot construction time = 1.5
 
 :C DEMO PLANT PARAMETERS
 
-demo capacity = 438288
+demo capacity = 49800
 demo capital cost scaling factor = 0.5
 demo fixed operating cost scaling factor = 0.55
 demo construction time = 2
