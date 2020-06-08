@@ -2917,7 +2917,7 @@ startup demoing period=
 
 startup demoing rate=
 	300
-	~	hours/year [0,?]
+	~	hours/year [100,8766]
 	~	The number of hours a demo plant must have operated per year in order to \
 		complete the startup demoing phase.
 	|
@@ -3193,13 +3193,13 @@ piloting acceptable rate=
 startup piloting period=
 	500
 	~	hours [0,1000]
-	~	The length of time in hours required to complete the “startup \
-		piloting” stage of the piloting process.
+	~	The length of time in hours required to complete the startup piloting \
+		stage of the piloting process.
 	|
 
 startup piloting rate=
 	200
-	~	hours/year [0,8772]
+	~	hours/year [100,8766]
 	~	The number of hours a pilot plant must have operated per year in order to \
 		complete the startup piloting phase.
 	|
@@ -7231,11 +7231,11 @@ $192-192-192,0,Times New Roman|12||0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|96,96,1
 22:Day,Days
 23:0
 15:0,0,0,0,0,0
-19:95,4
+19:100,7
 27:0,
 34:0,
 4:Time
-5:research response time
+5:startup demoing rate
 35:Date
 36:YYYY-MM-DD
 37:2000
