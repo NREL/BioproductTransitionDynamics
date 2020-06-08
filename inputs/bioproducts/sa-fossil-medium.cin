@@ -3,19 +3,20 @@
 feedstock selector array[corn] =              0
 feedstock selector array[corn stover] =       0
 feedstock selector array[soybean] =           0
-feedstock selector array[commodity sugar] =   1
+feedstock selector array[commodity sugar] =   0
 feedstock selector array[generic perennial] = 0
-feedstock selector array[generic fossil] =    0
+feedstock selector array[generic fossil] =    1
 feedstock selector array[custom] =            0
 
 
 :C TECHNO-ECONOMIC DATA
 
-commercial plant capacity = 283464.7828
-commercial capital cost input = 905925955.7
-commercial fixed operating cost input = 21000000
-commercial variable operating cost input = 504.471838
-commercial process yield = 0.77
+commercial plant capacity input = 41500
+commercial plant capacity = 41500
+commercial capital cost input = 92840000
+commercial variable operating cost input = 29.2
+commercial fixed operating cost input = 8565600
+commercial process yield input = 1.179245283
 
 
 :C PILOT PLANT PARAMETERS
