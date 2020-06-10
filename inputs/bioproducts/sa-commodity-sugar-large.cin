@@ -11,10 +11,10 @@ feedstock selector array[custom] =            0
 
 :C TECHNO-ECONOMIC DATA
 
-commercial plant capacity input = 283464.7828          :C tonProduct/year
-commercial plant capacity = 283464.7828                :C tonProduct/year
-commercial capital cost input = 905925955.7            :C USD
-commercial variable operating cost input = 504.471838  :C USD/tonProduct
+commercial plant capacity input = 283465               :C tonProduct/year
+commercial plant capacity = 283465                     :C tonProduct/year
+commercial capital cost input = 905925956              :C USD
+commercial variable operating cost input = 504         :C USD/tonProduct
 commercial fixed operating cost input = 21000000       :C USD/year
 commercial process yield input = 0.77                  :C tonProduct/tonFeedstock
 
@@ -29,7 +29,7 @@ pilot construction time = 1.5                          :C years
 
 :C DEMO PLANT PARAMETERS
 
-demo capacity = 438288                                 :C tonProduct/year
+demo capacity = 170079                                 :C tonProduct/year
 demo capital cost scaling factor = 0.5                 :C unitless
 demo fixed operating cost scaling factor = 0.55        :C unitless
 demo construction time = 2                             :C years

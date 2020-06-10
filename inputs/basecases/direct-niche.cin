@@ -1,5 +1,3 @@
-:C Data corresponds as exactly as possible to succinic acid, commodity sugar feedstock, small plant size
-
 :C DEVELOPER DECISIONS
 
 advertising budget = 500000
@@ -96,9 +94,9 @@ feedstock selector array[custom] = 0
 incumbent long term price trend = 0.1
 incumbent market share target economic = 0.4  :C unitless
 incumbent maximum fluctuation = 0.05
-incumbent price response magnitude = 0.2
+incumbent price response magnitude = 0
 incumbent reversion time = 0.1
-incumbent starting price = 1600
+incumbent starting price = 2500
 pathway approval maximum cost = 1e+06
 pathway approval maximum time = 5
 pathway approval required switch = 1
@@ -108,7 +106,7 @@ product approval required switch = 1
 
 :C Performance advantaged or direct replacement
 bioproduct performance advantage = 1 
-retrofit delay = 0.5                            :C years
+retrofit delay = 0                            :C years
 
 
 :C MISCELLANEOUS
