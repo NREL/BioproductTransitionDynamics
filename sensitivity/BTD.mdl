@@ -7227,7 +7227,6 @@ $192-192-192,0,Times New Roman|12||0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|96,96,1
 :VAR idealized demo completion time
 :VAR idealized commercial construction time
 :L<%^E!@
-1:price-bug-local.vdf
 1:latest-commit-local.vdf
 9:latest-commit-local
 22:$,Dollar,Dollars,$s
@@ -7238,6 +7237,7 @@ $192-192-192,0,Times New Roman|12||0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|96,96,1
 22:Week,Weeks
 22:Year,Years
 22:Day,Days
+10:..\inputs\basecases\template.cin
 23:0
 15:0,0,0,0,0,0
 19:100,18
