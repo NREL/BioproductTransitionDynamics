@@ -1547,7 +1547,7 @@ long term market share=
 	|
 
 minimum selling price without green premium=
-	Current Bioproduct Price - hypothetical net margin
+	MAX(0, Current Bioproduct Price - hypothetical net margin)
 	~	USD/tonProduct
 	~	Selling price at which net margin is zero.
 	|
@@ -7227,8 +7227,8 @@ $192-192-192,0,Times New Roman|12||0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|96,96,1
 :VAR idealized demo completion time
 :VAR idealized commercial construction time
 :L<%^E!@
-1:latest-commit-local.vdf
-9:latest-commit-local
+1:simulation.vdf
+9:simulation
 22:$,Dollar,Dollars,$s
 22:Hour,Hours
 22:Month,Months
@@ -7239,6 +7239,7 @@ $192-192-192,0,Times New Roman|12||0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|96,96,1
 22:Day,Days
 10:..\inputs\basecases\template.cin
 23:0
+17:simulation.lst
 15:0,0,0,0,0,0
 19:100,18
 27:0,
