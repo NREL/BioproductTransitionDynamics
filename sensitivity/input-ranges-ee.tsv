@@ -1,0 +1,85 @@
+Variable	Units	Type	Model Minimum	Model Maximum	Model Default	Sensitivity Minimum	Sensitivity Maximum	Sensitivity Default
+advertising budget	USD/year	Float	0	3e+06	500000	150000	1900000	500000
+advertising start time	year	Float	2015	2050	2020	2015	2050	2020
+aversion to NPV deviation	Dmnl	Float	0	5	0.2	0.06	2.66	0.2
+base external investor ask rate	1/year	Float	0	24	8	2.4	18.4	8
+bioproduct long term price	USD/tonProduct	Float	1	10000	5000	1500.5	9000	5000
+bioproduct offtake agreement	Dmnl	Float	0	5	0.5	0.15	2.9	0.5
+bioproduct performance advantage	tonProduct/tonIncumbent	Float	0.1	10	1	0.35	5.8	1
+bioproduct price fluctuations	Dmnl	Float	0	0.05	0	0	0.025	0
+bioproduct price reversion time	year	Float	0.1	5	1	0.35	3.3	1
+business as usual runway	year	Float	0.1	5	1.5	0.5	3.7	1.5
+commercial capital cost input	USD	Float	0	2e+09	4.01248e+08	120374400	1320998400	4.01248e+08
+commercial fixed operating cost input	USD/year	Float	0	5e+07	1.14e+07	3420000	34120000	1.14e+07
+commercial plant capacity	tonProduct/year	Float	1	5e+06	28630	8589.5	2522904	28630
+commercial plant capacity input	tonProduct/year	Float	1	5e+06	28630	8589.5	2522904	28630
+commercial plant startup period	year	Float	0.019	20	3	0.9095	12.4	3
+commercial process yield input	tonProduct/tonFeedstock	Float	0.01	1	0.77	0.236	1.116	0.77
+commercial variable operating cost input	USD/tonProduct	Float	0	2000	1219	365.7	1975.2	1219
+custom feedstock long term price change	Dmnl	Float	0	?	0	-0.05	0.05	0
+custom feedstock maximum fluctuation magnitude	Dmnl	Float	0	?	0.475	0.1425	0.76	0.475
+custom feedstock periodic fluctuation magnitude	USD/tonFeedstock	Float	0	?	3.5	1.05	5.6	3.5
+custom feedstock reversion time	year	Float	0.019	5	1	0.3095	3.3	1
+custom feedstock starting price	USD/tonFeedstock	Float	1	500	40	12.5	282	40
+demo capacity	tonProduct/year	Float	1	1e+06	17176	5153.3	513741	17176
+demoing acceptable rate	hours/year	Float	168	8766	8411	2607.3	11111.8	8411
+demoing failure default recovery time	year	Float	0.25	3	0.65	0.32	2.02	0.65
+demoing failure distribution max	Dmnl	Float	0	10	5	1.5	9	5
+demoing management overhead	USD/year	Float	100	1e+07	1.5e+06	450050	6200000	1.5e+06
+duration of intellectual property	year	Float	0	?	20	6	32	20
+effectiveness of intellectual property	Dmnl	Float	0	1	0.4	0.12	0.82	0.4
+elasticity of demand	Dmnl	Float	0.1	10	1	0.35	5.8	1
+elasticity of supply	Dmnl	Float	0.1	10	1	0.35	5.8	1
+expected continuity of government policy	Dmnl	Float	0	1	1	0.3	1.3	1
+expected green premium	Dmnl	Float	0	1	0	0	0.5	0
+feedstock approval maximum cost	USD	Float	1000	1e+07	1e+06	300500	5800000	1e+06
+feedstock approval maximum time	year	Float	0	10	5	1.5	9	5
+feedstock approval required switch	Dmnl	Boolean	0	1	0	0	1	0
+government capital cost share	Dmnl	Float	0	1	0.5	0.15	0.9	0.5
+government operating cost share	Dmnl	Float	0	1	0.5	0.15	0.9	0.5
+government operating grant period	year	Float	0.5	5	1.5	0.7	3.7	1.5
+government production incentive	USD/tonProduct	Float	0	10000	0	0	5000	0
+government research cost share	Dmnl	Float	0	1	0.5	0.15	0.9	0.5
+incumbent long term price trend	Dmnl	Float	-10	10	0.1	-4.97	5.08	0.1
+incumbent market share target economic	Dmnl	Float	0	1	0.4	0.12	0.82	0.4
+incumbent maximum fluctuation	Dmnl	Float	0	5	0.05	0.015	2.54	0.05
+incumbent price response magnitude	Dmnl	Float	0	1	0.2	0.06	0.66	0.2
+incumbent reversion time	year	Float	0.019	5	0.1	0.0395	2.58	0.1
+incumbent starting price	USD/tonIncumbent	Float	0	?	1600	480	2560	1600
+initial market size	tonProduct/year	Float	100	1e+08	200000	60050	50160000	200000
+investor history	year	Float	0.25	10	5	1.625	9	5
+investor optimism	Dmnl	Float	0.1	5	1	0.35	3.3	1
+long term market size	tonProduct/year	Float	100	1e+08	44000	13250	50035200	44000
+management response time	year	Float	0.019	5	0.3	0.0995	2.74	0.3
+market growth rate	1/year	Float	0	0.15	0.05	0.015	0.115	0.05
+max management runway response	Dmnl	Float	0	50	5	1.5	29	5
+minimum runway	year	Float	0.019	5	0.3	0.0995	2.74	0.3
+number of missed stagegates allowed	stages	Float	0	10	3	0.9	7.4	3
+pathway approval maximum cost	USD	Float	1000	1e+07	1e+06	300500	5800000	1e+06
+pathway approval maximum time	year	Float	0	10	5	1.5	9	5
+pathway approval required switch	Dmnl	Boolean	0	1	1	0	1	1
+payback period multiplier	Dmnl	Float	0	10	1	0.3	5.8	1
+pilot and demo response time	year	Float	0.019	5	0.25	0.0845	2.7	0.25
+pilot capacity	tonProduct/year	Float	1	1e+06	900	270.5	500720	900
+piloting acceptable rate	hours/year	Float	168	8766	7500	2334	10383	7500
+piloting failure default recovery time	year	Float	0.25	3	0.45	0.26	1.86	0.45
+piloting failure distribution max	Dmnl	Float	0	10	5	1.5	9	5
+piloting management overhead	USD/year	Float	100	1e+07	1e+06	300050	5800000	1e+06
+product approval maximum cost	USD	Float	1000	1e+07	1e+06	300500	5800000	1e+06
+product approval maximum time	year	Float	0	10	5	1.5	9	5
+product approval required switch	Dmnl	Boolean	0	1	1	0	1	1
+random stream	Dmnl	Integer	0	?	0	0	24	0
+regulatory process starting point	Dmnl	Float	0	1	0.75	0.225	1.1	0.75
+required internal return	1/year	Float	0.01	5	0.08	0.029	2.564	0.08
+required return multiplier	Dmnl	Float	0.01	10	1	0.305	5.8	1
+researching impact on demoing	Dmnl	Float	0	0.95	0.2	0.06	0.635	0.2
+researching impact on piloting	Dmnl	Float	0	0.95	0.25	0.075	0.675	0.25
+retrofit delay	year	Float	0	10	0.5	0.15	5.4	0.5
+stagegate length	year	Float	0.25	5	1	0.425	3.3	1
+startup demoing period	hours	Float	0	?	1000	300	1600	1000
+startup demoing rate	hours/year	Float	100	8766	300	140	4623	300
+startup piloting period	hours	Float	0	1000	500	150	900	500
+startup piloting rate	hours/year	Float	100	8766	200	110	4543	200
+strategic value to external investors	USD	Float	0	1e+09	0	0	500000000	0
+target demo hours	hours	Float	100	17532	5000	1550	12766	5000
+target pilot hours	hours	Float	100	17532	3000	950	11166	3000
