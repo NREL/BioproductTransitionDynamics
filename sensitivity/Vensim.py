@@ -42,7 +42,7 @@ class Vensim:
                 "SPECIAL>LOADMODEL|" + self.mdl_name + "\r\n",
                 "SPECIAL>CLEARRUNS\r\n",
                 "SIMULATE>RUNNAME|"  + self.vdf_name + "\r\n",
-                "SIMULATE>READCIN|"  + self.cin_name + "\r\n",
+                "SIMULATE>ADDCIN|"  + self.cin_name + "\r\n",
                 "SIMULATE>SAVELIST|" + self.lst_name + "\r\n",
                 "SETTING>SHOWWARNING|0\r\n",
                 "MENU>RUN|o\r\n",
