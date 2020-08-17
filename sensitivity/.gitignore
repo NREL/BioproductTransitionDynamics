@@ -1,0 +1,12 @@
+vensim/
+vensim
+.cache/
+.ipython/
+.local/
+simulation.cin
+simulation.lst
+simulation.vdf
+*.log
+*.zip
+*.twbx
+*.part-??

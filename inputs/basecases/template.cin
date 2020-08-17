@@ -1,11 +1,118 @@
-:C MARKET SIZE: NICHE OR COMMODITY
+:C Data corresponds as exactly as possible to succinic acid, commodity sugar feedstock, small plant size
 
-initial market size = 1e+06                   :C tonProduct/year
-market growth rate = 0.01                     :C percent/year
+:C DEVELOPER DECISIONS
+
+advertising budget = 500000
+advertising start time = 2020
+base external investor ask rate = 8
+business as usual runway = 1.5
+commercial plant capacity = 28630
+commercial plant capacity input = 28630
+commercial plant startup period = 3
+demo capacity = 17176
+demoing acceptable rate = 8411
+demoing failure default recovery time = 0.65
+demoing failure distribution max = 5
+demoing management overhead = 1.5e+06
+management response time = 0.3
+max management runway response = 5
+minimum runway = 0.3
+pilot and demo response time = 0.25
+pilot capacity = 900
+piloting acceptable rate = 7500
+piloting failure default recovery time = 0.45
+piloting failure distribution max = 5
+piloting management overhead = 1e+06
+regulatory process starting point = 0.75
+startup demoing period = 1000
+startup demoing rate = 300
+startup piloting period = 500
+startup piloting rate = 200
+target demo hours = 5000
+target pilot hours = 3000
 
 
-:C BIOPRODUCT TYPE: DIRECT REPLACEMENT OR PERFORMANCE ADVANTAGED
+:C EXTERNAL AND INTERNAL INVESTOR DECISIONS
 
-bioproduct performance advantage = 1          :C tonProduct/tonIncumbent
-retrofit delay = 0                            :C years
+aversion to NPV deviation = 0.2
+expected continuity of government policy = 1
+investor history = 5
+investor optimism = 1
+number of missed stagegates allowed = 3
+payback period multiplier = 1
+required internal return = 0.08
+required return multiplier = 1
+stagegate length = 1
+strategic value to external investors = 0
+
+
+:C GOVERNMENT DECISIONS
+
+government capital cost share = 0.5
+government operating cost share = 0.5
+government operating grant period = 1.5
+government production incentive = 0
+government research cost share = 0.5
+
+
+:C MARKET CHARACTERISTICS
+
+bioproduct offtake agreement = 0.5
+duration of intellectual property = 20
+elasticity of demand = 1
+elasticity of supply = 1
+expected green premium = 0
+
+:C Niche or commodity market
+initial market size = 200000                  :C tonProduct/year
+market growth rate = 0.05                     :C percent/year
+long term market size = 44000
+
+
+:C BIOPRODUCT CHARACTERISTICS
+
+commercial capital cost input = 401248126
+commercial fixed operating cost input = 11400000
+commercial process yield input = 0.77
+commercial variable operating cost input = 1219
+bioproduct long term price = 5000
+bioproduct price fluctuations = 0
+bioproduct price reversion time = 1
+custom feedstock long term price change = 0
+custom feedstock maximum fluctuation magnitude = 0.475
+custom feedstock periodic fluctuation magnitude = 3.5
+custom feedstock reversion time = 1
+custom feedstock starting price = 40
+feedstock approval maximum cost = 1e+06
+feedstock approval maximum time = 5
+feedstock approval required switch = 0
+feedstock selector array[corn] = 0
+feedstock selector array[corn stover] = 0
+feedstock selector array[soybean] = 0
+feedstock selector array[commodity sugar] = 1
+feedstock selector array[generic perennial] = 0
+feedstock selector array[generic fossil] = 0
+feedstock selector array[custom] = 0
+incumbent long term price trend = 0.1
 incumbent market share target economic = 0.4  :C unitless
+incumbent maximum fluctuation = 0.05
+incumbent price response magnitude = 0.2
+incumbent reversion time = 0.1
+incumbent starting price = 1600
+pathway approval maximum cost = 1e+06
+pathway approval maximum time = 5
+pathway approval required switch = 1
+product approval maximum cost = 1e+06
+product approval maximum time = 5
+product approval required switch = 1
+
+:C Performance advantaged or direct replacement
+bioproduct performance advantage = 1 
+retrofit delay = 0.5                            :C years
+
+
+:C MISCELLANEOUS
+
+random stream = 0
+researching impact on demoing = 0.2
+researching impact on piloting = 0.25
