@@ -1,0 +1,50 @@
+Output Category	Output
+Business Metrics	BS equity
+Business Metrics	in business indicator
+Business Metrics	internal project cancelled indicator
+Business Metrics	profitability indicator
+Business Metrics	stage in progress
+Business Metrics	technology readiness level
+Business Metrics	Working Capital
+Commercialization	commercial plant construction
+Commercialization	commercial plant is built
+Commercialization	commercial plant operation
+Commercialization	Cumulative Production
+Commercialization	precommercial
+Demoing	Cumulative Demoing Production
+Demoing	demo plant construction
+Demoing	demo plant is built
+Demoing	demoing complete
+Demoing	demoing ongoing
+Demoing	demoing progress
+Demoing	predemoing
+Demoing	startup demoing completed
+Government Incentives	granting
+Government Incentives	IS production incentive
+Government Incentives	Total Government Grants
+Investment Metrics	investing
+Investment Metrics	NPV at required return
+Investment Metrics	payback period
+Investment Metrics	Total Investment
+Market	abandoning bioproduct
+Market	Adopters
+Market	bioproduct favorability indicator
+Market	bioproduct market share mass
+Market	current market size economic
+Market	current market size mass
+Market	long term market share
+Market	long term market value
+Market	long term selling price without green premium after market entry
+Market	NonAdopters
+Market	Potential Adopters
+Piloting	pilot plant construction
+Piloting	pilot plant is built
+Piloting	piloting complete
+Piloting	piloting ongoing
+Piloting	piloting progress
+Piloting	prepiloting
+Piloting	startup piloting complete
+Regulatory Approval	regulatory delay
+Regulatory Approval	regulatory process ongoing
+Regulatory Approval	total approval cost
+Regulatory Approval	total approval time

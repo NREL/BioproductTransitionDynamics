@@ -1,0 +1,85 @@
+Input Category	Input
+Bioproduct Price	bioproduct long term price
+Bioproduct Price	bioproduct offtake agreement
+Bioproduct Price	bioproduct performance advantage
+Bioproduct Price	bioproduct price fluctuations
+Bioproduct Price	bioproduct price reversion time
+Commercial Technology	commercial capital cost input
+Commercial Technology	commercial fixed operating cost input
+Commercial Technology	commercial plant capacity
+Commercial Technology	commercial plant capacity input
+Commercial Technology	commercial plant startup period
+Commercial Technology	commercial process yield input
+Commercial Technology	commercial variable operating cost input
+Demo Technology	demo capacity
+Demo Technology	demoing acceptable rate
+Demo Technology	demoing failure default recovery time
+Demo Technology	demoing failure distribution max
+Demo Technology	demoing management overhead
+Demoing	researching impact on demoing
+Demoing	startup demoing period
+Demoing	startup demoing rate
+Demoing	target demo hours
+Feedstock Price	custom feedstock long term price change
+Feedstock Price	custom feedstock maximum fluctuation magnitude
+Feedstock Price	custom feedstock periodic fluctuation magnitude
+Feedstock Price	custom feedstock reversion time
+Feedstock Price	custom feedstock starting price
+Government Incentives	government capital cost share
+Government Incentives	government operating cost share
+Government Incentives	government operating grant period
+Government Incentives	government production incentive
+Government Incentives	government research cost share
+Investor Behavior	aversion to NPV deviation
+Investor Behavior	duration of intellectual property
+Investor Behavior	effectiveness of intellectual property
+Investor Behavior	expected continuity of government policy
+Investor Behavior	expected green premium
+Investor Behavior	investor history
+Investor Behavior	investor optimism
+Investor Behavior	payback period multiplier
+Investor Behavior	required internal return
+Investor Behavior	required return multiplier
+Investor Behavior	strategic value to external investors
+Management Behavior	advertising budget
+Management Behavior	advertising start time
+Management Behavior	base external investor ask rate
+Management Behavior	business as usual runway
+Management Behavior	management response time
+Management Behavior	max management runway response
+Management Behavior	minimum runway
+Management Behavior	number of missed stagegates allowed
+Management Behavior	pilot and demo response time
+Management Behavior	pilot capacity
+Management Behavior	piloting acceptable rate
+Management Behavior	piloting failure default recovery time
+Management Behavior	piloting failure distribution max
+Management Behavior	piloting management overhead
+Management Behavior	stagegate length
+Market	elasticity of demand
+Market	elasticity of supply
+Market	incumbent long term price trend
+Market	incumbent market share target economic
+Market	incumbent maximum fluctuation
+Market	incumbent price response magnitude
+Market	incumbent reversion time
+Market	incumbent starting price
+Market	initial market size
+Market	long term market size
+Market	market growth rate
+Market	retrofit delay
+Piloting	researching impact on piloting
+Piloting	startup piloting period
+Piloting	startup piloting rate
+Piloting	target pilot hours
+Randomization	random stream
+Regulatory Approval	feedstock approval maximum cost
+Regulatory Approval	feedstock approval maximum time
+Regulatory Approval	feedstock approval required switch
+Regulatory Approval	pathway approval maximum cost
+Regulatory Approval	pathway approval maximum time
+Regulatory Approval	pathway approval required switch
+Regulatory Approval	product approval maximum cost
+Regulatory Approval	product approval maximum time
+Regulatory Approval	product approval required switch
+Regulatory Approval	regulatory process starting point
